@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"io"
+	"net/url"
 )
 
 type PageStore struct {
@@ -18,13 +19,23 @@ func (app PageStore) Migrate() {
 	app.Db.AutoMigrate(&models.Page{})
 }
 
-func (app PageStore) GetPages() []models.Page {
+func (app PageStore) GetPages(keys url.Values) []models.Page {
+	var req = app.Db
+
+	req = req.Preload("Images").Preload("Activities")
+
+	for i, v := range keys {
+		switch i {
+		case "followers":
+			req = req.Preload("Followers")
+		case "id":
+			req = req.Where("ID= ?", v)
+		}
+	}
 
 	var pages []models.Page
-	if errs := app.Db.Preload("Followers").Preload("Images").Preload("Activities").Find(&pages).GetErrors(); len(errs) > 0 {
-		for _, err := range errs {
-			log.Error(err)
-		}
+	if err := req.Find(&pages).Error; err != nil {
+		log.Error(err)
 	}
 	return pages
 }

@@ -13,7 +13,7 @@ type PageHandler struct {
 }
 
 func (app PageHandler) IndexHandler(w http.ResponseWriter, r *http.Request) {
-	pages := app.Store.GetPages()
+	pages := app.Store.GetPages(r.URL.Query())
 	json, err := json.Marshal(pages)
 
 	if err != nil {
