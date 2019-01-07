@@ -91,6 +91,7 @@ export default {
       this.$store
         .dispatch(SAVE_PROFILE)
         .then(() => {
+          this.snackbarText = "your profile has been successfully saved";
           that.snackbar = true;
         })
         .catch(e => {
