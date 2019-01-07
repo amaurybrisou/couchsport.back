@@ -57,11 +57,6 @@ export default {
       this.$store.dispatch(USER_REQUEST);
     }
 
-    const token = localStorage.getItem("user-token");
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = token;
-    }
-
     var that = this;
     axios.interceptors.response.use(
       function(response) {

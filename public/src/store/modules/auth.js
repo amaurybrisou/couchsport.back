@@ -27,11 +27,6 @@ const actions = {
         dispatch(USER_REQUEST)
         resolve(resp)
       })
-      .catch(err => {
-        commit(AUTH_ERROR, err)
-        localStorage.removeItem('user-email')
-        reject(err)
-      })
     })
   },
   [AUTH_LOGOUT]: ({commit, dispatch}) => {
