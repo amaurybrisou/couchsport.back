@@ -1,10 +1,10 @@
 <template>
-  <v-container v-if="page">
+  <v-container>
     <div class="app-background" :style="{ 'background-image': 'url(' + backgroundImage + ')' }"></div>
     <v-layout row wrap>
       <v-flex xs6>
         <v-card flat class="fill-height transparent"></v-card>
-        <v-card class="page-detail-text">
+        <v-card v-if="page" class="page-detail-text">
           <v-card-title class="title font-weight-bold">
             <v-list-tile>{{ page.Name}}</v-list-tile>
             <v-spacer></v-spacer>
@@ -19,16 +19,14 @@
             </div>
           </v-card-title>
           <v-divider></v-divider>
-          <v-card-text class="font-weight-regular body-2">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae quisquam impedit, cumque suscipit modi ex. Mollitia, molestias repellat, ut nihil modi, ipsa totam eos aperiam in quam optio quos quisquam.
-          </v-card-text>
+          <v-card-text class="font-weight-regular body-2">{{ page.LongDescription }}</v-card-text>
         </v-card>
       </v-flex>
       <v-flex xs6 pl-2>
         <v-card pa-5>
           <l-map
             :zoom="mapConfig.zoom"
-            :center="[page.Lat, page.Lng]"
+            :center="this.mapConfig.center"
             ref="map"
             style="height:45vh;width:100%;"
           >
@@ -37,7 +35,7 @@
         </v-card>
       </v-flex>
       <v-flex xs12 mt-2>
-        <v-layout v-if="page.Images && page.Images.length > 0" row wrap flex>
+        <v-layout v-if="page && page.Images" row wrap flex>
           <v-flex v-for="(image, idx) in page.Images" :key="idx" align-content-space-between ml-2>
             <v-card class="rounded">
               <v-img
@@ -96,7 +94,6 @@ export default {
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "an error occured",
-      map: null,
       showImageDialog: false,
       mapConfig: {
         zoom: 11,
@@ -107,96 +104,6 @@ export default {
         showMarkers: true,
         hasSpotMarker: false,
         spotMarker: null
-      },
-      page: {
-        ID: 1,
-        CreatedAt: "2019-01-07T14:19:28Z",
-        UpdatedAt: "2019-01-07T14:19:34Z",
-        DeletedAt: null,
-        Name: "Plage des Conches",
-        Description: "Surf",
-        LongDescription: "lorem",
-        Images: [
-          {
-            ID: 1,
-            CreatedAt: "2019-01-07T14:19:34Z",
-            UpdatedAt: "2019-01-07T14:19:34Z",
-            DeletedAt: null,
-            URL: "/static/uploads/1/IMG_6409.JPG",
-            Alt: "/static/uploads/1/IMG_6409.JPG",
-            File: "",
-            PageID: 1
-          },
-          {
-            ID: 2,
-            CreatedAt: "2019-01-07T14:19:34Z",
-            UpdatedAt: "2019-01-07T14:19:34Z",
-            DeletedAt: null,
-            URL: "/static/uploads/1/IMG_6410.JPG",
-            Alt: "/static/uploads/1/IMG_6410.JPG",
-            File: "",
-            PageID: 1
-          },
-          {
-            ID: 3,
-            CreatedAt: "2019-01-07T14:19:34Z",
-            UpdatedAt: "2019-01-07T14:19:34Z",
-            DeletedAt: null,
-            URL: "/static/uploads/1/IMG_6411.JPG",
-            Alt: "/static/uploads/1/IMG_6411.JPG",
-            File: "",
-            PageID: 1
-          }
-        ],
-        Lat: 46.371536674384544,
-        Lng: -1.4821243286132812,
-        Followers: null,
-        Owner: {
-          ID: 0,
-          CreatedAt: "0001-01-01T00:00:00Z",
-          UpdatedAt: "0001-01-01T00:00:00Z",
-          DeletedAt: null,
-          Email: "",
-          Password: "",
-          OwnedPages: null,
-          FollowingPages: null,
-          Friends: null,
-          Profile: {
-            ID: 0,
-            CreatedAt: "0001-01-01T00:00:00Z",
-            UpdatedAt: "0001-01-01T00:00:00Z",
-            DeletedAt: null,
-            Username: "",
-            Country: "",
-            Gender: "",
-            City: "",
-            ZipCode: "",
-            StreetName: "",
-            Phone: "",
-            Firstname: "",
-            Lastname: "",
-            Avatar: "",
-            AvatarFile: "",
-            StreetNumber: 0,
-            UserID: 0,
-            Activities: null,
-            Languages: null
-          },
-          ProfileID: 0,
-          Type: "",
-          New: false
-        },
-        OwnerID: 1,
-        Public: true,
-        Activities: [
-          {
-            ID: 18,
-            Name: "Surf",
-            Profiles: null,
-            Pages: null
-          }
-        ],
-        New: false
       }
     };
   },
@@ -208,17 +115,29 @@ export default {
       return this.page && this.page.Images && this.page.Images.length > 0
         ? this.page.Images[0].URL
         : "";
-    }
+    },
+    map: function() {
+      return this.$refs.map.mapObject;
+    },
+    
+  },
+  asyncComputed: {
+    page: async function() {
+      if (Number(this.$route.params.page_id) < 1) return this.$router.push("/");
+      return pageRepo
+        .get(this.$route.params.page_id)
+        .then(({ data }) => {
+          var page = data[0];
+          this.map.setView([page.Lat, page.Lng])
+          L.marker([page.Lat, page.Lng]).addTo(this.map)
+          return page
+        });
+    },
   },
   mounted() {
-    var that = this;
     this.$nextTick(function() {
-      that.map = this.$refs.map.mapObject;
-      if (Number(that.$route.params.page_id) < 1) return that.$router.push("/");
-      pageRepo.get(this.$route.params.page_id).then(({ data }) => {
-        that.page = data[0];
-        L.marker([that.page.Lat, that.page.Lng]).addTo(that.map);
-      });
+      
+     
     });
   },
   methods: {
