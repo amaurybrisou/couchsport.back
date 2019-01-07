@@ -4,6 +4,9 @@ export default {
     all(){
         return repo.get('/pages');
     },
+    get(id){
+        return repo.get('/pages?id=' + id)
+    },
     upload(payload){
         return repo.post('/images/upload', payload, { headers: { 'Content-Type': 'multipart/form-data' } });
     },

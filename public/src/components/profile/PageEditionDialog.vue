@@ -149,7 +149,7 @@ import imageRepo from "@/repositories/image.js";
 import { AUTH_ERROR } from "@/store/actions/auth";
 
 export default {
-  name: "profile-page-editioin-dialog",
+  name: "profile-page-edition-dialog",
   props: ["page", "state"],
   components: { UploadButton, LMap, LTileLayer, AppSnackBar },
   data() {

@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import SignIn from '@/components/auth/SignIn'
+import SignUp from '@/components/auth/SignUp'
 import Login from '@/components/auth/Login'
 import About from '@/components/About'
 import Home from '@/components/Home'
 import Explore from '@/components/explore/Explore'
 import Profile from '@/components/profile/Profile'
+import PageDetails from '@/components/page/PageDetails'
 
 import store from '../store'
 
@@ -50,9 +51,14 @@ export default new Router({
       beforeEnter: ifAuthenticated,
     },
     {
-      path: '/signin',
-      name: 'signin',
-      component: SignIn
+      path: '/signup',
+      name: 'signup',
+      component: SignUp
+    },
+    {
+      path: '/pages/:page_id',
+      name: 'page-details',
+      component: PageDetails
     },
     {
       path: '/login',

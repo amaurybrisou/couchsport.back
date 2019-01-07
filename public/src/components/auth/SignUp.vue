@@ -4,7 +4,7 @@
       <v-flex xs12 sm8 md4>
         <v-card>
           <v-toolbar dark color="secondary">
-            <v-toolbar-title>Sign In</v-toolbar-title>
+            <v-toolbar-title>Sign Up</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
             <v-form @keypress.enter.native="submit" ref="form" v-model="valid" lazy-validation>

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <v-app>
-      <v-carousel v-if="['/', '/about', '/signin', '/login'].indexOf($route.path) >= 0" class="background-carousel" height="100vh" hide-delimiters hide-controls>
+      <v-carousel v-if="['/', '/about', '/signup', '/login'].indexOf($route.path) >= 0" class="background-carousel" height="100vh" hide-delimiters hide-controls>
         <v-carousel-item
           class="carousel-item"
           lazy

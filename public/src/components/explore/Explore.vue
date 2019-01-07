@@ -211,7 +211,7 @@ export default {
         const MarkerPopupConst = Vue.extend(MarkerPopup);
         const comp = new MarkerPopupConst({
           propsData: {
-            url: "/users/page/" + p.ID,
+            url: "/pages/" + p.ID,
             name: p.Name,
             image:
               p.Images.length > 0
