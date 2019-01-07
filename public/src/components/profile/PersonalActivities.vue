@@ -20,7 +20,7 @@
     <v-layout row wrap>
       <v-btn
         color="success"
-        :disabled="profile.Activities.length == 0"
+        :disabled="profile.Activities && profile.Activities.length == 0"
         @click="submit"
         block
         flat
