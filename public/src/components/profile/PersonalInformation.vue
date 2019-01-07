@@ -100,7 +100,11 @@ export default {
     },
     handleImage(formData) {
       var file = formData.get("file");
-      if (file instanceof File /*&& file.size < 100000*/) {
+      if (file instanceof File && file.size) {
+        if(file.size > 100000) {
+          this.snackbarText = "This image is too big";
+          return this.snackbar = true;
+        }
         var that = this;
         var reader = new FileReader();
         reader.onload = function(e) {

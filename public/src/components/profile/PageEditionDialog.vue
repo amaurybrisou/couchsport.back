@@ -251,6 +251,10 @@ export default {
 
       var file = formData.get("file");
       if (file instanceof File) {
+        if(file.size > 500000) {
+          this.snackbarText = "This image is too big";
+          return this.snackbar = true;
+        }
         var that = this;
         var reader = new FileReader();
         reader.onload = function(e) {
