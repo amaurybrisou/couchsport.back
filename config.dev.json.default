@@ -1,0 +1,12 @@
+{
+    "Name": "CouchSport",
+    "Listen": "127.0.0.1",
+    "Port": 8080,
+    "DataSourceName": "user:user@/dbname",
+    "DatabaseParams": "charset=utf8&parseTime=True&loc=Local",
+    "DriverName": "mysql",
+    "FixtureFile": "fixtures/acouch.sql",
+    "PublicPath": "public/dist/",
+    "UploadPath": "public/dist/uploads/",
+    "ImageBasePath": "uploads/"
+}
