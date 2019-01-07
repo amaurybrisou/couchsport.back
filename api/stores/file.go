@@ -64,7 +64,7 @@ func (app FileStore) CreateFromB64(UserID uint, b64, filename string) (string, e
 
 	png.Encode(f, image)
 
-	return app.ImageBasePath + path + filename, nil
+	return "/" + app.ImageBasePath + path + filename, nil
 }
 
 func (app FileStore) FileUpload(r *http.Request, UserID uint) (string, error) {
