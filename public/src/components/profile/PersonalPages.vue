@@ -5,7 +5,7 @@
         <v-list>
           <template v-for="(p) in pages">
             <v-divider :key="p.ID"></v-divider>
-            <v-list-tile :key="`preview-image-${p.ID}`" avatar>
+            <v-list-tile :to="`/pages/${p.ID}`" :key="`preview-image-${p.ID}`" avatar>
               <v-list-tile-avatar v-if="p.Images && p.Images.length > 0">
                 <img :src="p.Images[0].URL" :alt="p.Images[0].Alt">
               </v-list-tile-avatar>

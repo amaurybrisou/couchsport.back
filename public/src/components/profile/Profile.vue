@@ -10,9 +10,9 @@
           centered
           show-arrows
         >
-          <v-tab href="#tab-1" class="subheader">Personal Information</v-tab>
-          <v-tab href="#tab-2" class="subheader">Activities</v-tab>
-          <v-tab href="#tab-3" class="subheader">My Spots</v-tab>
+          <v-tab to="#tab-1" href="#tab-1" class="subheader">Personal Information</v-tab>
+          <v-tab to="#tab-2" href="#tab-2" class="subheader">Activities</v-tab>
+          <v-tab to="#tab-3" href="#tab-3" class="subheader">My Spots</v-tab>
           <v-tabs-items v-model="activeTab">
             <v-tab-item value="tab-1">
               <v-card flat>
