@@ -7,6 +7,6 @@
     "DriverName": "mysql",
     "FixtureFile": "fixtures/acouch.sql",
     "PublicPath": "public/dist/",
-    "UploadPath": "public/dist/uploads/",
-    "ImageBasePath": "uploads/"
+    "ImageBasePath": "uploads/",
+    "FilePrefix": "isupload.",
 }

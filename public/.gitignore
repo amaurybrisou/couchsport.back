@@ -13,4 +13,5 @@ yarn-error.log*
 *.njsproj
 *.sln
 
-uploads/
+/static/img/page*
+/static/img/user*

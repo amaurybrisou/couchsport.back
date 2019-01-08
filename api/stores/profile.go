@@ -48,7 +48,7 @@ func (app ProfileStore) Update(userID uint, body io.Reader) (*models.Profile, er
 	}
 
 	if profile.AvatarFile != "" {
-		filename, err := app.FileStore.CreateFromB64(userID, profile.Avatar, profile.AvatarFile)
+		filename, err := app.FileStore.CreateFromB64(userID, "user-", profile.AvatarFile, profile.Avatar)
 		if err != nil {
 			log.Error(err)
 			return nil, err

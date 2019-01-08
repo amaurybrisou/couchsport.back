@@ -22,7 +22,7 @@ const actions = {
         // Here set the header of your ajax library to the token value.
         // example with axios
         // axios.defaults.headers.common = {'Authorization': `bearer ${resp.data.Token}`}
-        axios.defaults.headers.common['Authorization'] = resp.data.Token
+        
         commit(AUTH_SUCCESS, resp)
         dispatch(USER_REQUEST)
         resolve(resp)
@@ -33,16 +33,12 @@ const actions = {
     return new Promise((resolve, reject) => {
       commit(AUTH_LOGOUT)
       userRepository.logout()
-      localStorage.removeItem('user-email')
-      delete axios.defaults.headers.common['Authorization']
       resolve()
     })
   },
   [AUTH_ERROR]: ({commit, dispatch}) => {
     return new Promise((resolve, reject) => {
       commit(AUTH_LOGOUT)
-      localStorage.removeItem('user-email')
-      delete axios.defaults.headers.common['Authorization']
       resolve()
     })
   }
@@ -54,7 +50,7 @@ const mutations = {
   },
   [AUTH_SUCCESS]: (state, resp) => {
     state.status = 'success'
-    // state.token = resp.data.Token
+    axios.defaults.headers.common['Authorization'] = resp.data.Token
     state.email = resp.data.Email,
     state.hasLoadedOnce = true
   },
@@ -63,6 +59,8 @@ const mutations = {
     state.hasLoadedOnce = true
   },
   [AUTH_LOGOUT]: (state) => {
+    localStorage.removeItem('user-email')
+    delete axios.defaults.headers.common['Authorization']
     state.email = ''
   }
 }

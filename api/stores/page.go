@@ -73,7 +73,7 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 		pageObj = &savedPageObj
 	}
 
-	images, err := app.FileStore.DownloadImages((*pageObj).Images, profileID)
+	images, err := app.FileStore.DownloadImages(profileID, "page-", (*pageObj).Images)
 	if err != nil {
 		log.Error(err)
 		return nil, err

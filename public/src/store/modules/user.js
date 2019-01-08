@@ -26,6 +26,7 @@ const actions = {
     profileRepo
       .get()
       .then(({ data }) => {
+        console.log(data)
         commit(USER_SUCCESS, data);
       })
       .catch(resp => {

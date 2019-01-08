@@ -64,7 +64,6 @@ func (app UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app UserHandler) Login(w http.ResponseWriter, r *http.Request) {
-
 	r.Close = true
 
 	if r.Body != nil {

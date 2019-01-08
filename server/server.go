@@ -77,6 +77,7 @@ func (s *Instance) Shutdown() {
 			cancel()
 			log.Panic(err)
 		} else {
+			cancel()
 			s.HTTPServer = nil
 		}
 	}
@@ -85,7 +86,10 @@ func (s *Instance) Shutdown() {
 const prefix = "/api"
 
 func (s *Instance) RegisterHandler(path string, handler http.HandlerFunc) {
-	log.Info("registering handler at path ", prefix+path)
+	log.Infof("registering handler at path in %s environment %s, cors is enabled in dev", prefix+path, s.C.Env)
+	if s.C.Env == "dev" {
+		handler = s.enableCors(handler)
+	}
 	s.router.Handle(prefix+path, handler)
 }
 
@@ -96,4 +100,19 @@ func (s *Instance) ServePublic(path string) {
 	s.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, path+"index.html")
 	})
+}
+
+func (s *Instance) enableCors(pass http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:"+strconv.Itoa(s.C.Port+1))
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:"+strconv.Itoa(s.C.Port+1))
+		w.Header().Set("Vary", "Origin")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		if r.Method == "OPTIONS" {
+			return
+		}
+		pass(w, r)
+	}
 }

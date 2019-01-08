@@ -8,12 +8,12 @@ import (
 
 //Config describes the required configuration
 type Config struct {
-	Name                                                                string
-	Listen                                                              string
-	Port                                                                int
-	Username, Password, DataFile, PublicPath, UploadPath, ImageBasePath string
-	DataSourceName, DatabaseParams, DriverName, FixtureFile             string
-	Logger                                                              struct {
+	Name                                                                     string
+	Listen                                                                   string
+	Port                                                                     int
+	Env, FilePrefix, Username, Password, DataFile, PublicPath, ImageBasePath string
+	DataSourceName, DatabaseParams, DriverName, FixtureFile                  string
+	Logger                                                                   struct {
 		Name, Mode, FilePath string
 	}
 }
@@ -28,6 +28,10 @@ func Load(env string) *Config {
 	var config *Config
 
 	json.Unmarshal([]byte(jsonFile), &config)
+
+	if config.Env == "" {
+		config.Env = env
+	}
 
 	return config
 }

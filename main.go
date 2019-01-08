@@ -31,8 +31,9 @@ func main() {
 	invitationStore.Migrate()
 
 	fileStore := stores.FileStore{
-		UploadPath:    c.UploadPath,
+		PublicPath:    c.PublicPath,
 		ImageBasePath: c.ImageBasePath,
+		FilePrefix:    c.FilePrefix,
 	}
 
 	imageStore := stores.ImageStore{Db: srv.Db}

@@ -10,6 +10,7 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
+    uploadedImagesPublicPath: "http://localhost:8080/",
     proxyTable: {},
 
     // Various Dev Server settings

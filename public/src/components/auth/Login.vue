@@ -80,7 +80,6 @@ export default {
   methods: {
     async submit(e) {
       e.preventDefault();
-      const { username, password } = this
         this.$store.dispatch(AUTH_REQUEST, this.user).then(() => {
           this.$router.push('/profile')
         })

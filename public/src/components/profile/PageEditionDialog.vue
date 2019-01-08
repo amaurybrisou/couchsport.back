@@ -239,7 +239,6 @@ export default {
       this.mapConfig.spotMarker = L.marker(e.latlng);
       this.mapConfig.spotMarker.addTo(this.map);
 
-      console.log(e.latlng, e.latlng.lat, e.latlng.lng)
       this.local_page.Lat = e.latlng.lat;
       this.local_page.Lng = e.latlng.lng;
     },
