@@ -20,7 +20,7 @@
         <v-btn dark flat @click.native="submit">
           <slot name="submitText">Save</slot>
         </v-btn>
-        <v-btn icon @click.native="showEditPageDialog = false" dark>
+        <v-btn icon @click.native.prevent="showEditPageDialog = false" dark>
           <v-icon>close</v-icon>
         </v-btn>
       </v-toolbar>

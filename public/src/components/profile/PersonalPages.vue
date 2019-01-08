@@ -5,7 +5,7 @@
         <v-list>
           <template v-for="(p) in pages">
             <v-divider :key="p.ID"></v-divider>
-            <v-list-tile :to="`/pages/${p.ID}`" :key="`preview-image-${p.ID}`" avatar>
+            <v-list-tile class="page-line" :key="`preview-image-${p.ID}`" avatar>
               <v-list-tile-avatar v-if="p.Images && p.Images.length > 0">
                 <img :src="p.Images[0].URL" :alt="p.Images[0].Alt">
               </v-list-tile-avatar>
@@ -20,12 +20,17 @@
                     color="primary"
                     label="Public"
                     v-model="p.Public"
-                    @change="publishPage(p.ID, $event)"
+                    @click.prevent.stop
+                    @change.self="publishPage(p.ID, $event)"
                   ></v-checkbox>
+
                   <v-flex>
                     <page-edition-dialog @NewPageCreated="NewPageCreated" :state="'edit'" :page="p">
                       <template slot="open-btn">
-                        <v-btn color="primary">
+                      <v-btn :to="`/pages/${p.ID}`" class="align-center" color="primary">
+                        <v-icon>visibility</v-icon>
+                      </v-btn>
+                        <v-btn color="primary" @click.prevent>
                           <v-icon>edit</v-icon>
                         </v-btn>
                       </template>
@@ -35,7 +40,7 @@
                       <span slot="pageTitle">Edit page : {{p.title}}</span>
                     </page-edition-dialog>
 
-                    <v-btn color="primary" @click="deletePage(p.ID)">
+                    <v-btn color="primary" @click.prevent="deletePage(p.ID)">
                       <v-icon>delete</v-icon>
                     </v-btn>
                   </v-flex>
@@ -56,11 +61,7 @@
         </page-edition-dialog>
       </v-flex>
     </v-layout>
-    <app-snack-bar
-      :state="snackbar"
-      @snackClose="snackbar = false"
-      :text="snackbarText"
-    ></app-snack-bar>
+    <app-snack-bar :state="snackbar" @snackClose="snackbar = false" :text="snackbarText"></app-snack-bar>
   </v-container>
 </template>
 
@@ -101,7 +102,7 @@ export default {
       setTimeout(function() {
         that.snackbar = false;
       }, that.snackbarTimeout);
-    },
+    }
   },
   methods: {
     deletePage(id) {
@@ -150,6 +151,7 @@ export default {
       }
     },
     publishPage(id, state) {
+      console.log(id, state);
       var that = this;
       if (id != null && (state == false || state == true)) {
         pageRepo
@@ -178,6 +180,10 @@ export default {
 <style lang="scss">
 .page-map {
   height: 350px;
+}
+
+.page-line:hover {
+  background: rgba($color: #607d8b, $alpha: .12)
 }
 </style>
 
