@@ -27,7 +27,6 @@ func (app FileStore) DownloadImages(ownerID uint, prefix string, images []models
 
 				i.File = ""
 				i.URL = filename
-				i.Alt = filename
 				images[idx] = i
 			}
 		}

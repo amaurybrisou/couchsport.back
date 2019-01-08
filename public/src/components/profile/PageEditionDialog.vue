@@ -95,9 +95,9 @@
                 :disabled="local_page.Images.length > 5"
                 @formData="addImage"
               ></upload-button>
-              <v-layout v-if="local_page.Images && local_page.Images.length > 0" row wrap flex>
-                <v-flex v-for="(i, idx) in local_page.Images" :key="idx" xs2 pl-4 pr-4>
-                  <v-card class="rounded-card">
+              <v-layout v-if="local_page.Images && local_page.Images.length > 0" row wrap d-flex>
+                <v-flex class="px-4 xs2" v-for="(i, idx) in local_page.Images" :key="idx">
+                  <v-card class="rounded">
                     <v-img
                       :src="i.URL"
                       :lazy-src="i.URL"
@@ -108,6 +108,12 @@
                       <v-layout slot="placeholder" fill-height align-center justify-center ma-0>
                         <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
                       </v-layout>
+                      <input
+                        placeholder="Image title"
+                        class="image-alt-in"
+                        label="Title"
+                        v-model="i.Alt"
+                      >
                       <v-btn
                         @click="deleteImage(idx, $event)"
                         type="button"
@@ -130,6 +136,13 @@
           </v-layout>
           <app-snack-bar :state="snackbar" :text="snackbarText" @snackClose="snackbar = false"></app-snack-bar>
         </v-container>
+        <v-dialog v-model="showSavingPageDialog" hide-overlay persistent width="300">
+          <v-card color="primary" dark>
+            <v-card-text>Please stand by
+              <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </template>
     </v-card>
   </v-dialog>
@@ -166,6 +179,8 @@ export default {
       ],
 
       showEditPageDialog: false,
+      showSavingPageDialog: false,
+
       map: null,
       mapConfig: {
         zoom: 3,
@@ -216,13 +231,15 @@ export default {
   methods: {
     submit() {
       if (this.$refs.form.validate()) {
-        this.showEditPageDialog = false;
+        this.showSavingPageDialog = true;
+        
         var that = this;
-        console.log(this.local_page);
         pageRepo
           .createOrUpdate(this.local_page)
           .then(({ data }) => {
             that.$emit("NewPageCreated", data, that.state);
+            this.showEditPageDialog = false;
+            this.showSavingPageDialog = false;
           })
           .catch(e => {
             that.$emit("NewPageCreated", e, "error");
@@ -284,44 +301,19 @@ export default {
 
 
 <style lang="scss">
-.rounded-card {
-  border-radius: 10px;
+.rounded {
+  @include rounded(10px);
 }
 
-.custom-loader {
-  animation: loader 1s infinite;
-  display: flex;
-}
-@-moz-keyframes loader {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-@-webkit-keyframes loader {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-@-o-keyframes loader {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes loader {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
+.image-alt-in {
+  position: absolute;
+  line-height: 27px;
+  background-color: rgba($color: #fff, $alpha: 0.8);
+  width: 100%;
+  bottom: 0;
+  padding: 8px;
+  &:focus {
+    outline: none;
   }
 }
 </style>

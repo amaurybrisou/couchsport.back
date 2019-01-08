@@ -49,7 +49,16 @@
     <v-layout row wrap>
       <v-btn color="success" @click="submit" block flat>Save</v-btn>
     </v-layout>
+
+    <!-- Warn section  used to display application state (saving and success) -->
     <app-snack-bar :state="snackbar" @snackClose="snackbar = false" :text="snackbarText"></app-snack-bar>
+    <v-dialog v-model="showSavingProfileDialog" hide-overlay persistent width="300">
+      <v-card color="primary" dark>
+        <v-card-text>Please stand by
+          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -71,7 +80,8 @@ export default {
     return {
       snackbar: false,
       snackbarTimeout: 4000,
-      snackbarText: "your profile has been successfully saved"
+      snackbarText: "your profile has been successfully saved",
+      showSavingProfileDialog : false,
     };
   },
   asyncComputed: {
@@ -197,16 +207,20 @@ export default {
   },
   methods: {
     submit() {
+      this.showSavingProfileDialog = true;
       var that = this;
       this.$store
         .dispatch(SAVE_PROFILE)
         .then(() => {
+          this.showSavingProfileDialog = false;
           this.snackbarText = "your profile has been successfully saved";
           that.snackbar = true;
         })
         .catch(e => {
+          this.showSavingProfileDialog = false;
           that.snackbarText = "there was and error saving your profile";
           that.snackbar = true;
+
         });
     },
     handleImage(formData) {

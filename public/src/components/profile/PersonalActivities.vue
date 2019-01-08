@@ -26,6 +26,13 @@
       >Save</v-btn>
     </v-layout>
     <app-snack-bar :state="snackbar" @snackClose="snackbar = false" :text="snackbarText"></app-snack-bar>
+    <v-dialog v-model="showSavingProfileDialog" hide-overlay persistent width="300">
+      <v-card color="primary" dark>
+        <v-card-text>Please stand by
+          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -44,6 +51,7 @@ export default {
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your profile has been successfully saved",
+      showSavingProfileDialog: false,
       activities: []
     };
   },
@@ -76,10 +84,12 @@ export default {
   },
   methods: {
     submit() {
+      this.showSavingProfileDialog = true;
       var that = this;
       this.$store
         .dispatch(SAVE_PROFILE)
         .then(() => {
+          that.showSavingProfileDialog = false;
           that.snackbar = true;
         })
         .catch(e => {
