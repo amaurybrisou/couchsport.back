@@ -10,9 +10,10 @@ import (
 )
 
 type PageStore struct {
-	Db         *gorm.DB
-	FileStore  *FileStore
-	ImageStore *ImageStore
+	Db           *gorm.DB
+	FileStore    FileStore
+	ImageStore   ImageStore
+	ProfileStore ProfileStore
 }
 
 func (app PageStore) Migrate() {
@@ -28,6 +29,8 @@ func (app PageStore) GetPages(keys url.Values) []models.Page {
 		switch i {
 		case "followers":
 			req = req.Preload("Followers")
+		case "profile":
+			req = req.Preload("Owner")
 		case "id":
 			req = req.Where("ID= ?", v)
 		}
@@ -47,10 +50,16 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 		return nil, err
 	}
 
-	pageObj.OwnerID = userID
+	profileID, err := app.getProfileID(userID)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	pageObj.OwnerID = profileID
 	savedPageObj := *pageObj
 
-	if err := app.Db.Where("owner_id = ?", userID).First(pageObj).Error; gorm.IsRecordNotFoundError(err) {
+	if err := app.Db.Preload("Owner").Where("owner_id = ?", profileID).First(pageObj).Error; gorm.IsRecordNotFoundError(err) {
 		//Page not found
 		if err := app.Db.Create(pageObj).Error; err != nil {
 			log.Error(err)
@@ -64,7 +73,7 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 		pageObj = &savedPageObj
 	}
 
-	images, err := app.FileStore.DownloadImages((*pageObj).Images, userID)
+	images, err := app.FileStore.DownloadImages((*pageObj).Images, profileID)
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -86,7 +95,13 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 }
 
 func (app PageStore) DeleteImage(userID uint, body io.Reader) (bool, error) {
-	result, err := app.ImageStore.Delete(userID, body)
+	profileID, err := app.getProfileID(userID)
+	if err != nil {
+		log.Error(err)
+		return false, err
+	}
+
+	result, err := app.ImageStore.Delete(profileID, body)
 	if err != nil {
 		log.Error(err)
 		return false, err
@@ -116,7 +131,13 @@ func (app PageStore) Publish(userID uint, body io.Reader) (bool, error) {
 		return false, err
 	}
 
-	if err := app.Db.Model(&models.Page{}).Where("id = ?", pageObj.ID).Where("owner_id = ? ", userID).Update("Public", pageObj.Public).Error; err != nil {
+	profileID, err := app.getProfileID(userID)
+	if err != nil {
+		log.Error(err)
+		return false, err
+	}
+
+	if err := app.Db.Model(&models.Page{}).Where("id = ?", pageObj.ID).Where("owner_id = ? ", profileID).Update("Public", pageObj.Public).Error; err != nil {
 		log.Error(err)
 		return false, err
 
@@ -138,4 +159,14 @@ func (app PageStore) parseBody(body io.Reader) (*models.Page, error) {
 	}
 
 	return r, nil
+}
+
+func (app PageStore) getProfileID(userID uint) (uint, error) {
+	profile, err := app.ProfileStore.GetProfileByOwnerID(userID)
+	if err != nil {
+		log.Error(err)
+		return uint(0), nil
+	}
+
+	return profile.ID, nil
 }

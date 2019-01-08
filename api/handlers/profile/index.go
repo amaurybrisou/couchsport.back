@@ -9,8 +9,8 @@ import (
 )
 
 type ProfileHandler struct {
-	UserStore *stores.UserStore
-	Store     *stores.ProfileStore
+	UserStore stores.UserStore
+	Store     stores.ProfileStore
 	// FileStore *stores.FileStore
 }
 

@@ -9,7 +9,7 @@ import (
 )
 
 type ActivityHandler struct {
-	Store *stores.ActivityStore
+	Store stores.ActivityStore
 }
 
 func (app ActivityHandler) GetActivities(w http.ResponseWriter, r *http.Request) {

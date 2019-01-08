@@ -10,13 +10,12 @@ import (
 type User struct {
 	gorm.Model
 	Email, Password string
-	OwnedPages      []Page  `gorm:"foreignkey:OwnerID"`
-	FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
-	Friends         []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id;"`
-	Profile         Profile `gorm:"association_foreignkey:UserID"`
-	ProfileID       uint
-	Type            string
-	New             bool `gorm:"-"`
+	// FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
+	// Friends         []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id;"`
+	Profile   Profile `gorm:"association_foreignkey:UserID"`
+	ProfileID uint
+	Type      string
+	New       bool `gorm:"-"`
 }
 
 func (user *User) BeforeCreate(scope *gorm.Scope) error {

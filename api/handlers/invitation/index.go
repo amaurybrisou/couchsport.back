@@ -9,7 +9,7 @@ import (
 )
 
 type InvitationHandler struct {
-	Store *stores.InvitationStore
+	Store stores.InvitationStore
 }
 
 func (app InvitationHandler) IndexHandler(w http.ResponseWriter, r *http.Request) {

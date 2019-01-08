@@ -9,6 +9,7 @@ type Profile struct {
 	AvatarFile                                                                       string `gorm:"-"`
 	StreetNumber                                                                     uint
 	UserID                                                                           uint
+	OwnedPages                                                                       []Page      `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false"`
 	Activities                                                                       []*Activity `gorm:"many2many:profile_activities;association_autoupdate:false;association_autocreate:false"`
 	Languages                                                                        []*Language `gorm:"many2many:profile_languages;association_autoupdate:false;association_autocreate:false"`
 }

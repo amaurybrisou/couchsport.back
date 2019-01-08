@@ -10,7 +10,7 @@ import (
 
 type ProfileStore struct {
 	Db        *gorm.DB
-	FileStore *FileStore
+	FileStore FileStore
 }
 
 func (app ProfileStore) Migrate() {

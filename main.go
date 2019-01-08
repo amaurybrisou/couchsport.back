@@ -35,53 +35,53 @@ func main() {
 		ImageBasePath: c.ImageBasePath,
 	}
 
-	pageStore := stores.PageStore{Db: srv.Db, FileStore: &fileStore}
-	pageStore.Migrate()
-
 	imageStore := stores.ImageStore{Db: srv.Db}
 	imageStore.Migrate()
 
 	userStore := stores.UserStore{Db: srv.Db}
 	userStore.Migrate()
 
-	profileStore := stores.ProfileStore{Db: srv.Db, FileStore: &fileStore}
+	profileStore := stores.ProfileStore{Db: srv.Db, FileStore: fileStore}
 	profileStore.Migrate()
+
+	pageStore := stores.PageStore{Db: srv.Db, FileStore: fileStore, ProfileStore: profileStore}
+	pageStore.Migrate()
 
 	sessionStore := stores.SessionStore{Db: srv.Db}
 	sessionStore.Migrate()
 
 	pageHandler := page.PageHandler{
-		Store: &pageStore,
+		Store: pageStore,
 	}
 
 	languageHandler := handlers.LanguageHandler{
-		Store: &languageStore,
+		Store: languageStore,
 	}
 
 	activityHandler := handlers.ActivityHandler{
-		Store: &activityStore,
+		Store: activityStore,
 	}
 
 	userHandler := user.UserHandler{
-		Store:        &userStore,
+		Store:        userStore,
 		SessionStore: &sessionStore,
 	}
 
 	imageHandler := image.ImageHandler{
-		Store:     &imageStore,
-		FileStore: &fileStore,
+		Store:     imageStore,
+		FileStore: fileStore,
 	}
 
 	profileHandler := profile.ProfileHandler{
-		Store:     &profileStore,
-		UserStore: &userStore,
+		Store:     profileStore,
+		UserStore: userStore,
 		// FileStore: &fileStore,
 	}
 
 	srv.RegisterHandler("/languages", languageHandler.GetLanguages)
 	srv.RegisterHandler("/activities", activityHandler.GetActivities)
 	srv.RegisterHandler("/invitations", invitation.InvitationHandler{
-		Store: &invitationStore,
+		Store: invitationStore,
 	}.IndexHandler)
 
 	srv.RegisterHandler("/pages", pageHandler.IndexHandler)

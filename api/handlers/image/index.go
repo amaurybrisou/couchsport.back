@@ -9,8 +9,8 @@ import (
 )
 
 type ImageHandler struct {
-	Store     *stores.ImageStore
-	FileStore *stores.FileStore
+	Store     stores.ImageStore
+	FileStore stores.FileStore
 }
 
 func (app ImageHandler) SoftDeleteHandler(userID uint, w http.ResponseWriter, r *http.Request) {

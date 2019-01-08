@@ -14,7 +14,7 @@ import (
 )
 
 type UserHandler struct {
-	Store        *stores.UserStore
+	Store        stores.UserStore
 	SessionStore *stores.SessionStore
 }
 

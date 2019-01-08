@@ -9,7 +9,7 @@ import (
 )
 
 type LanguageHandler struct {
-	Store *stores.LanguageStore
+	Store stores.LanguageStore
 }
 
 func (app LanguageHandler) GetLanguages(w http.ResponseWriter, r *http.Request) {

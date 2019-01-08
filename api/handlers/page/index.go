@@ -9,7 +9,7 @@ import (
 )
 
 type PageHandler struct {
-	Store *stores.PageStore
+	Store stores.PageStore
 }
 
 func (app PageHandler) IndexHandler(w http.ResponseWriter, r *http.Request) {
