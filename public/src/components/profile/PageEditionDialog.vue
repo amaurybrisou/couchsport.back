@@ -18,7 +18,7 @@
         <v-spacer></v-spacer>
         <v-toolbar-items></v-toolbar-items>
         <v-btn dark flat @click.native="submit">
-          <slot  name="submitText">Save</slot>
+          <slot name="submitText">Save</slot>
         </v-btn>
         <v-btn icon @click.native="showEditPageDialog = false" dark>
           <v-icon>close</v-icon>
@@ -118,6 +118,9 @@
                         color="success"
                       >
                         <v-icon>clear</v-icon>
+                        <span slot="loader" class="custom-loader">
+                          <v-icon light>cached</v-icon>
+                        </span>
                       </v-btn>
                     </v-img>
                   </v-card>
@@ -125,12 +128,7 @@
               </v-layout>
             </v-flex>
           </v-layout>
-          <app-snack-bar
-            :state="snackbar"
-            :text="snackbarText"
-            @snackClose="snackbar = false"
-            @snackOpen.once="setTimeout"
-          ></app-snack-bar>
+          <app-snack-bar :state="snackbar" :text="snackbarText" @snackClose="snackbar = false"></app-snack-bar>
         </v-container>
       </template>
     </v-card>
@@ -166,7 +164,7 @@ export default {
         v => !!v || "Name is required",
         v => (v && v.length <= 50) || "Name must be less than 10 characters"
       ],
-      
+
       showEditPageDialog: false,
       map: null,
       mapConfig: {
@@ -201,24 +199,26 @@ export default {
   },
   watch: {
     showEditPageDialog(v) {
+      if (!v) return;
       var that = this;
-      setTimeout(() => {
-        v == this.map.invalidateSize();
+      setTimeout(function() {
+        that.map.invalidateSize();
       }, 200);
-    }
-  },
-  methods: {
-    setTimeout() {
+    },
+    snackbar(v) {
+      if (!v) return;
       var that = this;
       setTimeout(function() {
         that.snackbar = false;
       }, that.snackbarTimeout);
-    },
+    }
+  },
+  methods: {
     submit() {
       if (this.$refs.form.validate()) {
         this.showEditPageDialog = false;
         var that = this;
-        console.log(this.local_page)
+        console.log(this.local_page);
         pageRepo
           .createOrUpdate(this.local_page)
           .then(({ data }) => {
@@ -250,9 +250,9 @@ export default {
 
       var file = formData.get("file");
       if (file instanceof File) {
-        if(file.size > 500000) {
+        if (file.size > 500000) {
           this.snackbarText = "This image is too big";
-          return this.snackbar = true;
+          return (this.snackbar = true);
         }
         var that = this;
         var reader = new FileReader();
@@ -273,6 +273,8 @@ export default {
         this.isEditing &&
           imageRepo.delete(this.local_page.Images[idx]).then(({ data }) => {
             this.local_page.Images.splice(idx, 1);
+            this.snackbarText = "Image successfully deleted";
+            this.snackbar = true;
           });
       }
     }
@@ -284,5 +286,42 @@ export default {
 <style lang="scss">
 .rounded-card {
   border-radius: 10px;
+}
+
+.custom-loader {
+  animation: loader 1s infinite;
+  display: flex;
+}
+@-moz-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@-o-keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes loader {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

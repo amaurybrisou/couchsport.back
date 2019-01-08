@@ -7,7 +7,6 @@
     <v-divider></v-divider>
     <v-layout v-if="activities" wrap align-center justify-center>
       <v-flex xs6 md2 v-for="(item, i) in activities" :key="i">
-      
         <v-checkbox
           height="0"
           :label="item.Name"
@@ -26,12 +25,7 @@
         flat
       >Save</v-btn>
     </v-layout>
-    <app-snack-bar
-      :state="snackbar"
-      @snackClose="snackbar = false"
-      @snackOpen="setTimeout"
-      :text="snackbarText"
-    ></app-snack-bar>
+    <app-snack-bar :state="snackbar" @snackClose="snackbar = false" :text="snackbarText"></app-snack-bar>
   </v-container>
 </template>
 
@@ -39,50 +33,59 @@
 <script>
 import AppSnackBar from "@/components/utils/AppSnackBar";
 import { MODIFY_PROFILE_ACTIVITY, SAVE_PROFILE } from "@/store/actions/user.js";
-import activityRepo from '../../repositories/activity'
+import activityRepo from "../../repositories/activity";
 import { mapState } from "vuex";
 
 export default {
   name: "Activities",
-  components: {AppSnackBar},
+  components: { AppSnackBar },
   data() {
     return {
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your profile has been successfully saved",
       activities: []
-    }
+    };
   },
   computed: {
     ...mapState({
       profile: state => state.user.profile
     }),
     selected_activities: {
-      set(val){
-        this.$store.dispatch(MODIFY_PROFILE_ACTIVITY, val)
+      set(val) {
+        this.$store.dispatch(MODIFY_PROFILE_ACTIVITY, val);
       },
-      get(){ return this.$store.state.user.profile.Activities }
+      get() {
+        return this.$store.state.user.profile.Activities;
+      }
     }
   },
   asyncComputed: {
-    async activities(){
-      return await activityRepo.all().then(({data}) => data)
+    async activities() {
+      return await activityRepo.all().then(({ data }) => data);
+    }
+  },
+  watch: {
+    snackbar(v) {
+      if (!v) return;
+      var that = this;
+      setTimeout(function() {
+        that.snackbar = false;
+      }, that.snackbarTimeout);
     }
   },
   methods: {
-    setTimeout(){
-      var that = this;
-      setTimeout(function(){ that.snackbar = false}, that.snackbarTimeout)
-    },
     submit() {
       var that = this;
-      this.$store.dispatch(SAVE_PROFILE).then(() => {
-        that.snackbar = true;
-      })
-      .catch((e) => {
-        that.snackbarText = "there was and error saving your profile";
-        that.snackbar = true;
-      });
+      this.$store
+        .dispatch(SAVE_PROFILE)
+        .then(() => {
+          that.snackbar = true;
+        })
+        .catch(e => {
+          that.snackbarText = "there was and error saving your profile";
+          that.snackbar = true;
+        });
     }
   }
 };

@@ -49,12 +49,7 @@
     <v-layout row wrap>
       <v-btn color="success" @click="submit" block flat>Save</v-btn>
     </v-layout>
-    <app-snack-bar
-      :state="snackbar"
-      @snackClose="snackbar = false"
-      @snackOpen="setTimeout"
-      :text="snackbarText"
-    ></app-snack-bar>
+    <app-snack-bar :state="snackbar" @snackClose="snackbar = false" :text="snackbarText"></app-snack-bar>
   </v-container>
 </template>
 
@@ -78,46 +73,6 @@ export default {
       snackbarTimeout: 4000,
       snackbarText: "your profile has been successfully saved"
     };
-  },
-  methods: {
-    setTimeout() {
-      var that = this;
-      setTimeout(function() {
-        that.snackbar = false;
-      }, that.snackbarTimeout);
-    },
-    submit() {
-      var that = this;
-      this.$store
-        .dispatch(SAVE_PROFILE)
-        .then(() => {
-          this.snackbarText = "your profile has been successfully saved";
-          that.snackbar = true;
-        })
-        .catch(e => {
-          that.snackbarText = "there was and error saving your profile";
-          that.snackbar = true;
-        });
-    },
-    handleImage(formData) {
-      var file = formData.get("file");
-      if (file instanceof File && file.size) {
-        if(file.size > 100000) {
-          this.snackbarText = "This image is too big";
-          return this.snackbar = true;
-        }
-        var that = this;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          that.$store.dispatch(MODIFY_PROFILE, {
-            Avatar: e.target.result,
-            AvatarFile: file.name
-          });
-        };
-
-        reader.readAsDataURL(file);
-      }
-    }
   },
   asyncComputed: {
     languages: async function() {
@@ -230,7 +185,50 @@ export default {
         });
       }
     }
-  }
+  },
+  watch: {
+    snackbar(v) {
+      if (!v) return;
+      var that = this;
+      setTimeout(function() {
+        that.snackbar = false;
+      }, that.snackbarTimeout);
+    }
+  },
+  methods: {
+    submit() {
+      var that = this;
+      this.$store
+        .dispatch(SAVE_PROFILE)
+        .then(() => {
+          this.snackbarText = "your profile has been successfully saved";
+          that.snackbar = true;
+        })
+        .catch(e => {
+          that.snackbarText = "there was and error saving your profile";
+          that.snackbar = true;
+        });
+    },
+    handleImage(formData) {
+      var file = formData.get("file");
+      if (file instanceof File && file.size) {
+        if (file.size > 100000) {
+          this.snackbarText = "This image is too big";
+          return (this.snackbar = true);
+        }
+        var that = this;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          that.$store.dispatch(MODIFY_PROFILE, {
+            Avatar: e.target.result,
+            AvatarFile: file.name
+          });
+        };
+
+        reader.readAsDataURL(file);
+      }
+    }
+  },
 };
 </script>
 

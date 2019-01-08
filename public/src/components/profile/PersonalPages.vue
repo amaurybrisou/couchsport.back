@@ -59,7 +59,6 @@
     <app-snack-bar
       :state="snackbar"
       @snackClose="snackbar = false"
-      @snackOpen="setTimeout"
       :text="snackbarText"
     ></app-snack-bar>
   </v-container>
@@ -95,13 +94,16 @@ export default {
       }
     };
   },
+  watch: {
+    snackbar(v) {
+      if (!v) return;
+      var that = this;
+      setTimeout(function() {
+        that.snackbar = false;
+      }, that.snackbarTimeout);
+    },
+  },
   methods: {
-    // refreshMap(index) {
-    //   var self = this;
-    //   setTimeout(function() {
-    //     self.$refs.map[index].mapObject.invalidateSize();
-    //   }, 200);
-    // }
     deletePage(id) {
       if (id != null) {
         var that = this;
@@ -126,7 +128,7 @@ export default {
       } else if (state === "edit") {
         this.snackbarText = "your page has been successfully edited";
         var idx = this.pages.map(p => p.ID).indexOf(page.ID);
-        console.log(idx, page, state);
+
         this.pages[idx] = page;
         this.snackbar = true;
         return;
@@ -146,13 +148,6 @@ export default {
         };
         this.snackbar = true;
       }
-    },
-    setTimeout() {
-      var that = this;
-      clearTimeout(this.timeout);
-      this.timeout = setTimeout(function() {
-        that.snackbar = false;
-      }, that.snackbarTimeout);
     },
     publishPage(id, state) {
       var that = this;

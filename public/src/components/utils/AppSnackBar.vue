@@ -23,11 +23,6 @@ export default {
     mode: { type: String, default: "" },
     text: { type: String, default: "Your profile has been successfully saved" }
   },
-  watch: {
-    state(v) {
-      if (v) this.$emit("snackOpen", v);
-    }
-  }
 };
 </script>
 
