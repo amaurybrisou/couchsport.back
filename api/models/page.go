@@ -8,7 +8,7 @@ import (
 type Page struct {
 	gorm.Model
 	Name, Description string
-	LongDescription   string
+	LongDescription   string  `gorm:"size:512;"`
 	Images            []Image `gorm:"save_associations:false"`
 	Lat               float64
 	Lng               float64
