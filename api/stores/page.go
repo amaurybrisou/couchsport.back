@@ -60,10 +60,7 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 	pageObj.OwnerID = profileID
 	savedPageObj := *pageObj
 
-	newPage := models.Page{
-		OwnerID: profileID,
-	}
-
+	pageObj.Images = []models.Image{}
 	if pageObj.ID == 0 {
 		if err := app.Db.Create(pageObj).Error; err != nil {
 			log.Error(err)
@@ -76,7 +73,10 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 	}
 
 	if !pageObj.New {
-		pageObj = &savedPageObj
+		pageObj.Name = savedPageObj.Name
+		pageObj.Images = savedPageObj.Images
+		pageObj.Description = savedPageObj.Description
+		pageObj.LongDescription = savedPageObj.LongDescription
 	}
 
 	images, err := app.FileStore.DownloadImages(profileID, "page-", (*pageObj).Images)
