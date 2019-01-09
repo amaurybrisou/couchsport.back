@@ -59,7 +59,10 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 	pageObj.OwnerID = profileID
 	savedPageObj := *pageObj
 
-	pageObj.Images = []models.Image{}
+	newPage := models.Page{
+		OwnerID: profileID,
+	}
+
 	if pageObj.ID == 0 {
 		if err := app.Db.Create(pageObj).Error; err != nil {
 			log.Error(err)
@@ -67,11 +70,12 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 		}
 	}
 
+	if err := app.Db.Where("owner_id = ?", profileID).First(pageObj).Error; gorm.IsRecordNotFoundError(err) {
+		return nil, fmt.Errorf("you are not the owner of the page, thus cannot edit page %d", %pageObj.ID)
+	}
+
 	if !pageObj.New {
-		pageObj.Name = savedPageObj.Name
-		pageObj.Images = savedPageObj.Images
-		pageObj.Description = savedPageObj.Description
-		pageObj.LongDescription = savedPageObj.LongDescription
+		pageObj = &savedPageObj
 	}
 
 	images, err := app.FileStore.DownloadImages(profileID, "page-", (*pageObj).Images)
