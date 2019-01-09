@@ -181,7 +181,7 @@ export default {
 .app-background {
   position: absolute;
   background-size: cover;
-  opacity: 0.8;
+  opacity: .4;
   width: 100%;
   height: 100%;
   top: 0;
