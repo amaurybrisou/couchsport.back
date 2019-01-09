@@ -59,18 +59,19 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 	pageObj.OwnerID = profileID
 	savedPageObj := *pageObj
 
-	if err := app.Db.Preload("Owner").Where("owner_id = ?", profileID).First(pageObj).Error; gorm.IsRecordNotFoundError(err) {
-		//Page not found
+	pageObj.Images = []models.Image{}
+	if pageObj.ID == 0 {
 		if err := app.Db.Create(pageObj).Error; err != nil {
 			log.Error(err)
 			return nil, err
 		}
-
 	}
 
-	log.Println(pageObj.New)
 	if !pageObj.New {
-		pageObj = &savedPageObj
+		pageObj.Name = savedPageObj.Name
+		pageObj.Images = savedPageObj.Images
+		pageObj.Description = savedPageObj.Description
+		pageObj.LongDescription = savedPageObj.LongDescription
 	}
 
 	images, err := app.FileStore.DownloadImages(profileID, "page-", (*pageObj).Images)

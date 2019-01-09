@@ -13,10 +13,10 @@ type Page struct {
 	Lat               float64
 	Lng               float64
 	Followers         []*User `gorm:"many2many:user_page_follower"`
-	Owner             Profile `gorm:"foreign_key:OwnerId"`
+	Owner             Profile `gorm:"foreign_key:OwnerId;association_autoupdate:false;association_autocreate:false"`
 	OwnerID           uint
 	Public            bool        `gorm:"default:1"`
-	Activities        []*Activity `gorm:"many2many:page_activities;"`
+	Activities        []*Activity `gorm:"many2many:page_activities;association_autoupdate:false;association_autocreate:false"`
 	New               bool        `gorm:"-"`
 }
 
