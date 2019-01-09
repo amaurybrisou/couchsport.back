@@ -33,23 +33,23 @@
                   label="Name"
                   v-model="local_page.Name"
                   :rules="nameRules"
-                  :counter="10"
                   required
+                  hide-details
                 ></v-text-field>
                 <v-text-field
                   label="Description"
                   v-model="local_page.Description"
-                  counter="50"
                   required
+                  hide-details
                 ></v-text-field>
                 <v-textarea
                   name="LongDescription"
                   v-model="local_page.LongDescription"
-                  auto-grow
-                  counter="50"
+                  maxlength="512"
                   placeholder="Describe the spot with more details"
                   row="1"
-                  single-line
+                  hide-details
+                  no-resize
                 ></v-textarea>
                 <v-autocomplete
                   v-model="local_page.Activities"
