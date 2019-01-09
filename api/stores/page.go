@@ -3,6 +3,7 @@ package stores
 import (
 	"couchsport/api/models"
 	"couchsport/api/utils"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"io"
@@ -71,7 +72,7 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 	}
 
 	if err := app.Db.Where("owner_id = ?", profileID).First(pageObj).Error; gorm.IsRecordNotFoundError(err) {
-		return nil, fmt.Errorf("you are not the owner of the page, thus cannot edit page %d", %pageObj.ID)
+		return nil, fmt.Errorf("you are not the owner of the page, thus cannot edit page %d", pageObj.ID)
 	}
 
 	if !pageObj.New {
