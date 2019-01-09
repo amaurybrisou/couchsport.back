@@ -11,7 +11,7 @@
               </v-list-tile-avatar>
 
               <v-list-tile-content>
-                <v-list-tile-title v-html="p.Description"></v-list-tile-title>
+                <v-list-tile-title >{{ p.Description }}</v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-layout row>
@@ -20,12 +20,11 @@
                     color="primary"
                     label="Public"
                     v-model="p.Public"
-                    @click.prevent.stop
-                    @change.self="publishPage(p.ID, $event)"
+                    @change="publishPage(p.ID, $event)"
                   ></v-checkbox>
 
                   <v-flex>
-                    <page-edition-dialog @NewPageCreated="NewPageCreated" :state="'edit'" :page="p">
+                    <page-edition-dialog  @NewPageCreated="NewPageCreated" :state="'edit'" :page="p">
                       <template slot="open-btn">
                       <v-btn :to="`/pages/${p.ID}`" class="align-center" color="primary">
                         <v-icon>visibility</v-icon>
