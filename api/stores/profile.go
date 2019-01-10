@@ -13,10 +13,12 @@ type ProfileStore struct {
 	FileStore FileStore
 }
 
+//Migrate creates the table in database
 func (app ProfileStore) Migrate() {
 	app.Db.AutoMigrate(&models.Profile{})
 }
 
+//GetProfiles returns all profiles in database
 func (app ProfileStore) GetProfiles() []models.Profile {
 	var profiles []models.Profile
 	if errs := app.Db.Find(&profiles).GetErrors(); len(errs) > 0 {
@@ -48,7 +50,7 @@ func (app ProfileStore) Update(userID uint, body io.Reader) (*models.Profile, er
 	}
 
 	if profile.AvatarFile != "" {
-		filename, err := app.FileStore.CreateFromB64(userID, "user-", profile.AvatarFile, profile.Avatar)
+		filename, err := app.saveAvatar(userID, profile.AvatarFile, profile.Avatar)
 		if err != nil {
 			log.Error(err)
 			return nil, err
@@ -72,6 +74,29 @@ func (app ProfileStore) Update(userID uint, body io.Reader) (*models.Profile, er
 		return nil, err
 	}
 	return profile, nil
+}
+
+func (app ProfileStore) saveAvatar(userID uint, filename, b64 string) (string, error) {
+	//decode b64 string to bytes
+	mime, buf, err := utils.B64ToImage(b64)
+	if err != nil {
+		log.Error(err)
+		return "", err
+	}
+
+	img, err := utils.ImageToTypedImage(mime, buf)
+	if err != nil {
+		log.Error(err)
+		return "", err
+	}
+
+	filename, err = app.FileStore.Save(userID, "user-", filename, img)
+	if err != nil {
+		log.Error(err)
+		return "", err
+	}
+
+	return filename, nil
 }
 
 func (app ProfileStore) parseBody(body io.Reader) (*models.Profile, error) {

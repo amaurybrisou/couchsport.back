@@ -8,6 +8,7 @@ import (
 	"couchsport/api/handlers/profile"
 	"couchsport/api/handlers/user"
 	"couchsport/api/stores"
+	"couchsport/api/types"
 	"couchsport/config"
 	"couchsport/server"
 	"flag"
@@ -31,6 +32,7 @@ func main() {
 	invitationStore.Migrate()
 
 	fileStore := stores.FileStore{
+		FileSystem:    types.OsFS{},
 		PublicPath:    c.PublicPath,
 		ImageBasePath: c.ImageBasePath,
 		FilePrefix:    c.FilePrefix,
@@ -69,14 +71,12 @@ func main() {
 	}
 
 	imageHandler := image.ImageHandler{
-		Store:     imageStore,
-		FileStore: fileStore,
+		Store: imageStore,
 	}
 
 	profileHandler := profile.ProfileHandler{
 		Store:     profileStore,
 		UserStore: userStore,
-		// FileStore: &fileStore,
 	}
 
 	srv.RegisterHandler("/languages", languageHandler.GetLanguages)

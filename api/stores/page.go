@@ -17,10 +17,16 @@ type PageStore struct {
 	ProfileStore ProfileStore
 }
 
+//Migrate creates the model schema in database
 func (app PageStore) Migrate() {
 	app.Db.AutoMigrate(&models.Page{})
 }
 
+//GetPages returns all pages in Database
+//Additional keys (url.Values) can be specified :
+//followers : returns pages followers
+//profile : returns pages profiles
+//id: fetch a specific page
 func (app PageStore) GetPages(keys url.Values) []models.Page {
 	var req = app.Db
 
@@ -44,6 +50,7 @@ func (app PageStore) GetPages(keys url.Values) []models.Page {
 	return pages
 }
 
+//CreateOrUpdate creates or update a page owned by userID. body is models.Page JSON encoded as io.Reader
 func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, error) {
 	pageObj, err := app.parseBody(body)
 	if err != nil {
@@ -79,7 +86,7 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 		pageObj.LongDescription = savedPageObj.LongDescription
 	}
 
-	images, err := app.FileStore.DownloadImages(profileID, "page-", (*pageObj).Images)
+	images, err := app.downloadImages(profileID, "page-", (*pageObj).Images)
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -100,6 +107,7 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 
 }
 
+//DeleteImage set image.DeletedAt field at time.Now(); soft delete thus
 func (app PageStore) DeleteImage(userID uint, body io.Reader) (bool, error) {
 	profileID, err := app.getProfileID(userID)
 	if err != nil {
@@ -115,6 +123,7 @@ func (app PageStore) DeleteImage(userID uint, body io.Reader) (bool, error) {
 	return result, nil
 }
 
+//Delete set page.DeletedAt to time.Now() // soft delete thus
 func (app PageStore) Delete(body io.Reader) (bool, error) {
 	pageObj, err := app.parseBody(body)
 	if err != nil {
@@ -130,6 +139,7 @@ func (app PageStore) Delete(body io.Reader) (bool, error) {
 	return true, nil
 }
 
+//Publish set page.Public field to 0 or 1
 func (app PageStore) Publish(userID uint, body io.Reader) (bool, error) {
 	pageObj, err := app.parseBody(body)
 	if err != nil {
@@ -175,4 +185,37 @@ func (app PageStore) getProfileID(userID uint) (uint, error) {
 	}
 
 	return profile.ID, nil
+}
+
+func (app PageStore) downloadImages(ownerID uint, prefix string, images []models.Image) ([]models.Image, error) {
+	if len(images) > 0 {
+		for idx, i := range images {
+			if i.File != "" && len(images) < 9 {
+
+				//decode b64 string to bytes
+				mime, buf, err := utils.B64ToImage(i.URL)
+				if err != nil {
+					log.Error(err)
+					return []models.Image{}, err
+				}
+
+				img, err := utils.ImageToTypedImage(mime, buf)
+				if err != nil {
+					log.Error(err)
+					return []models.Image{}, err
+				}
+
+				filename, err := app.FileStore.Save(ownerID, prefix, i.File, img)
+				if err != nil {
+					log.Error(err)
+					return []models.Image{}, err
+				}
+
+				i.File = ""
+				i.URL = filename
+				images[idx] = i
+			}
+		}
+	}
+	return images, nil
 }
