@@ -9,7 +9,8 @@ import (
 
 type User struct {
 	gorm.Model
-	Email, Password string `gorm:"unique_index"`
+	Email    string `gorm:"unique_index"`
+	Password string
 	// FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
 	// Friends         []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id;"`
 	Profile   Profile `gorm:"association_foreignkey:UserID"`
