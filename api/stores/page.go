@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/url"
+	"strconv"
 )
 
 type PageStore struct {
@@ -50,6 +51,23 @@ func (app PageStore) GetPages(keys url.Values) []models.Page {
 	return pages
 }
 
+func (app PageStore) GetPagesByOwnerID(userID uint) ([]models.Page, error) {
+
+	profileID, err := app.getProfileID(userID)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	var pages []models.Page
+	if err := app.Db.Model(models.Page{}).Preload("Activities").Preload("Images").Where("owner_id = ?", profileID).Find(&pages).Error; err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return pages, nil
+}
+
 //CreateOrUpdate creates or update a page owned by userID. body is models.Page JSON encoded as io.Reader
 func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, error) {
 	pageObj, err := app.parseBody(body)
@@ -84,9 +102,12 @@ func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, 
 		pageObj.Images = savedPageObj.Images
 		pageObj.Description = savedPageObj.Description
 		pageObj.LongDescription = savedPageObj.LongDescription
+		pageObj.Lat = savedPageObj.Lat
+		pageObj.Lng = savedPageObj.Lng
 	}
 
-	images, err := app.downloadImages(profileID, "page-", (*pageObj).Images)
+	directory := "page-" + strconv.FormatUint(uint64(profileID), 10)
+	images, err := app.downloadImages(directory, (*pageObj).Images)
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -187,7 +208,7 @@ func (app PageStore) getProfileID(userID uint) (uint, error) {
 	return profile.ID, nil
 }
 
-func (app PageStore) downloadImages(ownerID uint, prefix string, images []models.Image) ([]models.Image, error) {
+func (app PageStore) downloadImages(directory string, images []models.Image) ([]models.Image, error) {
 	if len(images) > 0 {
 		for idx, i := range images {
 			if i.File != "" && len(images) < 9 {
@@ -205,7 +226,7 @@ func (app PageStore) downloadImages(ownerID uint, prefix string, images []models
 					return []models.Image{}, err
 				}
 
-				filename, err := app.FileStore.Save(ownerID, prefix, i.File, img)
+				filename, err := app.FileStore.Save(directory, i.File, img)
 				if err != nil {
 					log.Error(err)
 					return []models.Image{}, err

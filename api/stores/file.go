@@ -6,7 +6,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"strconv"
 )
 
 //FileStore manages the FileSystem
@@ -17,14 +16,9 @@ type FileStore struct {
 	FileSystem                            types.FileSystem
 }
 
-//Save a file on the filesystem at path computed from ImageBasePath + prefix + UserID
-func (app FileStore) Save(UserID uint, prefix, filename string, buf io.Reader) (string, error) {
-
-	if UserID < 1 {
-		err := fmt.Errorf("userID is incorrect")
-		log.Error(err)
-		return "", err
-	}
+//Save a file on the filesystem at path computed from ImageBasePath + directory + UserID
+//directory is prepend before userId
+func (app FileStore) Save(directory, filename string, buf io.Reader) (string, error) {
 
 	if filename == "" {
 		err := fmt.Errorf("filename is incorrect")
@@ -32,7 +26,10 @@ func (app FileStore) Save(UserID uint, prefix, filename string, buf io.Reader) (
 		return "", err
 	}
 
-	path := app.ImageBasePath + prefix + strconv.FormatUint(uint64(UserID), 10) + "/"
+	path := app.ImageBasePath
+	if directory != "" {
+		path += directory + "/"
+	}
 
 	fsPath, err := utils.CreateDirIfNotExists(app.FileSystem, app.PublicPath+path)
 	if err != nil {
@@ -58,7 +55,7 @@ func (app FileStore) Save(UserID uint, prefix, filename string, buf io.Reader) (
 		return "", fmt.Errorf("file not created, no data to write")
 	}
 
-	log.Printf("%d bytes wrote at %s", count, fsPath+filename)
+	log.Printf("%d bytes wrote at %s", count, fsPath+app.FilePrefix+filename)
 
 	return "/" + path + app.FilePrefix + filename, nil
 }

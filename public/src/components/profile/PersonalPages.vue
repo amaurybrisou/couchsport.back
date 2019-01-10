@@ -71,6 +71,7 @@ import PageEditionDialog from "@/components/profile/PageEditionDialog";
 import pageRepo from "@/repositories/page.js";
 import { AUTH_ERROR } from "@/store/actions/auth";
 import AppSnackBar from "@/components/utils/AppSnackBar";
+import { mapGetters } from "vuex";
 
 export default {
   name: "Pages",
@@ -133,6 +134,10 @@ export default {
         this.snackbar = true;
         return;
       } else if (state === "new") {
+        this.$store.dispatch('NEW_PAGE', page)
+        .then((page) => {
+
+        })
         this.pages.push(page);
 
         this.new_page = {
@@ -170,7 +175,7 @@ export default {
   },
   asyncComputed: {
     async pages() {
-      return await pageRepo.all().then(({ data }) => data);
+      return await pageRepo.mine().then(({ data }) => data);
     }
   }
 };

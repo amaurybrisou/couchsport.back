@@ -9,11 +9,35 @@ import (
 )
 
 type PageHandler struct {
-	Store stores.PageStore
+	Store        stores.PageStore
+	ProfileStore stores.ProfileStore
 }
 
 func (app PageHandler) IndexHandler(w http.ResponseWriter, r *http.Request) {
 	pages := app.Store.GetPages(r.URL.Query())
+	json, err := json.Marshal(pages)
+
+	if err != nil {
+		log.Error(err)
+	}
+
+	fmt.Fprintf(w, string(json))
+
+}
+
+func (app PageHandler) GetProfilePagesHandler(userID uint, w http.ResponseWriter, r *http.Request) {
+	r.Close = true
+
+	if r.Body != nil {
+		defer r.Body.Close()
+	}
+
+	pages, err := app.Store.GetPagesByOwnerID(userID)
+	if err != nil {
+		http.Error(w, fmt.Errorf("could not create page %s", err).Error(), http.StatusInternalServerError)
+		return
+	}
+
 	json, err := json.Marshal(pages)
 
 	if err != nil {

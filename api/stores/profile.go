@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"io"
+	"strconv"
 )
 
 type ProfileStore struct {
@@ -31,7 +32,7 @@ func (app ProfileStore) GetProfiles() []models.Profile {
 
 func (app ProfileStore) GetProfileByOwnerID(userID uint) (models.Profile, error) {
 	var out = models.Profile{}
-	if err := app.Db.Preload("Languages").Preload("Activities").Where("user_id = ?", userID).First(&out).Error; gorm.IsRecordNotFoundError(err) {
+	if err := app.Db.Preload("Languages").Preload("OwnedPages").Preload("Activities").Where("user_id = ?", userID).First(&out).Error; gorm.IsRecordNotFoundError(err) {
 		log.Error(err)
 
 		out.UserID = userID
@@ -90,7 +91,8 @@ func (app ProfileStore) saveAvatar(userID uint, filename, b64 string) (string, e
 		return "", err
 	}
 
-	filename, err = app.FileStore.Save(userID, "user-", filename, img)
+	directory := "user-" + strconv.FormatUint(uint64(userID), 10)
+	filename, err = app.FileStore.Save(directory, filename, img)
 	if err != nil {
 		log.Error(err)
 		return "", err

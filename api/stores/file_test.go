@@ -34,8 +34,6 @@ func (mem memFS) IsNotExist(err error) bool {
 	return false
 }
 
-const DefaultPublicPath = "public/"
-
 func TestFileStore_Save(t *testing.T) {
 	type fields struct {
 		FileSystem    types.FileSystem
@@ -44,10 +42,9 @@ func TestFileStore_Save(t *testing.T) {
 		FilePrefix    string
 	}
 	type args struct {
-		UserID   uint
-		prefix   string
-		filename string
-		buf      io.Reader
+		directory string
+		filename  string
+		buf       io.Reader
 	}
 
 	memos := memFS{_os: memfs.New()}
@@ -63,15 +60,14 @@ func TestFileStore_Save(t *testing.T) {
 			name: "should return an error",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    DefaultPublicPath,
+				PublicPath:    "public/",
 				ImageBasePath: "static/img/",
 				FilePrefix:    "isupload.",
 			},
 			args: args{
-				UserID:   35,
-				prefix:   "user-",
-				filename: "test-file.jpg",
-				buf:      strings.NewReader(``),
+				directory: "user-",
+				filename:  "test-file.jpg",
+				buf:       strings.NewReader(``),
 			},
 			want:    "",
 			wantErr: true,
@@ -80,15 +76,14 @@ func TestFileStore_Save(t *testing.T) {
 			name: "should return correct filename",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    DefaultPublicPath,
+				PublicPath:    "public/",
 				ImageBasePath: "static/img/",
 				FilePrefix:    "isupload.",
 			},
 			args: args{
-				UserID:   3,
-				prefix:   "user-",
-				filename: "test-file-1.jpg",
-				buf:      strings.NewReader(`tototototo`),
+				directory: "user-3",
+				filename:  "test-file-1.jpg",
+				buf:       strings.NewReader(`tototototo`),
 			},
 			want:    "/static/img/user-3/isupload.test-file-1.jpg",
 			wantErr: false,
@@ -97,15 +92,30 @@ func TestFileStore_Save(t *testing.T) {
 			name: "empty prefix",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    DefaultPublicPath,
+				PublicPath:    "public/dist/",
 				ImageBasePath: "static/img/",
 				FilePrefix:    "isupload.",
 			},
 			args: args{
-				UserID:   3,
-				prefix:   "",
-				filename: "test-file-1.jpg",
-				buf:      strings.NewReader(`tototototo`),
+				directory: "3",
+				filename:  "test-file-1.jpg",
+				buf:       strings.NewReader(`tototototo`),
+			},
+			want:    "/static/img/3/isupload.test-file-1.jpg",
+			wantErr: false,
+		},
+		{
+			name: "empty prefix",
+			fields: fields{
+				FileSystem:    memos,
+				PublicPath:    "public/dist/",
+				ImageBasePath: "static/img/",
+				FilePrefix:    "isupload.",
+			},
+			args: args{
+				directory: "3",
+				filename:  "test-file-1.jpg",
+				buf:       strings.NewReader(`tototototo`),
 			},
 			want:    "/static/img/3/isupload.test-file-1.jpg",
 			wantErr: false,
@@ -114,15 +124,14 @@ func TestFileStore_Save(t *testing.T) {
 			name: "empty file prefix",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    DefaultPublicPath,
+				PublicPath:    "public/",
 				ImageBasePath: "static/img/",
 				FilePrefix:    "",
 			},
 			args: args{
-				UserID:   3,
-				prefix:   "user-",
-				filename: "test-file-1.jpg",
-				buf:      strings.NewReader(`tototototo`),
+				directory: "user-3",
+				filename:  "test-file-1.jpg",
+				buf:       strings.NewReader(`tototototo`),
 			},
 			want:    "/static/img/user-3/test-file-1.jpg",
 			wantErr: false,
@@ -131,18 +140,33 @@ func TestFileStore_Save(t *testing.T) {
 			name: "empty filename",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    DefaultPublicPath,
+				PublicPath:    "public/",
 				ImageBasePath: "static/img/",
 				FilePrefix:    "isupload.",
 			},
 			args: args{
-				UserID:   3,
-				prefix:   "user-",
-				filename: "",
-				buf:      strings.NewReader(`tototototo`),
+				directory: "user-",
+				filename:  "",
+				buf:       strings.NewReader(`tototototo`),
 			},
 			want:    "",
 			wantErr: true,
+		},
+		{
+			name: "empty filename",
+			fields: fields{
+				FileSystem:    memos,
+				PublicPath:    "public/",
+				ImageBasePath: "static/img/",
+				FilePrefix:    "",
+			},
+			args: args{
+				directory: "",
+				filename:  "toto.jpg",
+				buf:       strings.NewReader(`tototototo`),
+			},
+			want:    "/static/img/toto.jpg",
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -153,7 +177,7 @@ func TestFileStore_Save(t *testing.T) {
 				ImageBasePath: tt.fields.ImageBasePath,
 				FilePrefix:    tt.fields.FilePrefix,
 			}
-			got, err := app.Save(tt.args.UserID, tt.args.prefix, tt.args.filename, tt.args.buf)
+			got, err := app.Save(tt.args.directory, tt.args.filename, tt.args.buf)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("FileStore.Save() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -168,7 +192,7 @@ func TestFileStore_Save(t *testing.T) {
 				return
 			}
 
-			tmp, err := memos.Stat(DefaultPublicPath + got)
+			tmp, err := memos.Stat(tt.fields.PublicPath + got)
 			if err != nil {
 				t.Errorf("couldn stat file %s", got)
 				return

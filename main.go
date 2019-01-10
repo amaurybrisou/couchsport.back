@@ -110,6 +110,9 @@ func main() {
 	srv.RegisterHandler("/profiles/mine", userHandler.IsLogged(
 		profileHandler.GetProfileHandler),
 	)
+	srv.RegisterHandler("/profiles/pages", userHandler.IsLogged(
+		pageHandler.GetProfilePagesHandler),
+	)
 
 	srv.RegisterHandler("/login", userHandler.Login)
 	srv.RegisterHandler("/signin", userHandler.SignIn)

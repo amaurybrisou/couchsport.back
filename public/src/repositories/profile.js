@@ -6,5 +6,5 @@ export default {
     },
     update(payload){
         return repo.post('/profiles/update', payload);
-    }
+    },
 }
