@@ -7,7 +7,10 @@
             <v-toolbar-title>Sign Up</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-form @keypress.enter.native="submit" ref="form" v-model="valid" lazy-validation>
+            <div v-if="errors.length" color="error">
+                <v-alert v-for="(err, i) in errors" :key="i" :value="err" type="error">{{err}}</v-alert>
+            </div>
+            <v-form @keypress.enter.native="submit" ref="form" v-model="valid">
               <v-text-field
                 label="Email"
                 type="text"
@@ -49,11 +52,13 @@ export default {
   mixins: [validationMixin],
 
   validations: {
-    email: { required, email }
+    email: { required, email },
+    password: { required }
   },
   data() {
     return {
       valid: false,
+      errors: [],
       user: {
         email: "",
         password: "",
@@ -66,20 +71,20 @@ export default {
       ],
       passwordRules: [
         v => !!v || "Password is required",
-        v => /^(\w|\W)+$/.test(v) || v.length < 8 || "Password must be valid"
+        v => /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(v) || "Password must contain at least : one digit, one lower case and one upper case letter"
       ]
     };
   },
   methods: {
     async submit(e) {
-      e.preventDefault();
-
+      if(!this.valid) return;
       var that = this;
       await userRepository.create(this.user).then(({data}) => {
-        that.$router.push('/login');
+        that.$router.push({ name : 'login', params : { welcome : `Welcome, you can now login.` }});
       })
-      .catch((err) => {
-        console.log(err)
+      .catch(({response : {data}}) => {
+        that.errors = [];
+        that.errors.push(data);        
       }) 
     }
   },

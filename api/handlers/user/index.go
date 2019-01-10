@@ -51,13 +51,15 @@ func (app UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	user, err := app.Store.FindOrCreate(formUser)
 
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not fetch user %s", err).Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Errorf("could not signup : %s", err).Error(), http.StatusForbidden)
+		return
 	}
 
 	json, err := json.Marshal(user)
 
 	if err != nil {
 		http.Error(w, fmt.Errorf("could not marshal object %s", err).Error(), http.StatusInternalServerError)
+		return
 	}
 
 	fmt.Fprintf(w, string(json))

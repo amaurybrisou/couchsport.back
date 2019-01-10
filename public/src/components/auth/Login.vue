@@ -8,10 +8,13 @@
           </v-toolbar>
           <v-card-text>
             <div v-if="errors.length" color="error">
-                <v-alert v-for="(err, i) in errors" :key="i" :value="err" type="error">{{err}}</v-alert>
+              <v-alert v-for="(err, i) in errors" :key="i" :value="err" type="error">{{err}}</v-alert>
+            </div>
+            <div v-if="welcome" color="info">
+              <v-alert type="info" :value="welcomeMessage">{{ welcomeMessage }}</v-alert>
             </div>
 
-            <v-form @keypress.enter.native="submit" ref="form" v-model="valid" lazy-validation>
+            <v-form @keypress.enter.native="submit" ref="form" v-model="valid">
               <v-text-field
                 label="Email"
                 type="text"
@@ -25,6 +28,7 @@
                 :type="'password'"
                 v-model="user.password"
                 name="password"
+                counter="8"
                 :rules="passwordRules"
                 autocomplete="current-password"
               ></v-text-field>
@@ -47,14 +51,14 @@ const userRepository = repositoryFactory.get("user");
 import { validationMixin } from "vuelidate";
 import { required, maxLength, email } from "vuelidate/lib/validators";
 
-import {AUTH_REQUEST} from '@/store/actions/auth'
+import { AUTH_REQUEST } from "@/store/actions/auth";
 
 export default {
   name: "SignIn",
   mixins: [validationMixin],
-
+  props: { welcome: { type: String, default: null } },
   validations: {
-    username: { required, maxLength: maxLength(10) },
+    password: { required, minLength: maxLength(8) },
     email: { required, email }
   },
   data() {
@@ -73,23 +77,30 @@ export default {
       ],
       passwordRules: [
         v => !!v || "Password is required",
-        v => /^(\w|\W)+$/.test(v) || v.length < 8 || "Password must be valid"
+        v =>
+          /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(v) ||
+          "Password must be valid"
       ]
     };
   },
   methods: {
     async submit(e) {
-      e.preventDefault();
-        this.$store.dispatch(AUTH_REQUEST, this.user).then(() => {
-          this.$router.push('/profile')
+      if (!this.valid) return;
+      this.$store
+        .dispatch(AUTH_REQUEST, this.user)
+        .then(() => {
+          this.$router.push("/profile");
         })
-        .catch((e) => {
-          this.errors = []
-          this.errors.push('Invalid Credentials')
-        })
+        .catch(({ response: { data } }) => {
+          this.errors = [];
+          this.errors.push(data);
+        });
     }
   },
   computed: {
+    welcomeMessage() {
+      return this.welcome;
+    },
     emailErrors() {
       const errors = [];
       if (!this.$v.user.email.$dirty) return errors;

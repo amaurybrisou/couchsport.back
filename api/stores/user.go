@@ -51,21 +51,23 @@ func (app UserStore) FindOrCreate(u *models.User) (*models.User, error) {
 		return nil, fmt.Errorf("Invalid credentials : %s", message)
 	}
 
-	if u.ID < 1 {
-		//Page not found
-		if err := app.Db.Create(u).Error; err != nil {
-			log.Error(err)
-			return nil, err
-		}
-		return u, nil
-	}
-
-	if err := app.Db.First(u).Error; err != nil {
+	var count int
+	if err := app.Db.Model(models.User{}).Where("email = ?", u.Email).Count(&count).Error; err != nil {
 		log.Error(err)
 		return nil, err
 	}
 
-	return nil, nil
+	if count > 0 {
+		return nil, fmt.Errorf("user already exist")
+	}
+
+	//Page not found
+	if err := app.Db.Create(u).Error; err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return u, nil
 }
 
 func (app UserStore) GetUser(formUser models.User) (models.User, error) {
