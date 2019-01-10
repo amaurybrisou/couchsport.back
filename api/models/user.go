@@ -9,13 +9,25 @@ import (
 
 type User struct {
 	gorm.Model
-	Email, Password string
+	Email, Password string `gorm:"unique_index"`
 	// FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
 	// Friends         []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id;"`
 	Profile   Profile `gorm:"association_foreignkey:UserID"`
 	ProfileID uint
 	Type      string
 	New       bool `gorm:"-"`
+}
+
+func (user *User) IsValid() (bool, string) {
+	if user.Email == "" {
+		return false, "empty email"
+	}
+
+	if user.Password == "" {
+		return false, "empty password"
+	}
+
+	return true, ""
 }
 
 func (user *User) BeforeCreate(scope *gorm.Scope) error {
@@ -26,7 +38,11 @@ func (user *User) BeforeCreate(scope *gorm.Scope) error {
 }
 
 func (user *User) AfterCreate(scope *gorm.Scope) error {
+	scope.SetColumn("Password", "")
 	scope.SetColumn("New", true)
+	if user.ID == 1 {
+		scope.DB().Model(user).Update("role", "admin")
+	}
 	return nil
 }
 

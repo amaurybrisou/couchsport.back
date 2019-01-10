@@ -2,6 +2,7 @@ package stores
 
 import (
 	"couchsport/api/models"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"net/url"
@@ -46,17 +47,25 @@ func (app UserStore) GetUsers(keys url.Values) []models.User {
 }
 
 func (app UserStore) FindOrCreate(u *models.User) (*models.User, error) {
+	if ok, message := u.IsValid(); !ok {
+		return nil, fmt.Errorf("Invalid credentials : %s", message)
+	}
 
-	if err := app.Db.First(u).Error; gorm.IsRecordNotFoundError(err) {
+	if u.ID < 1 {
 		//Page not found
 		if err := app.Db.Create(u).Error; err != nil {
 			log.Error(err)
 			return nil, err
 		}
-
+		return u, nil
 	}
 
-	return u, nil
+	if err := app.Db.First(u).Error; err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	return nil, nil
 }
 
 func (app UserStore) GetUser(formUser models.User) (models.User, error) {
