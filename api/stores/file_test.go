@@ -34,6 +34,8 @@ func (mem memFS) IsNotExist(err error) bool {
 	return false
 }
 
+const DefaultPublicPath = "public/"
+
 func TestFileStore_Save(t *testing.T) {
 	type fields struct {
 		FileSystem    types.FileSystem
@@ -61,7 +63,7 @@ func TestFileStore_Save(t *testing.T) {
 			name: "should return an error",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    "",
+				PublicPath:    DefaultPublicPath,
 				ImageBasePath: "static/img/",
 				FilePrefix:    "isupload.",
 			},
@@ -78,7 +80,7 @@ func TestFileStore_Save(t *testing.T) {
 			name: "should return correct filename",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    "",
+				PublicPath:    DefaultPublicPath,
 				ImageBasePath: "static/img/",
 				FilePrefix:    "isupload.",
 			},
@@ -95,7 +97,7 @@ func TestFileStore_Save(t *testing.T) {
 			name: "empty prefix",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    "",
+				PublicPath:    DefaultPublicPath,
 				ImageBasePath: "static/img/",
 				FilePrefix:    "isupload.",
 			},
@@ -112,7 +114,7 @@ func TestFileStore_Save(t *testing.T) {
 			name: "empty file prefix",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    "",
+				PublicPath:    DefaultPublicPath,
 				ImageBasePath: "static/img/",
 				FilePrefix:    "",
 			},
@@ -129,7 +131,7 @@ func TestFileStore_Save(t *testing.T) {
 			name: "empty filename",
 			fields: fields{
 				FileSystem:    memos,
-				PublicPath:    "",
+				PublicPath:    DefaultPublicPath,
 				ImageBasePath: "static/img/",
 				FilePrefix:    "isupload.",
 			},
@@ -158,9 +160,20 @@ func TestFileStore_Save(t *testing.T) {
 			}
 
 			if got != tt.want {
-				t.Errorf("FileStore.Save() = %v, want %v", got, tt.want)
+				t.Errorf("FileStore.Save() = have %v, want %v", got, tt.want)
 				return
 			}
+
+			if tt.wantErr {
+				return
+			}
+
+			tmp, err := memos.Stat(DefaultPublicPath + got)
+			if err != nil {
+				t.Errorf("couldn stat file %s", got)
+				return
+			}
+			t.Logf("file correctly stat %s", tmp)
 		})
 	}
 }
