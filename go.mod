@@ -12,10 +12,8 @@ require (
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/jinzhu/now v0.0.0-20181116074157-8ec929ed50c3 // indirect
 	github.com/lib/pq v1.0.0 // indirect
-	github.com/mattn/go-sqlite3 v1.10.0
-	github.com/selvatico/go-mocket v1.0.7
+	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/sirupsen/logrus v1.2.0
-	github.com/stretchr/testify v1.2.2
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
 	google.golang.org/appengine v1.4.0 // indirect
 )

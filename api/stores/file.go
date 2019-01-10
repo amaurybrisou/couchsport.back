@@ -34,15 +34,14 @@ func (app FileStore) Save(UserID uint, prefix, filename string, buf io.Reader) (
 
 	path := app.ImageBasePath + prefix + strconv.FormatUint(uint64(UserID), 10) + "/"
 
-	log.Printf("Creating directory %s", path)
-	fsPath, err := utils.CreateDirIfNotExists(app.FileSystem, path)
+	fsPath, err := utils.CreateDirIfNotExists(app.FileSystem, app.PublicPath+path)
 	if err != nil {
 		log.Error(err)
 		return "", err
 	}
 
-	log.Printf("Openning file %s", path+app.FilePrefix+filename)
-	f, err := app.FileSystem.OpenFile(fsPath + path + app.FilePrefix + filename)
+	log.Printf("Openning file %s", fsPath+app.FilePrefix+filename)
+	f, err := app.FileSystem.OpenFile(fsPath + app.FilePrefix + filename)
 	if err != nil {
 		log.Error(err)
 		return "", err
@@ -59,7 +58,7 @@ func (app FileStore) Save(UserID uint, prefix, filename string, buf io.Reader) (
 		return "", fmt.Errorf("file not created, no data to write")
 	}
 
-	log.Printf("%d bytes wrote at %s", count, path+filename)
+	log.Printf("%d bytes wrote at %s", count, fsPath+filename)
 
 	return "/" + path + app.FilePrefix + filename, nil
 }
