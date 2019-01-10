@@ -41,7 +41,7 @@ func (app FileStore) Save(UserID uint, prefix, filename string, buf io.Reader) (
 	}
 
 	log.Printf("Openning file %s", app.PublicPath+path+app.FilePrefix+filename)
-	f, err := app.FileSystem.OpenFile(app.PublicPath + path + app.FilePrefix + filename)
+	f, err := app.FileSystem.OpenFile(path + app.FilePrefix + filename)
 	if err != nil {
 		log.Error(err)
 		return "", err
