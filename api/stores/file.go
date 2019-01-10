@@ -34,8 +34,7 @@ func (app FileStore) Save(UserID uint, prefix, filename string, buf io.Reader) (
 
 	path := app.ImageBasePath + prefix + strconv.FormatUint(uint64(UserID), 10) + "/"
 
-	log.Printf("Creating directory %s", path)
-	path, err := utils.CreateDirIfNotExists(app.FileSystem, path)
+	path, err := utils.CreateDirIfNotExists(app.FileSystem, app.PublicPath+path)
 	if err != nil {
 		log.Error(err)
 		return "", err
