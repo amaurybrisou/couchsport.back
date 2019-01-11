@@ -5,31 +5,29 @@ import (
 	"couchsport/api/utils"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
-	"io"
 	"net/url"
 	"strconv"
 )
 
-type PageStore struct {
+type pageStore struct {
 	Db           *gorm.DB
-	FileStore    FileStore
-	ImageStore   ImageStore
-	ProfileStore ProfileStore
+	FileStore    fileStore
+	ImageStore   imageStore
+	ProfileStore profileStore
 }
 
 //Migrate creates the model schema in database
-func (app PageStore) Migrate() {
-	app.Db.AutoMigrate(&models.Page{})
+func (me pageStore) Migrate() {
+	me.Db.AutoMigrate(&models.Page{})
 }
 
-//GetPages returns all pages in Database
+//All returns all pages in Database
 //Additional keys (url.Values) can be specified :
 //followers : returns pages followers
 //profile : returns pages profiles
 //id: fetch a specific page
-func (app PageStore) GetPages(keys url.Values) []models.Page {
-	var req = app.Db
+func (me pageStore) All(keys url.Values) ([]models.Page, error) {
+	var req = me.Db
 
 	req = req.Preload("Images").Preload("Activities")
 
@@ -41,119 +39,81 @@ func (app PageStore) GetPages(keys url.Values) []models.Page {
 			req = req.Preload("Owner")
 		case "id":
 			req = req.Where("ID= ?", v)
+		case "owner_id":
+			req = req.Where("owner_id = ?", v)
 		}
 	}
 
 	var pages []models.Page
 	if err := req.Find(&pages).Error; err != nil {
-		log.Error(err)
+		return []models.Page{}, err
 	}
-	return pages
+	return pages, nil
 }
 
-func (app PageStore) GetPagesByOwnerID(userID uint) ([]models.Page, error) {
-
-	profileID, err := app.getProfileID(userID)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
+//GetPagesByOwnerID return all profile details
+func (me pageStore) GetPagesByOwnerID(profileID uint) ([]models.Page, error) {
 	var pages []models.Page
-	if err := app.Db.Model(models.Page{}).Preload("Activities").Preload("Images").Where("owner_id = ?", profileID).Find(&pages).Error; err != nil {
-		log.Error(err)
+	if err := me.Db.Model(&models.Page{}).Preload("Activities").Preload("Images").Where("owner_id = ?", profileID).Find(&pages).Error; err != nil {
 		return nil, err
 	}
 
 	return pages, nil
 }
 
-//CreateOrUpdate creates or update a page owned by userID. body is models.Page JSON encoded as io.Reader
-func (app PageStore) CreateOrUpdate(userID uint, body io.Reader) (*models.Page, error) {
-	pageObj, err := app.parseBody(body)
-	if err != nil {
-		log.Error(err)
-		return nil, err
+//New creates a page
+func (me pageStore) New(profileID uint, page models.Page) (models.Page, error) {
+	if !page.IsValid("NEW") {
+		return models.Page{}, fmt.Errorf("invalid page")
 	}
 
-	profileID, err := app.getProfileID(userID)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	pageObj.OwnerID = profileID
-	savedPageObj := *pageObj
-
-	pageObj.Images = []models.Image{}
-	if pageObj.ID == 0 {
-		if err := app.Db.Create(pageObj).Error; err != nil {
-			log.Error(err)
-			return nil, err
-		}
-	}
-
-	if err := app.Db.Where("owner_id = ?", profileID).First(pageObj).Error; gorm.IsRecordNotFoundError(err) {
-		return nil, fmt.Errorf("you are not the owner of the page, thus cannot edit page %d", pageObj.ID)
-	}
-
-	if !pageObj.New {
-		pageObj.Name = savedPageObj.Name
-		pageObj.Images = savedPageObj.Images
-		pageObj.Description = savedPageObj.Description
-		pageObj.LongDescription = savedPageObj.LongDescription
-		pageObj.Lat = savedPageObj.Lat
-		pageObj.Lng = savedPageObj.Lng
-	}
+	page.OwnerID = profileID
 
 	directory := "page-" + strconv.FormatUint(uint64(profileID), 10)
-	images, err := app.downloadImages(directory, (*pageObj).Images)
+	images, err := me.downloadImages(directory, page.Images)
 	if err != nil {
-		log.Error(err)
-		return nil, err
+		return models.Page{}, err
 	}
 
-	if err := app.Db.Exec("DELETE FROM page_activities WHERE page_id = ?", pageObj.ID).Error; err != nil {
-		log.Error(err)
-		return nil, err
+	page.Images = images
+
+	if err := me.Db.Create(&page).Error; err != nil {
+		return models.Page{}, err
 	}
 
-	pageObj.Images = images // set parsed images from frontent
-	if err := app.Db.Set("gorm:save_associations", true).Model(&models.Page{}).Update(pageObj).Error; err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	return pageObj, nil
-
+	return page, nil
 }
 
-//DeleteImage set image.DeletedAt field at time.Now(); soft delete thus
-func (app PageStore) DeleteImage(userID uint, body io.Reader) (bool, error) {
-	profileID, err := app.getProfileID(userID)
-	if err != nil {
-		log.Error(err)
-		return false, err
+//Update the page
+func (me pageStore) Update(userID uint, page models.Page) (models.Page, error) {
+	if !page.IsValid("UPDATE") {
+		return models.Page{}, fmt.Errorf("pageId cannot be below 0 %v", page.ID)
 	}
 
-	result, err := app.ImageStore.Delete(profileID, body)
-	if err != nil {
-		log.Error(err)
-		return false, err
+	if len(page.Images) > 0 {
+		directory := "page-" + strconv.FormatUint(uint64(userID), 10)
+		images, err := me.downloadImages(directory, page.Images)
+		if err != nil {
+			return models.Page{}, err
+		}
+		page.Images = images // set parsed images from frontent
 	}
-	return result, nil
+
+	if err := me.Db.Exec("DELETE FROM page_activities WHERE page_id = ?", page.ID).Error; err != nil {
+		return models.Page{}, err
+	}
+
+	fmt.Println(page)
+	if err := me.Db.Set("gorm:save_associations", true).Model(&models.Page{}).Update(&page).Error; err != nil {
+		return models.Page{}, err
+	}
+
+	return page, nil
 }
 
 //Delete set page.DeletedAt to time.Now() // soft delete thus
-func (app PageStore) Delete(body io.Reader) (bool, error) {
-	pageObj, err := app.parseBody(body)
-	if err != nil {
-		log.Error(err)
-		return false, err
-	}
-
-	if err := app.Db.Delete(pageObj).Error; err != nil {
-		log.Error(err)
+func (me pageStore) Delete(userID, pageID uint) (bool, error) {
+	if err := me.Db.Exec("DELET FROM pages AS p WHERE p.id = ?", pageID).Error; err != nil {
 		return false, err
 	}
 
@@ -161,54 +121,15 @@ func (app PageStore) Delete(body io.Reader) (bool, error) {
 }
 
 //Publish set page.Public field to 0 or 1
-func (app PageStore) Publish(userID uint, body io.Reader) (bool, error) {
-	pageObj, err := app.parseBody(body)
-	if err != nil {
-		log.Error(err)
+func (me pageStore) Publish(userID, pageID uint, status bool) (bool, error) {
+	if err := me.Db.Model(&models.Page{}).Where("id = ?", pageID).Update("Public", status).Error; err != nil {
 		return false, err
-	}
-
-	profileID, err := app.getProfileID(userID)
-	if err != nil {
-		log.Error(err)
-		return false, err
-	}
-
-	if err := app.Db.Model(&models.Page{}).Where("id = ?", pageObj.ID).Where("owner_id = ? ", profileID).Update("Public", pageObj.Public).Error; err != nil {
-		log.Error(err)
-		return false, err
-
 	}
 
 	return true, nil
 }
 
-func (app PageStore) parseBody(body io.Reader) (*models.Page, error) {
-	tmp, err := utils.ParseBody(&models.Page{}, body)
-	if err != nil {
-		return &models.Page{}, err
-	}
-
-	r, ok := tmp.(*models.Page)
-
-	if !ok {
-		return &models.Page{}, err
-	}
-
-	return r, nil
-}
-
-func (app PageStore) getProfileID(userID uint) (uint, error) {
-	profile, err := app.ProfileStore.GetProfileByOwnerID(userID)
-	if err != nil {
-		log.Error(err)
-		return uint(0), nil
-	}
-
-	return profile.ID, nil
-}
-
-func (app PageStore) downloadImages(directory string, images []models.Image) ([]models.Image, error) {
+func (me pageStore) downloadImages(directory string, images []models.Image) ([]models.Image, error) {
 	if len(images) > 0 {
 		for idx, i := range images {
 			if i.File != "" && len(images) < 9 {
@@ -216,19 +137,16 @@ func (app PageStore) downloadImages(directory string, images []models.Image) ([]
 				//decode b64 string to bytes
 				mime, buf, err := utils.B64ToImage(i.URL)
 				if err != nil {
-					log.Error(err)
 					return []models.Image{}, err
 				}
 
 				img, err := utils.ImageToTypedImage(mime, buf)
 				if err != nil {
-					log.Error(err)
 					return []models.Image{}, err
 				}
 
-				filename, err := app.FileStore.Save(directory, i.File, img)
+				filename, err := me.FileStore.Save(directory, i.File, img)
 				if err != nil {
-					log.Error(err)
 					return []models.Image{}, err
 				}
 

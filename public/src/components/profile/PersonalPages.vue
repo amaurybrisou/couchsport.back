@@ -11,7 +11,7 @@
               </v-list-tile-avatar>
 
               <v-list-tile-content>
-                <v-list-tile-title >{{ p.Description }}</v-list-tile-title>
+                <v-list-tile-title>{{ p.Description }}</v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-layout row>
@@ -24,11 +24,11 @@
                   ></v-checkbox>
 
                   <v-flex>
-                    <page-edition-dialog  @NewPageCreated="NewPageCreated" :state="'edit'" :page="p">
+                    <page-edition-dialog @NewPageCreated="NewPageCreated" :state="'edit'" :page="p">
                       <template slot="open-btn">
-                      <v-btn :to="`/pages/${p.ID}`" class="align-center" color="primary">
-                        <v-icon>visibility</v-icon>
-                      </v-btn>
+                        <v-btn :to="`/pages/${p.ID}`" class="align-center" color="primary">
+                          <v-icon>visibility</v-icon>
+                        </v-btn>
                         <v-btn color="primary" @click.prevent>
                           <v-icon>edit</v-icon>
                         </v-btn>
@@ -134,12 +134,7 @@ export default {
         this.snackbar = true;
         return;
       } else if (state === "new") {
-        this.$store.dispatch('NEW_PAGE', page)
-        .then((page) => {
-
-        })
         this.pages.push(page);
-
         this.new_page = {
           ID: null,
           Name: "",
@@ -155,7 +150,6 @@ export default {
       }
     },
     publishPage(id, state) {
-      console.log(id, state);
       var that = this;
       if (id != null && (state == false || state == true)) {
         pageRepo
@@ -187,7 +181,7 @@ export default {
 }
 
 .page-line:hover {
-  background: rgba($color: #607d8b, $alpha: .12)
+  background: rgba($color: #607d8b, $alpha: 0.12);
 }
 </style>
 

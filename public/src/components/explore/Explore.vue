@@ -70,106 +70,6 @@ export default {
       items: [],
       search: null,
       select: null,
-      pages: [
-        //test & dev purpose object
-        {
-          ID: 1,
-          CreatedAt: "2019-01-03T00:00:00Z",
-          UpdatedAt: "2019-01-03T00:00:00Z",
-          DeletedAt: null,
-          Name: "Les Conches",
-          Description: "Oh La belle plage!",
-          LongDescription:
-            "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Suscipit dolor dolorem iusto consequatur dignissimos sunt a molestias vero similique sequi praesentium assumenda dolores blanditiis, laborum aperiam laboriosam saepe architecto magni.",
-          Images: [
-            {
-              ID: 1,
-              CreatedAt: "2019-01-03T00:00:00Z",
-              UpdatedAt: "2019-01-03T00:00:00Z",
-              DeletedAt: null,
-              URL: "static/img/uploads/les-conches.jpg",
-              Alt: "Un surfer aux conches!",
-              PageID: 1
-            },
-            {
-              ID: 2,
-              CreatedAt: "2019-01-03T00:00:00Z",
-              UpdatedAt: "2019-01-03T00:00:00Z",
-              DeletedAt: null,
-              URL: "static/img/uploads/les-conches1.jpg",
-              Alt: "Un surfer aux conches!",
-              PageID: 1
-            }
-          ],
-          Lat: 46.381062,
-          Lng: -1.487591,
-          Followers: null,
-          Owner: {
-            ID: 0,
-            CreatedAt: "0001-01-01T00:00:00Z",
-            UpdatedAt: "0001-01-01T00:00:00Z",
-            DeletedAt: null,
-            Username: "",
-            Email: "",
-            Password: "",
-            OwnedPages: null,
-            FollowingPages: null,
-            Friends: null,
-            Profile: {
-              ID: 0,
-              CreatedAt: "0001-01-01T00:00:00Z",
-              UpdatedAt: "0001-01-01T00:00:00Z",
-              DeletedAt: null,
-              Country: "",
-              Sex: "",
-              City: "",
-              ZipCode: "",
-              StreetName: "",
-              Phone: "",
-              Firstname: "",
-              Lastname: "",
-              Avatar: {
-                ID: 0,
-                CreatedAt: "0001-01-01T00:00:00Z",
-                UpdatedAt: "0001-01-01T00:00:00Z",
-                DeletedAt: null,
-                URL: "",
-                Alt: "",
-                PageID: 0
-              },
-              AvatarID: 0,
-              StreetNumber: 0,
-              Activities: null,
-              Languages: null
-            },
-            ProfileID: 0,
-            Type: "",
-            New: false
-          },
-          OwnerID: 16,
-          Public: false,
-          Activities: [
-            {
-              ID: 74,
-              CreatedAt: "2019-01-02T20:40:17Z",
-              UpdatedAt: "2019-01-02T20:40:17Z",
-              DeletedAt: null,
-              Name: "Apnée",
-              Profiles: null,
-              Pages: null
-            },
-            {
-              ID: 84,
-              CreatedAt: "2019-01-02T20:40:17Z",
-              UpdatedAt: "2019-01-02T20:40:17Z",
-              DeletedAt: null,
-              Name: "Course d'orientation",
-              Profiles: null,
-              Pages: null
-            }
-          ]
-        }
-      ],
       autocompleteFeed: [],
       layers: {
         spots: {
@@ -178,7 +78,7 @@ export default {
           active: true,
           markers: [],
           popupImage: {
-            //height: "150px",
+            height: "255px",
             width: "255px"
           },
           popupOptions: {

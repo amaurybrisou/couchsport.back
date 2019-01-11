@@ -8,16 +8,22 @@ import (
 	"net/http"
 )
 
-type ActivityHandler struct {
-	Store stores.ActivityStore
+type activityHandler struct {
+	Stores *stores.StoreFactory
 }
 
-func (app ActivityHandler) GetActivities(w http.ResponseWriter, r *http.Request) {
-	activities := app.Store.GetActivities()
-	json, err := json.Marshal(activities)
-
+//All returns all the activities in DB
+func (app activityHandler) All(w http.ResponseWriter, r *http.Request) {
+	activities, err := app.Stores.ActivityStore().All()
 	if err != nil {
 		log.Error(err)
+		http.Error(w, "error retrieving activities", http.StatusInternalServerError)
+	}
+
+	json, err := json.Marshal(activities)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, "error retrieving activities", http.StatusInternalServerError)
 	}
 
 	fmt.Fprintf(w, string(json))

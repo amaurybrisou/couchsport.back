@@ -1,5 +1,6 @@
 package models
 
+//Activity model definition
 type Activity struct {
 	ID       uint       `gorm:"primarykey"`
 	Name     string     `gorm:"unique_index"`

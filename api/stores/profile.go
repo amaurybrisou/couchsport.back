@@ -3,114 +3,98 @@ package stores
 import (
 	"couchsport/api/models"
 	"couchsport/api/utils"
+	"fmt"
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
-	"io"
 	"strconv"
 )
 
-type ProfileStore struct {
+type profileStore struct {
 	Db        *gorm.DB
-	FileStore FileStore
+	FileStore fileStore
 }
 
 //Migrate creates the table in database
-func (app ProfileStore) Migrate() {
-	app.Db.AutoMigrate(&models.Profile{})
+func (me profileStore) Migrate() {
+	me.Db.AutoMigrate(&models.Profile{})
 }
 
 //GetProfiles returns all profiles in database
-func (app ProfileStore) GetProfiles() []models.Profile {
+func (me profileStore) All() ([]models.Profile, error) {
 	var profiles []models.Profile
-	if errs := app.Db.Find(&profiles).GetErrors(); len(errs) > 0 {
-		for _, err := range errs {
-			log.Error(err)
-		}
+	if err := me.Db.Find(&profiles).Error; err != nil {
+		return []models.Profile{}, err
 	}
-	return profiles
+	return profiles, nil
 }
 
-func (app ProfileStore) GetProfileByOwnerID(userID uint) (models.Profile, error) {
+//GetProfileByOwnerID returns the user profile
+func (me profileStore) GetProfileByOwnerID(userID uint) (models.Profile, error) {
 	var out = models.Profile{}
-	if err := app.Db.Preload("Languages").Preload("OwnedPages").Preload("Activities").Where("user_id = ?", userID).First(&out).Error; gorm.IsRecordNotFoundError(err) {
-		log.Error(err)
-
-		out.UserID = userID
-		if err := app.Db.Save(&out).Error; err != nil {
-			log.Error(err)
+	if err := me.Db.Model(&models.Profile{}).Preload("Languages").Preload("OwnedPages").Preload("Activities").Where("owner_id = ?", userID).First(&out).Error; gorm.IsRecordNotFoundError(err) {
+		out.OwnerID = userID
+		if err := me.Db.Create(&out).Error; err != nil {
+			return models.Profile{}, err
 		}
 	}
 	return out, nil
 }
 
-func (app ProfileStore) Update(userID uint, body io.Reader) (*models.Profile, error) {
-	profile, err := app.parseBody(body)
-	if err != nil {
-		log.Error(err)
-		return nil, err
+//Update the profile
+func (me profileStore) Update(profileID uint, profile models.Profile) (models.Profile, error) {
+	if !profile.IsValid() {
+		return models.Profile{}, fmt.Errorf("invalid profile")
 	}
 
 	if profile.AvatarFile != "" {
-		filename, err := app.saveAvatar(userID, profile.AvatarFile, profile.Avatar)
+		filename, err := me.saveAvatar(profileID, profile.AvatarFile, profile.Avatar)
 		if err != nil {
-			log.Error(err)
-			return nil, err
+			return models.Profile{}, err
 		}
 		profile.AvatarFile = ""
 		profile.Avatar = filename
 	}
 
-	if err := app.Db.Exec("DELETE FROM profile_languages WHERE profile_id = ?", profile.ID).Error; err != nil {
-		log.Error(err)
-		return nil, err
+	if err := me.Db.Exec("DELETE FROM profile_languages WHERE profile_id = ?", profile.ID).Error; err != nil {
+		return models.Profile{}, err
 	}
 
-	if err := app.Db.Exec("DELETE FROM profile_activities WHERE profile_id = ?", profile.ID).Error; err != nil {
-		log.Error(err)
-		return nil, err
+	if err := me.Db.Exec("DELETE FROM profile_activities WHERE profile_id = ?", profile.ID).Error; err != nil {
+		return models.Profile{}, err
 	}
 
-	if err := app.Db.Model(profile).Where("user_id = ?", userID).Update(profile).Error; err != nil {
-		log.Error(err)
-		return nil, err
+	if err := me.Db.Model(&models.Profile{}).Update(&profile).Error; err != nil {
+		return models.Profile{}, err
 	}
+
 	return profile, nil
 }
 
-func (app ProfileStore) saveAvatar(userID uint, filename, b64 string) (string, error) {
+func (me profileStore) saveAvatar(profileID uint, filename, b64 string) (string, error) {
 	//decode b64 string to bytes
 	mime, buf, err := utils.B64ToImage(b64)
 	if err != nil {
-		log.Error(err)
 		return "", err
 	}
 
 	img, err := utils.ImageToTypedImage(mime, buf)
 	if err != nil {
-		log.Error(err)
 		return "", err
 	}
 
-	directory := "user-" + strconv.FormatUint(uint64(userID), 10)
-	filename, err = app.FileStore.Save(directory, filename, img)
+	directory := "user-" + strconv.FormatUint(uint64(profileID), 10)
+	filename, err = me.FileStore.Save(directory, filename, img)
 	if err != nil {
-		log.Error(err)
 		return "", err
 	}
 
 	return filename, nil
 }
 
-func (app ProfileStore) parseBody(body io.Reader) (*models.Profile, error) {
-	tmp, err := utils.ParseBody(&models.Profile{}, body)
-	if err != nil {
-		return &models.Profile{}, err
-	}
-
-	r, ok := tmp.(*models.Profile)
+func (me profileStore) parseBody(tmp interface{}) (models.Profile, error) {
+	r, ok := tmp.(models.Profile)
 
 	if !ok {
-		return &models.Profile{}, err
+		return models.Profile{}, fmt.Errorf("body is not of type Profile")
 	}
 
 	return r, nil

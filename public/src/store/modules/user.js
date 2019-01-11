@@ -7,7 +7,8 @@ import {
   USER_REQUEST,
   USER_ERROR,
   USER_SUCCESS,
-  MODIFY_PROFILE_ACTIVITY
+  MODIFY_PROFILE_ACTIVITY,
+  NEW_PAGE
 } from "../actions/user";
 import profileRepo from "../../repositories/profile";
 import Vue from "vue";
@@ -17,7 +18,7 @@ const state = { status: "", profile: {} };
 
 const getters = {
   getProfile: state => state.profile,
-  isProfileLoaded: state => !!state.profile.UserID
+  isProfileLoaded: state => !!state.profile.ID
 };
 
 const actions = {
@@ -29,9 +30,12 @@ const actions = {
         commit(USER_SUCCESS, data);
       })
       .catch(resp => {
-        commit(USER_ERROR);
-        // if resp is unauthorized, logout, to
-        dispatch(AUTH_LOGOUT);
+        console.log(resp.response)
+        if (resp.response.statusCode == 401) {
+          commit(USER_ERROR);
+          // if resp is unauthorized, logout, to
+          dispatch(AUTH_LOGOUT);
+        }
       });
   },
   [MODIFY_PROFILE]: ({ commit, dispatch }, updates) => {
@@ -50,9 +54,11 @@ const actions = {
         commit(PROFILE_SAVED, data);
       })
       .catch(resp => {
-        commit(PROFILE_ERROR);
-        // if resp is unauthorized, logout, to
-        dispatch(AUTH_LOGOUT);
+        if (resp.response.statusCode == 401) {
+          commit(PROFILE_ERROR);
+          // if resp is unauthorized, logout, to
+          dispatch(AUTH_LOGOUT);
+        }
         throw resp
       });
       
@@ -76,7 +82,6 @@ const mutations = {
   [PROFILE_MODIFIED]: (state, profile) => {
     state.status = "success";
     Vue.set(state, "profile", profile);
-    console.log(state.profile);
   },
   [SAVE_PROFILE]: state => {
     state.status = "loading";

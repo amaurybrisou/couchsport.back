@@ -27,6 +27,9 @@ const actions = {
         dispatch(USER_REQUEST)
         resolve(resp)
       })
+      .catch(({response: {data}}) => {
+        reject(data)
+      })
     })
   },
   [AUTH_LOGOUT]: ({commit, dispatch}) => {
@@ -61,7 +64,7 @@ const mutations = {
   [AUTH_LOGOUT]: (state) => {
     localStorage.removeItem('user-email')
     delete axios.defaults.headers.common['Authorization']
-    state.email = ''
+    state.email = null
   }
 }
 
