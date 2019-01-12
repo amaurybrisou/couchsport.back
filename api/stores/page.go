@@ -113,7 +113,7 @@ func (me pageStore) Update(userID uint, page models.Page) (models.Page, error) {
 
 //Delete set page.DeletedAt to time.Now() // soft delete thus
 func (me pageStore) Delete(userID, pageID uint) (bool, error) {
-	if err := me.Db.Exec("DELET FROM pages AS p WHERE p.id = ?", pageID).Error; err != nil {
+	if err := me.Db.Exec("DELETE FROM pages WHERE id = ?", pageID).Error; err != nil {
 		return false, err
 	}
 
