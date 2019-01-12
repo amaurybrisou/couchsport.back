@@ -5,8 +5,8 @@
       <div>Select the activities you're looking for.</div>
     </v-layout>
     <v-divider></v-divider>
-    <v-layout v-if="activities" wrap align-center justify-center>
-      <v-flex xs6 md2 v-for="(item, i) in activities" :key="i">
+    <v-layout v-if="allActivities" wrap align-center justify-center>
+      <v-flex xs6 md2 v-for="(item, i) in allActivities" :key="i">
         <v-checkbox
           height="0"
           :label="item.Name"
@@ -19,7 +19,7 @@
     <v-layout row wrap>
       <v-btn
         color="success"
-        :disabled="profile.Activities && profile.Activities.length == 0"
+        :disabled="activities && activities.length == 0"
         @click="submit"
         block
         flat
@@ -39,38 +39,28 @@
 
 <script>
 import AppSnackBar from "@/components/utils/AppSnackBar";
-import { MODIFY_PROFILE_ACTIVITY, SAVE_PROFILE } from "@/store/actions/user.js";
-import activityRepo from "../../repositories/activity";
-import { mapState } from "vuex";
-
+import { MODIFY_PROFILE, SAVE_PROFILE } from "@/store/actions/user.js";
+import { mapMutations, mapActions } from "vuex";
 export default {
   name: "Activities",
+  props: ["activities", "allActivities"],
   components: { AppSnackBar },
   data() {
     return {
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your profile has been successfully saved",
-      showSavingProfileDialog: false,
-      activities: []
+      showSavingProfileDialog: false
     };
   },
   computed: {
-    ...mapState({
-      profile: state => state.user.profile
-    }),
     selected_activities: {
       set(val) {
-        this.$store.dispatch(MODIFY_PROFILE_ACTIVITY, val);
+        this.MODIFY_PROFILE({ Activities: val });
       },
       get() {
         return this.$store.state.user.profile.Activities;
       }
-    }
-  },
-  asyncComputed: {
-    async activities() {
-      return await activityRepo.all().then(({ data }) => data);
     }
   },
   watch: {
@@ -83,11 +73,12 @@ export default {
     }
   },
   methods: {
+    ...mapActions([SAVE_PROFILE]),
+    ...mapMutations([MODIFY_PROFILE]),
     submit() {
       this.showSavingProfileDialog = true;
       var that = this;
-      this.$store
-        .dispatch(SAVE_PROFILE)
+      this.SAVE_PROFILE()
         .then(() => {
           that.showSavingProfileDialog = false;
           that.snackbar = true;

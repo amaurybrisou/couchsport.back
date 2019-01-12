@@ -1,5 +1,5 @@
 <template>
-  <v-container id="profile" fill-height>
+  <v-container v-if="isProfileLoaded" id="profile" fill-height>
     <v-layout justify-center fill-height>
       <v-flex xs12 xm6>
         <v-tabs
@@ -16,17 +16,17 @@
           <v-tabs-items v-model="activeTab">
             <v-tab-item value="tab-1">
               <v-card flat>
-                <personal-information></personal-information>
+                <personal-information :profile="getProfile" :allLanguages="allLanguages"></personal-information>
               </v-card>
             </v-tab-item>
             <v-tab-item value="tab-2">
               <v-card flat>
-                <personal-activities></personal-activities>
+                <personal-activities :activities="getProfile.Activities || []" :allActivities="allActivities"></personal-activities>
               </v-card>
             </v-tab-item>
             <v-tab-item value="tab-3">
               <v-card flat>
-                <personal-pages></personal-pages>
+                <personal-pages :pages="getProfile.OwnedPages || []" :allActivities="allActivities"></personal-pages>
               </v-card>
             </v-tab-item>
           </v-tabs-items>
@@ -41,6 +41,10 @@
 import PersonalInformation from "./PersonalInformation";
 import PersonalActivities from "./PersonalActivities";
 import PersonalPages from "./PersonalPages";
+import { mapGetters } from "vuex";
+
+import activityRepo from "@/repositories/activity.js";
+import languageRepo from "../../repositories/language.js";
 
 export default {
   name: "Profile",
@@ -53,6 +57,17 @@ export default {
     return {
       activeTab: "tab-1",
     };
-  }
+  },
+  computed: {
+    ...mapGetters(['isProfileLoaded', 'getProfile'])
+  },
+  asyncComputed: {
+    async allActivities() {
+      return await activityRepo.all().then(({ data }) => data);
+    },
+    async allLanguages() {
+      return await languageRepo.all().then(({ data }) => data);
+    }
+  },
 }
 </script>

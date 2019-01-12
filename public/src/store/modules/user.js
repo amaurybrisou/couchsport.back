@@ -1,16 +1,24 @@
 import {
   MODIFY_PROFILE,
-  PROFILE_MODIFIED,
   SAVE_PROFILE,
   PROFILE_SAVED,
   PROFILE_ERROR,
+  
   USER_REQUEST,
   USER_ERROR,
   USER_SUCCESS,
-  MODIFY_PROFILE_ACTIVITY,
-  NEW_PAGE
+  
+  EDIT_PAGE,
+  DELETE_PAGE,
+  NEW_PAGE,
+  PUBLISH_PAGE,
+
+  DELETE_IMAGE
 } from "../actions/user";
 import profileRepo from "../../repositories/profile";
+import pageRepo from "../../repositories/page";
+import imageRepo from "../../repositories/image";
+
 import Vue from "vue";
 import { AUTH_LOGOUT } from "../actions/auth";
 
@@ -30,21 +38,12 @@ const actions = {
         commit(USER_SUCCESS, data);
       })
       .catch(resp => {
-        console.log(resp.response)
-        if (resp.response.statusCode == 401) {
+        if (resp.response.status == 401) {
           commit(USER_ERROR);
           // if resp is unauthorized, logout, to
           dispatch(AUTH_LOGOUT);
         }
       });
-  },
-  [MODIFY_PROFILE]: ({ commit, dispatch }, updates) => {
-    commit(MODIFY_PROFILE);
-    var profile = { ...state.profile, ...updates };
-    commit(PROFILE_MODIFIED, profile);
-  },
-  [MODIFY_PROFILE_ACTIVITY]: ({ commit, dispatch }, activities) => {
-    commit(MODIFY_PROFILE_ACTIVITY, activities)
   },
   [SAVE_PROFILE]: ({ commit, dispatch }) => {
     commit(SAVE_PROFILE);
@@ -59,10 +58,9 @@ const actions = {
           // if resp is unauthorized, logout, to
           dispatch(AUTH_LOGOUT);
         }
-        throw resp
+        throw resp;
       });
-      
-  }
+  },  
 };
 
 const mutations = {
@@ -76,12 +74,10 @@ const mutations = {
   [USER_ERROR]: state => {
     state.status = "error";
   },
-  [MODIFY_PROFILE]: (state, payload) => {
-    state.status = "modifying";
-  },
-  [PROFILE_MODIFIED]: (state, profile) => {
-    state.status = "success";
-    Vue.set(state, "profile", profile);
+
+
+  [MODIFY_PROFILE]: (state, profile) => {
+    state.profile = {...state.profile, ...profile}
   },
   [SAVE_PROFILE]: state => {
     state.status = "loading";
@@ -89,9 +85,6 @@ const mutations = {
   [PROFILE_SAVED]: (state, profile) => {
     state.status = "success";
     Vue.set(state, "profile", profile);
-  },
-  [MODIFY_PROFILE_ACTIVITY]: (state, activities) => {
-    state.profile.Activities = activities
   },
   [PROFILE_ERROR]: state => {
     state.status = "error";

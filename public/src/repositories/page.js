@@ -7,8 +7,8 @@ export default {
     mine(){
         return repo.get('/profiles/pages');
     },
-    get(id){
-        return repo.get('/pages?id=' + id)
+    get({id, profile}){
+        return repo.get('/pages?id=' + id + ((profile) ? "&profile" : ""))
     },
     upload(payload){
         return repo.post('/images/upload', payload, { headers: { 'Content-Type': 'multipart/form-data' } });

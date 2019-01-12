@@ -30,7 +30,7 @@ func (me profileStore) All() ([]models.Profile, error) {
 //GetProfileByOwnerID returns the user profile
 func (me profileStore) GetProfileByOwnerID(userID uint) (models.Profile, error) {
 	var out = models.Profile{}
-	if err := me.Db.Model(&models.Profile{}).Preload("Languages").Preload("OwnedPages").Preload("Activities").Where("owner_id = ?", userID).First(&out).Error; gorm.IsRecordNotFoundError(err) {
+	if err := me.Db.Model(&models.Profile{}).Preload("Languages").Preload("OwnedPages.Images").Preload("Activities").Where("owner_id = ?", userID).First(&out).Error; gorm.IsRecordNotFoundError(err) {
 		out.OwnerID = userID
 		if err := me.Db.Create(&out).Error; err != nil {
 			return models.Profile{}, err
@@ -54,19 +54,30 @@ func (me profileStore) Update(profileID uint, profile models.Profile) (models.Pr
 		profile.Avatar = filename
 	}
 
-	if err := me.Db.Exec("DELETE FROM profile_languages WHERE profile_id = ?", profile.ID).Error; err != nil {
-		return models.Profile{}, err
-	}
+	me.Db.Unscoped().Table("profile_activities").Where("activity_id NOT IN (?)", me.getActivitiesIDS(profile.Activities)).Where("profile_id = ?", profile.ID).Delete(&models.Profile{})
+	me.Db.Unscoped().Table("profile_languages").Where("language_id NOT IN (?)", me.getLanguagesIDS(profile.Languages)).Where("profile_id = ?", profile.ID).Delete(&models.Profile{})
 
-	if err := me.Db.Exec("DELETE FROM profile_activities WHERE profile_id = ?", profile.ID).Error; err != nil {
-		return models.Profile{}, err
-	}
-
-	if err := me.Db.Model(&models.Profile{}).Update(&profile).Error; err != nil {
+	if err := me.Db.Model(&profile).Update(&profile).Error; err != nil {
 		return models.Profile{}, err
 	}
 
 	return profile, nil
+}
+
+func (me profileStore) getLanguagesIDS(languages []*models.Language) []uint {
+	tmp := []uint{0}
+	for _, l := range languages {
+		tmp = append(tmp, (*l).ID)
+	}
+	return tmp
+}
+
+func (me profileStore) getActivitiesIDS(activities []*models.Activity) []uint {
+	tmp := []uint{0}
+	for _, l := range activities {
+		tmp = append(tmp, (*l).ID)
+	}
+	return tmp
 }
 
 func (me profileStore) saveAvatar(profileID uint, filename, b64 string) (string, error) {

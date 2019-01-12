@@ -96,15 +96,13 @@ func (me pageStore) Update(userID uint, page models.Page) (models.Page, error) {
 		if err != nil {
 			return models.Page{}, err
 		}
-		page.Images = images // set parsed images from frontent
+		me.Db.Model(&page).Association("Images").Replace(images) // update with newly parsed images and previous ones
 	}
 
-	if err := me.Db.Exec("DELETE FROM page_activities WHERE page_id = ?", page.ID).Error; err != nil {
-		return models.Page{}, err
-	}
+	me.Db.Unscoped().Table("page_activities").Where("activity_id NOT IN (?)", me.getActivitiesIDS(page.Activities)).Where("page_id = ?", page.ID).Delete(&models.Image{})
+	me.Db.Model(&page).Association("Activities").Append(page.Activities)
 
-	fmt.Println(page)
-	if err := me.Db.Set("gorm:save_associations", true).Model(&models.Page{}).Update(&page).Error; err != nil {
+	if err := me.Db.Set("gorm:save_associations", true).Model(&page).Update(&page).Error; err != nil {
 		return models.Page{}, err
 	}
 
@@ -127,6 +125,22 @@ func (me pageStore) Publish(userID, pageID uint, status bool) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (me pageStore) getImagesIDS(images []models.Image) []uint {
+	tmp := []uint{0}
+	for _, el := range images {
+		tmp = append(tmp, el.ID)
+	}
+	return tmp
+}
+
+func (me pageStore) getActivitiesIDS(activities []*models.Activity) []uint {
+	tmp := []uint{0}
+	for _, l := range activities {
+		tmp = append(tmp, (*l).ID)
+	}
+	return tmp
 }
 
 func (me pageStore) downloadImages(directory string, images []models.Image) ([]models.Image, error) {

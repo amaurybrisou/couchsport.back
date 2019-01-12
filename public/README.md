@@ -22,3 +22,4 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 
 https://restcountries.eu/
+https://github.com/DanSnow/vue-recaptcha

@@ -6,7 +6,7 @@
           <v-card slot="appearance" flat tile class="d-flex profile-avatar">
             <v-img
               :src="Avatar"
-              :alt="Username"
+              :alt="local_profile.Username"
               :value="Avatar"
               aspect-ratio="1"
               class="grey lighten-2"
@@ -21,24 +21,24 @@
       </v-flex>
       <v-flex xs12 sm6 md4>
         <v-text-field flat disabled readonly label="Email" v-model="email"></v-text-field>
-        <v-text-field flat label="Username" v-model="Username"></v-text-field>
-        <v-text-field flat label="Firstname" v-model="Firstname"></v-text-field>
-        <v-text-field flat label="Lastname" v-model="Lastname"></v-text-field>
-        <v-select :items="[`` ,`Male`, `Female`]" v-model="Gender" label="Gender"></v-select>
+        <v-text-field flat label="Username" v-model="local_profile.Username"></v-text-field>
+        <v-text-field flat label="Firstname" v-model="local_profile.Firstname"></v-text-field>
+        <v-text-field flat label="Lastname" v-model="local_profile.Lastname"></v-text-field>
+        <v-select :items="[`` ,`Male`, `Female`]" v-model="local_profile.Gender" label="Gender"></v-select>
       </v-flex>
       <v-flex xs12 sm8 md4>
-        <v-text-field flat label="StreetName" v-model="StreetName"></v-text-field>
-        <v-text-field flat label="City" v-model="City"></v-text-field>
-        <v-text-field flat label="ZipCode" v-model="ZipCode"></v-text-field>
-        <v-text-field flat label="Country" v-model="Country"></v-text-field>
-        <v-text-field flat label="Phone" v-model="Phone"></v-text-field>
+        <v-text-field flat label="StreetName" v-model="local_profile.StreetName"></v-text-field>
+        <v-text-field flat label="City" v-model="local_profile.City"></v-text-field>
+        <v-text-field flat label="ZipCode" v-model="local_profile.ZipCode"></v-text-field>
+        <v-text-field flat label="Country" v-model="local_profile.Country"></v-text-field>
+        <v-text-field flat label="Phone" v-model="local_profile.Phone"></v-text-field>
       </v-flex>
     </v-layout>
     <v-layout row wrap>
       <v-flex xs8 offset-xs2>
         <v-autocomplete
-          v-model="Languages"
-          :items="languages"
+          v-model="local_profile.Languages"
+          :items="allLanguages"
           label="Languages"
           return-object
           item-text="Name"
@@ -64,139 +64,40 @@
 
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import { MODIFY_PROFILE, SAVE_PROFILE } from "@/store/actions/user.js";
 
 import UploadButton from "@/components/utils/UploadButton";
 import AppSnackBar from "@/components/utils/AppSnackBar";
 
-import profileRepo from "@/repositories/profile.js";
-import languageRepo from "../../repositories/language.js";
-
 export default {
   name: "PersonalInformation",
+  props: ["profile", "allLanguages"],
   components: { UploadButton, AppSnackBar },
   data() {
     return {
+      local_profile: { ...{}, ...this.profile },
       snackbar: false,
       snackbarTimeout: 4000,
       snackbarText: "your profile has been successfully saved",
-      showSavingProfileDialog : false,
+      showSavingProfileDialog: false
     };
   },
-  asyncComputed: {
-    languages: async function() {
-      return await languageRepo.all().then(({ data }) => data);
-    }
-  },
   computed: {
-    ...mapState({
-      profile: state => state.user.profile,
-      Avatar: state => state.user.profile.Avatar
-    }),
     ...mapGetters(["email"]),
-    Username: {
+    Avatar: {
       get() {
-        return this.$store.state.user.profile.Username;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          Username: val
-        });
-      }
-    },
-    Firstname: {
-      get() {
-        return this.$store.state.user.profile.Firstname;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          Firstname: val
-        });
-      }
-    },
-    Lastname: {
-      get() {
-        return this.$store.state.user.profile.Lastname;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          Lastname: val
-        });
-      }
-    },
-    Country: {
-      get() {
-        return this.$store.state.user.profile.Country;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          Country: val
-        });
-      }
-    },
-    Languages: {
-      get() {
-        return this.$store.state.user.profile.Languages;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          Languages: val
-        });
-      }
-    },
-    Phone: {
-      get() {
-        return this.$store.state.user.profile.Phone;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          Phone: val
-        });
-      }
-    },
-    ZipCode: {
-      get() {
-        return this.$store.state.user.profile.ZipCode;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          ZipCode: val
-        });
-      }
-    },
-    City: {
-      get() {
-        return this.$store.state.user.profile.City;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          City: val
-        });
-      }
-    },
-    Gender: {
-      get() {
-        return this.$store.state.user.profile.Gender;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          Gender: val
-        });
-      }
-    },
-    StreetName: {
-      get() {
-        return this.$store.state.user.profile.StreetName;
-      },
-      set(val) {
-        this.$store.dispatch(MODIFY_PROFILE, {
-          StreetName: val
-        });
+        return this.$store.state.user.profile.Avatar;
       }
     }
   },
   watch: {
+    local_profile: {
+      handler: function(v) {
+        this.MODIFY_PROFILE(v);
+      },
+      deep: true
+    },
     snackbar(v) {
       if (!v) return;
       var that = this;
@@ -206,11 +107,12 @@ export default {
     }
   },
   methods: {
+    ...mapActions([SAVE_PROFILE]),
+    ...mapMutations([MODIFY_PROFILE]),
     submit() {
       this.showSavingProfileDialog = true;
       var that = this;
-      this.$store
-        .dispatch(SAVE_PROFILE)
+      this.SAVE_PROFILE()
         .then(() => {
           this.showSavingProfileDialog = false;
           this.snackbarText = "your profile has been successfully saved";
@@ -220,7 +122,6 @@ export default {
           this.showSavingProfileDialog = false;
           that.snackbarText = "there was and error saving your profile";
           that.snackbar = true;
-
         });
     },
     handleImage(formData) {
@@ -233,7 +134,7 @@ export default {
         var that = this;
         var reader = new FileReader();
         reader.onload = function(e) {
-          that.$store.dispatch(MODIFY_PROFILE, {
+          that.MODIFY_PROFILE({
             Avatar: e.target.result,
             AvatarFile: file.name
           });
@@ -242,7 +143,7 @@ export default {
         reader.readAsDataURL(file);
       }
     }
-  },
+  }
 };
 </script>
 

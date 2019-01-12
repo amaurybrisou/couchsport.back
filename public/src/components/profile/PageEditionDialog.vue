@@ -53,7 +53,7 @@
                 ></v-textarea>
                 <v-autocomplete
                   v-model="local_page.Activities"
-                  :items="activities"
+                  :items="allActivities"
                   label="Activity"
                   item-text="Name"
                   return-object
@@ -163,7 +163,7 @@ import { AUTH_ERROR } from "@/store/actions/auth";
 
 export default {
   name: "profile-page-edition-dialog",
-  props: ["page", "state"],
+  props: ["page", "state", "allActivities"],
   components: { UploadButton, LMap, LMarker, LTileLayer, AppSnackBar },
   data() {
     return {
@@ -171,9 +171,8 @@ export default {
       snackbarTimeout: 3000,
       snackbarText: "an error occured",
 
-      local_page: this.page,
-
       isEditing: this.state === "edit",
+
       valid: true,
       nameRules: [
         v => !!v || "Name is required",
@@ -182,6 +181,7 @@ export default {
 
       showEditPageDialog: false,
       showSavingPageDialog: false,
+      local_page: JSON.parse(JSON.stringify(this.page)),
 
       map: null,
       mapConfig: {
@@ -194,15 +194,14 @@ export default {
           '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         showMarkers: true,
         hasSpotMarker: false,
-        spotMarker: (this.page.Lat && this.page.Lng) ? L.marker([this.page.Lat, this.page.Lng]) : null
+        spotMarker:
+          this.page.Lat && this.page.Lng
+            ? L.marker([this.page.Lat, this.page.Lng])
+            : null
       }
     };
   },
-  asyncComputed: {
-    activities: async function() {
-      return activityRepo.all().then(({ data }) => data);
-    }
-  },
+
   mounted() {
     var that = this;
     this.$nextTick(function() {
@@ -285,7 +284,10 @@ export default {
         var that = this;
         var reader = new FileReader();
         reader.onload = function(e) {
-          that.page.Images.push({ URL: e.target.result, File: file.name });
+          that.local_page.Images.push({
+            URL: e.target.result,
+            file: file.name
+          });
         };
 
         reader.readAsDataURL(file);

@@ -1,9 +1,9 @@
 <template>
   <v-container class="third-profile-step" fluild grid-list-md>
-    <v-layout v-if="pages" row wrap>
+    <v-layout v-if="local_pages" row wrap>
       <v-flex>
         <v-list>
-          <template v-for="(p) in pages">
+          <template v-for="(p) in local_pages">
             <v-divider :key="p.ID"></v-divider>
             <v-list-tile class="page-line" :key="`preview-image-${p.ID}`" avatar>
               <v-list-tile-avatar v-if="p.Images && p.Images.length > 0">
@@ -24,7 +24,7 @@
                   ></v-checkbox>
 
                   <v-flex>
-                    <page-edition-dialog @NewPageCreated="NewPageCreated" :state="'edit'" :page="p">
+                    <page-edition-dialog @NewPageCreated="NewPageCreated" :state="'edit'" :page="p" :allActivities="allActivities">
                       <template slot="open-btn">
                         <v-btn :to="`/pages/${p.ID}`" class="align-center" color="primary">
                           <v-icon>visibility</v-icon>
@@ -52,7 +52,12 @@
     </v-layout>
     <v-layout row wrap justify-center align-center>
       <v-flex xs1>
-        <page-edition-dialog @NewPageCreated="NewPageCreated" :state="'new'" :page="new_page">
+        <page-edition-dialog
+          @NewPageCreated="NewPageCreated"
+          :state="'new'"
+          :page="new_page"
+          :allActivities="allActivities"
+        >
           <template slot="open-btn">
             <v-btn color="success" flat>New Page</v-btn>
           </template>
@@ -75,9 +80,11 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "Pages",
+  props: ["pages", "allActivities"],
   components: { LMap, LTileLayer, LMarker, PageEditionDialog, AppSnackBar },
   data() {
     return {
+      
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your page has been successfully created",
@@ -92,7 +99,8 @@ export default {
         Lat: null,
         Lng: null,
         Activities: []
-      }
+      },
+      local_pages: JSON.parse(JSON.stringify(this.pages))
     };
   },
   watch: {
@@ -111,7 +119,7 @@ export default {
         pageRepo
           .delete({ ID: id })
           .then(function({ data }) {
-            that.pages = that.pages.filter(p => p.ID != id);
+            that.local_pages = that.local_pages.filter(p => p.ID != id);
             that.snackbarText = "the page has been successfully deleted";
             that.snackbar = true;
           })
@@ -128,13 +136,13 @@ export default {
         return;
       } else if (state === "edit") {
         this.snackbarText = "your page has been successfully edited";
-        var idx = this.pages.map(p => p.ID).indexOf(page.ID);
+        var idx = this.local_pages.map(p => p.ID).indexOf(page.ID);
 
-        this.pages[idx] = page;
+        this.local_pages[idx] = page;
         this.snackbar = true;
         return;
       } else if (state === "new") {
-        this.pages.push(page);
+        this.local_pages.push(page);
         this.new_page = {
           ID: null,
           Name: "",
@@ -165,11 +173,6 @@ export default {
             that.snackbar = true;
           });
       }
-    }
-  },
-  asyncComputed: {
-    async pages() {
-      return await pageRepo.mine().then(({ data }) => data);
     }
   }
 };
