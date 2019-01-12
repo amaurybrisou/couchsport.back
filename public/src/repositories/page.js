@@ -13,8 +13,11 @@ export default {
     upload(payload){
         return repo.post('/images/upload', payload, { headers: { 'Content-Type': 'multipart/form-data' } });
     },
-    createOrUpdate(payload){
+    new(payload){
         return repo.post('/pages/new', payload)
+    },
+    edit(payload){
+        return repo.post('/pages/update', payload)
     },
     publish(payload){
         return repo.post('/pages/publish', payload)

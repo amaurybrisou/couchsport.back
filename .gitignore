@@ -15,7 +15,7 @@ yarn-error.log*
 
 **/config.*.json
 couchsport
-vendor/**
+vendor
 # Binaries for programs and plugins
 *.exe
 *.exe~

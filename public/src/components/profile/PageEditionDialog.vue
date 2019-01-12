@@ -242,10 +242,10 @@ export default {
     submit() {
       if (this.$refs.form.validate()) {
         this.showSavingPageDialog = true;
-        
+
         var that = this;
-        pageRepo
-          .createOrUpdate(this.local_page)
+
+        pageRepo[this.state](this.local_page)
           .then(({ data }) => {
             that.$emit("NewPageCreated", data, that.state);
             this.showEditPageDialog = false;
@@ -253,6 +253,7 @@ export default {
           })
           .catch(e => {
             that.$emit("NewPageCreated", e, "error");
+            this.showSavingPageDialog = false;
           });
       }
     },

@@ -4,19 +4,19 @@ import (
 	"couchsport/api/models"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
+
 	"net/url"
 )
 
-type UserStore struct {
+type userStore struct {
 	Db *gorm.DB
 }
 
-func (app UserStore) Migrate() {
+func (app userStore) Migrate() {
 	app.Db.AutoMigrate(&models.User{})
 }
 
-func (app UserStore) GetUsers(keys url.Values) []models.User {
+func (app userStore) All(keys url.Values) ([]models.User, error) {
 	var req = app.Db
 	for i, v := range keys {
 		switch i {
@@ -38,54 +38,56 @@ func (app UserStore) GetUsers(keys url.Values) []models.User {
 	}
 
 	var users []models.User
-	if errs := req.Find(&users).GetErrors(); len(errs) > 0 {
-		for _, err := range errs {
-			log.Error(err)
-		}
+	if err := req.Find(&users).Error; err != nil {
+		return []models.User{}, err
 	}
-	return users
+	return users, nil
 }
 
-func (app UserStore) FindOrCreate(u *models.User) (*models.User, error) {
-	if ok, message := u.IsValid(); !ok {
-		return nil, fmt.Errorf("Invalid credentials : %s", message)
+func (app userStore) New(user models.User) (models.User, error) {
+	if !user.IsValid() {
+		return models.User{}, fmt.Errorf("Invalid user")
 	}
 
 	var count int
-	if err := app.Db.Model(models.User{}).Where("email = ?", u.Email).Count(&count).Error; err != nil {
-		log.Error(err)
-		return nil, err
+	if err := app.Db.Model(models.User{}).Where("email = ?", user.Email).Count(&count).Error; err != nil {
+		return models.User{}, err
 	}
 
 	if count > 0 {
-		return nil, fmt.Errorf("user already exist")
+		return models.User{}, fmt.Errorf("user already exist")
 	}
 
-	//Page not found
-	if err := app.Db.Create(u).Error; err != nil {
-		log.Error(err)
-		return nil, err
+	if err := app.Db.Create(&user).Error; err != nil {
+		return models.User{}, err
 	}
 
-	return u, nil
+	return user, nil
 }
 
-func (app UserStore) GetUser(formUser models.User) (models.User, error) {
+func (app userStore) GetByID(userID uint) (models.User, error) {
 	var outUser = models.User{}
-	if errs := app.Db.Where(formUser).First(&outUser).GetErrors(); len(errs) > 0 {
-		for _, err := range errs {
-			log.Error(err)
-		}
+	if err := app.Db.Model(&models.User{}).Preload("Profile").Where("id = ?", userID).First(&outUser).Error; err != nil {
+		return models.User{}, err
 	}
 	return outUser, nil
 }
 
-func (app UserStore) GetUserByID(userID uint) (models.User, error) {
+func (app userStore) GetByEmail(email string) (models.User, error) {
 	var outUser = models.User{}
-	if errs := app.Db.Preload("Profile").Where("id = ?", userID).First(&outUser).GetErrors(); len(errs) > 0 {
-		for _, err := range errs {
-			log.Error(err)
-		}
+	if err := app.Db.Where("email = ?", email).First(&outUser).Error; err != nil {
+		return models.User{}, err
 	}
 	return outUser, nil
+}
+
+func parseBody(tmp interface{}) (models.User, error) {
+	fmt.Println(tmp)
+	r, ok := tmp.(*models.User)
+
+	if !ok {
+		return models.User{}, fmt.Errorf("body is not of type User")
+	}
+
+	return *r, nil
 }

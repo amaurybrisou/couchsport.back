@@ -4,9 +4,10 @@ import (
 	"time"
 )
 
+//Session model definition
 type Session struct {
-	User      User
-	UserID    uint
+	Owner     User `gorm:"foreign_key:OwnerId;association_autoupdate:false;association_autocreate:false"`
+	OwnerID   uint
 	SessionID string
 	Expires   time.Time `gorm:"default=now"`
 	Validity  uint

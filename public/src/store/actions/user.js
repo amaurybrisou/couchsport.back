@@ -8,3 +8,6 @@ export const PROFILE_SAVED = "PROFILE_SAVED";
 export const SAVE_PROFILE = "SAVE_PROFILE";
 export const PROFILE_MODIFIED = "PROFILE_MODIFIED";
 export const PROFILE_ERROR = "PROFILE_ERROR";
+
+
+export const NEW_PAGE = "NEW_PAGE";

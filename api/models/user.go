@@ -1,48 +1,50 @@
 package models
 
 import (
-	"github.com/gofrs/uuid"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
+//User model definition
 type User struct {
 	gorm.Model
-	Email    string `gorm:"unique_index"`
-	Password string
+	Email     string `gorm:"unique_index"`
+	Password  string
+	Profile   Profile `gorm:"association_foreignkey:OwnerID"`
+	ProfileID uint
 	// FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
 	// Friends         []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id;"`
-	Profile   Profile `gorm:"association_foreignkey:UserID"`
-	ProfileID uint
-	Type      string
-	New       bool `gorm:"-"`
+	Type string
+	New  bool `gorm:"-"`
 }
 
-func (user *User) IsValid() (bool, string) {
+//IsValid say wheter the underlying structure is a valid User
+func (user *User) IsValid() bool {
 	if user.Email == "" {
-		return false, "empty email"
+		return false
 	}
 
 	if user.Password == "" {
-		return false, "empty password"
+		return false
 	}
 
-	return true, ""
+	return true
 }
 
+//BeforeCreate generate the User ID, set Type to USER and hash the password
 func (user *User) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("ID", uuid.NewGen())
 	scope.SetColumn("Type", "USER")
 	scope.SetColumn("Password", hashAndSalt([]byte(user.Password)))
 	return nil
 }
 
+//AfterCreate empty the password column for security reasons, sets New to true and update Type to ADMIN if ID = 1
 func (user *User) AfterCreate(scope *gorm.Scope) error {
 	scope.SetColumn("Password", "")
 	scope.SetColumn("New", true)
 	if user.ID == 1 {
-		scope.DB().Model(user).Update("role", "admin")
+		scope.DB().Model(user).Update("type", "ADMIN")
 	}
 	return nil
 }

@@ -1,56 +1,65 @@
-package user
+package handlers
 
 import (
 	"couchsport/api/models"
 	"couchsport/api/stores"
-	"couchsport/api/utils"
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"io"
+	"io/ioutil"
+
 	"net/http"
 	"strconv"
 )
 
-type UserHandler struct {
-	Store        stores.UserStore
-	SessionStore *stores.SessionStore
+type userHandler struct {
+	Store *stores.StoreFactory
 }
 
-func (app UserHandler) IndexHandler(w http.ResponseWriter, r *http.Request) {
+//All returns all the users
+func (me userHandler) All(w http.ResponseWriter, r *http.Request) {
 
 	keys := r.URL.Query()
 
-	users := app.Store.GetUsers(keys)
+	users, err := me.Store.UserStore().All(keys)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnprocessableEntity)
+		return
+	}
 
 	json, err := json.Marshal(users)
 
 	if err != nil {
 		log.Error(err)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnprocessableEntity)
+		return
 	}
 
 	fmt.Fprintf(w, string(json))
 
 }
 
-func (app UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
-
+//Signin create a user account
+func (me userHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	r.Close = true
 
 	if r.Body != nil {
 		defer r.Body.Close()
 	}
 
-	formUser, err := parseBody(r.Body)
+	user, err := me.parseBody(r.Body)
 	if err != nil {
+		log.Error(err)
 		http.Error(w, fmt.Errorf("could not parse body %s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	user, err := app.Store.FindOrCreate(formUser)
-
+	user, err = me.Store.UserStore().New(user)
 	if err != nil {
+		log.Error(err)
 		http.Error(w, fmt.Errorf("could not signup : %s", err).Error(), http.StatusForbidden)
 		return
 	}
@@ -58,6 +67,7 @@ func (app UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	json, err := json.Marshal(user)
 
 	if err != nil {
+		log.Error(err)
 		http.Error(w, fmt.Errorf("could not marshal object %s", err).Error(), http.StatusInternalServerError)
 		return
 	}
@@ -65,33 +75,33 @@ func (app UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(json))
 }
 
-func (app UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+//Login authenticate the user
+func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	r.Close = true
 
 	if r.Body != nil {
 		defer r.Body.Close()
 	}
 
-	formUser, err := parseBody(r.Body)
+	user, err := me.parseBody(r.Body)
 	if err != nil {
 		http.Error(w, fmt.Errorf("could not extract session %s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	dbUser, err := app.Store.GetUser(models.User{Email: formUser.Email})
+	dbUser, err := me.Store.UserStore().GetByEmail(user.Email)
 	if err != nil {
 		http.Error(w, fmt.Errorf("could not fetch user %s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	if r := comparePasswords(dbUser.Password, []byte(formUser.Password)); !r {
+	if r := comparePasswords(dbUser.Password, []byte(user.Password)); !r {
 		http.Error(w, fmt.Errorf("wrong credentials").Error(), http.StatusUnauthorized)
 		return
 	}
 
-	isLogged, err := app.SessionStore.Create(dbUser.ID)
+	isLogged, err := me.Store.SessionStore().Create(dbUser.ID)
 	if err != nil {
-		// app.SessionStore.DestroyAllByUserID(dbUser.ID)
 		http.Error(w, fmt.Errorf("could not create session %s", err).Error(), http.StatusInternalServerError)
 		return
 	}
@@ -101,7 +111,7 @@ func (app UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := app.SessionStore.CreateCookie()
+	cookie, err := me.Store.SessionStore().CreateCookie()
 
 	if err != nil {
 		http.Error(w, fmt.Errorf("could not create cookie %s", err).Error(), http.StatusInternalServerError)
@@ -115,7 +125,7 @@ func (app UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Email string
 	}
 
-	responseBody := res{Token: app.SessionStore.GetToken(), Email: dbUser.Email}
+	responseBody := res{Token: me.Store.SessionStore().GetToken(), Email: dbUser.Email}
 
 	json, err := json.Marshal(responseBody)
 
@@ -126,17 +136,18 @@ func (app UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(json))
 }
 
-func (app UserHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
+//IsLogged is a middleware used to know if user is Logged
+func (me userHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, err := app.SessionStore.GetSession(r)
+		session, err := me.Store.SessionStore().GetSession(r)
 		if err != nil {
 			http.Error(w, fmt.Errorf("could not extract session %s", err).Error(), http.StatusUnauthorized)
 			return
 		}
 
 		if session.HasExpired() {
-			app.SessionStore.Destroy(r)
+			me.Store.SessionStore().Destroy(r)
 
 			if err != nil {
 				http.Error(w, fmt.Errorf("could not logout properly %s", err).Error(), http.StatusInternalServerError)
@@ -147,12 +158,13 @@ func (app UserHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r 
 			return
 		}
 
-		pass(session.UserID, w, r)
+		pass(session.OwnerID, w, r)
 	}
 }
 
-func (app UserHandler) Logout(_ uint, w http.ResponseWriter, r *http.Request) {
-	success, err := app.SessionStore.Destroy(r)
+//Logout log out the user
+func (me userHandler) Logout(_ uint, w http.ResponseWriter, r *http.Request) {
+	success, err := me.Store.SessionStore().Destroy(r)
 	if err != nil {
 		http.Error(w, fmt.Errorf("could not logout properly %s", err).Error(), http.StatusInternalServerError)
 		return
@@ -172,17 +184,18 @@ func comparePasswords(hashedPwd string, plainPwd []byte) bool {
 	return true
 }
 
-func parseBody(body io.Reader) (*models.User, error) {
-	tmp, err := utils.ParseBody(&models.User{}, body)
+func (me userHandler) parseBody(body io.Reader) (models.User, error) {
+	b, err := ioutil.ReadAll(body)
 	if err != nil {
-		return &models.User{}, err
+		return models.User{}, err
 	}
 
-	r, ok := tmp.(*models.User)
+	var u models.User
+	err = json.Unmarshal(b, &u)
 
-	if !ok {
-		return &models.User{}, err
+	if err != nil {
+		return models.User{}, err
 	}
 
-	return r, nil
+	return u, nil
 }

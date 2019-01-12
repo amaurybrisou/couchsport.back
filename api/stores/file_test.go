@@ -171,7 +171,7 @@ func TestFileStore_Save(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			app := FileStore{
+			app := fileStore{
 				FileSystem:    tt.fields.FileSystem,
 				PublicPath:    tt.fields.PublicPath,
 				ImageBasePath: tt.fields.ImageBasePath,

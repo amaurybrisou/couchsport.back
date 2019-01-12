@@ -63,8 +63,8 @@
                 icon
               >close</v-icon>
               <v-carousel-item
-                v-for="(image) in page.Images"
-                :key="image.URL"
+                v-for="(image, i) in page.Images"
+                :key="i"
                 :src="image.URL"
                 lazy
               ></v-carousel-item>

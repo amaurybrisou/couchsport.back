@@ -13,23 +13,23 @@ import (
 const tokenKey = "user-token"
 const sessionValidity = 60 * 60
 
-type SessionStore struct {
+type sessionStore struct {
 	Db     *gorm.DB
 	token  string
 	userID uint
 }
 
-func (app SessionStore) Migrate() {
-	app.Db.AutoMigrate(&models.Session{})
+func (me sessionStore) Migrate() {
+	me.Db.AutoMigrate(&models.Session{})
 }
 
-func (app *SessionStore) Create(userID uint) (bool, error) {
-	app.userID = userID
+func (me *sessionStore) Create(userID uint) (bool, error) {
+	me.userID = userID
 
 	out := models.Session{}
-	if err := app.Db.Where("user_id = ?", userID).Where("(UNIX_TIMESTAMP(expires) - UNIX_TIMESTAMP()) > 0").First(&out).Error; gorm.IsRecordNotFoundError(err) {
+	if err := me.Db.Where("owner_id = ?", userID).Where("(UNIX_TIMESTAMP(expires) - UNIX_TIMESTAMP()) > 0").First(&out).Error; gorm.IsRecordNotFoundError(err) {
 		// record not found => remove all from user and create fresh session
-		app.DestroyAllByUserID(userID)
+		me.DestroyAllByUserID(userID)
 
 		token, err := uuid.NewV4()
 		if err != nil {
@@ -38,31 +38,27 @@ func (app *SessionStore) Create(userID uint) (bool, error) {
 
 		session := models.Session{
 			SessionID: token.String(),
-			UserID:    userID,
+			OwnerID:   userID,
 			Expires:   time.Now().Add(time.Duration(sessionValidity) * time.Second),
 			Validity:  sessionValidity,
 		}
 
-		if errs := app.Db.Create(&session).GetErrors(); len(errs) > 0 {
-			for err := range errs {
-				log.Errorln(err)
-			}
-
-			return false, errs[0]
+		if err := me.Db.Create(&session).Error; err != nil {
+			return false, err
 		}
 
-		app.token = session.SessionID
+		me.token = session.SessionID
 		return true, nil
 	}
 
-	app.token = out.SessionID
+	me.token = out.SessionID
 
 	return true, nil
 }
 
-func (app *SessionStore) GetSession(r *http.Request) (*models.Session, error) {
+func (me *sessionStore) GetSession(r *http.Request) (*models.Session, error) {
 
-	cookie, err := app.GetCookieFromRequest(r)
+	cookie, err := me.GetCookieFromRequest(r)
 	if err != nil {
 		return nil, err
 	}
@@ -72,20 +68,20 @@ func (app *SessionStore) GetSession(r *http.Request) (*models.Session, error) {
 	}
 
 	var session = models.Session{}
-	if errs := app.Db.Where("session_id = ?", cookie.Value).First(&session).GetErrors(); len(errs) > 0 {
+	if errs := me.Db.Where("session_id = ?", cookie.Value).First(&session).GetErrors(); len(errs) > 0 {
 		for err := range errs {
 			log.Errorln(err)
 		}
 		return nil, errs[0]
 	}
 
-	app.token = session.SessionID
-	app.userID = session.UserID
+	me.token = session.SessionID
+	me.userID = session.OwnerID
 
 	return &session, nil
 }
 
-func (app *SessionStore) GetCookieFromRequest(r *http.Request) (*http.Cookie, error) {
+func (me *sessionStore) GetCookieFromRequest(r *http.Request) (*http.Cookie, error) {
 
 	c, err := r.Cookie(tokenKey)
 	if err != nil {
@@ -102,12 +98,12 @@ func (app *SessionStore) GetCookieFromRequest(r *http.Request) (*http.Cookie, er
 
 }
 
-func (app *SessionStore) Destroy(r *http.Request) (bool, error) {
-	if app.token == "" {
+func (me *sessionStore) Destroy(r *http.Request) (bool, error) {
+	if me.token == "" {
 		return false, http.ErrNoCookie
 	}
 
-	if errs := app.Db.Where("user_id = ?", app.userID).Delete(&models.Session{}).GetErrors(); len(errs) > 0 {
+	if errs := me.Db.Where("owner_id = ?", me.userID).Delete(&models.Session{}).GetErrors(); len(errs) > 0 {
 		for err := range errs {
 			log.Errorln(err)
 		}
@@ -117,8 +113,8 @@ func (app *SessionStore) Destroy(r *http.Request) (bool, error) {
 	return true, nil
 }
 
-func (app *SessionStore) DestroyAllByUserID(userID uint) (bool, error) {
-	if errs := app.Db.Where("user_id = ?", userID).Delete(&models.Session{}).GetErrors(); len(errs) > 0 {
+func (me *sessionStore) DestroyAllByUserID(userID uint) (bool, error) {
+	if errs := me.Db.Where("owner_id = ?", userID).Delete(&models.Session{}).GetErrors(); len(errs) > 0 {
 		for err := range errs {
 			log.Errorln(err)
 		}
@@ -128,18 +124,18 @@ func (app *SessionStore) DestroyAllByUserID(userID uint) (bool, error) {
 	return true, nil
 }
 
-func (app *SessionStore) CreateCookie() (*http.Cookie, error) {
-	if app.token == "" {
+func (me *sessionStore) CreateCookie() (*http.Cookie, error) {
+	if me.token == "" {
 		return nil, fmt.Errorf("cannot generate cookie without token")
 	}
 
 	return &http.Cookie{
 		Name:    tokenKey,
-		Value:   app.token,
+		Value:   me.token,
 		Expires: time.Now().Add(sessionValidity * time.Second),
 	}, nil
 }
 
-func (app SessionStore) GetToken() string {
-	return app.token
+func (me sessionStore) GetToken() string {
+	return me.token
 }

@@ -2,13 +2,7 @@ package main
 
 import (
 	"couchsport/api/handlers"
-	"couchsport/api/handlers/image"
-	"couchsport/api/handlers/invitation"
-	"couchsport/api/handlers/page"
-	"couchsport/api/handlers/profile"
-	"couchsport/api/handlers/user"
 	"couchsport/api/stores"
-	"couchsport/api/types"
 	"couchsport/config"
 	"couchsport/server"
 	"flag"
@@ -22,102 +16,47 @@ func main() {
 
 	srv := server.NewInstance(c)
 
-	activityStore := stores.ActivityStore{Db: srv.Db}
-	activityStore.Migrate()
+	storeFactory := stores.NewStoreFactory(srv.Db, *c)
+	storeFactory.Init()
+	handlerFactory := handlers.NewHandlerFactory(storeFactory)
 
-	languageStore := stores.LanguageStore{Db: srv.Db}
-	languageStore.Migrate()
+	srv.RegisterHandler("/languages", handlerFactory.LanguageHandler().All)
+	srv.RegisterHandler("/activities", handlerFactory.ActivityHandler().All)
+	srv.RegisterHandler("/pages", handlerFactory.PageHandler().All)
 
-	invitationStore := stores.InvitationStore{Db: srv.Db}
-	invitationStore.Migrate()
-
-	fileStore := stores.FileStore{
-		FileSystem:    types.OsFS{},
-		PublicPath:    c.PublicPath,
-		ImageBasePath: c.ImageBasePath,
-		FilePrefix:    c.FilePrefix,
-	}
-
-	imageStore := stores.ImageStore{Db: srv.Db}
-	imageStore.Migrate()
-
-	userStore := stores.UserStore{Db: srv.Db}
-	userStore.Migrate()
-
-	profileStore := stores.ProfileStore{Db: srv.Db, FileStore: fileStore}
-	profileStore.Migrate()
-
-	pageStore := stores.PageStore{Db: srv.Db, FileStore: fileStore, ProfileStore: profileStore}
-	pageStore.Migrate()
-
-	sessionStore := stores.SessionStore{Db: srv.Db}
-	sessionStore.Migrate()
-
-	pageHandler := page.PageHandler{
-		Store: pageStore,
-	}
-
-	languageHandler := handlers.LanguageHandler{
-		Store: languageStore,
-	}
-
-	activityHandler := handlers.ActivityHandler{
-		Store: activityStore,
-	}
-
-	userHandler := user.UserHandler{
-		Store:        userStore,
-		SessionStore: &sessionStore,
-	}
-
-	imageHandler := image.ImageHandler{
-		Store: imageStore,
-	}
-
-	profileHandler := profile.ProfileHandler{
-		Store:     profileStore,
-		UserStore: userStore,
-	}
-
-	srv.RegisterHandler("/languages", languageHandler.GetLanguages)
-	srv.RegisterHandler("/activities", activityHandler.GetActivities)
-	srv.RegisterHandler("/invitations", invitation.InvitationHandler{
-		Store: invitationStore,
-	}.IndexHandler)
-
-	srv.RegisterHandler("/pages", pageHandler.IndexHandler)
-
-	srv.RegisterHandler("/pages/new", userHandler.IsLogged(
-		pageHandler.CreateHandler),
+	srv.RegisterHandler("/pages/new", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.PageHandler().New),
 	)
-	srv.RegisterHandler("/pages/publish", userHandler.IsLogged(
-		pageHandler.PublishHandler),
+	srv.RegisterHandler("/pages/update", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.PageHandler().Update),
 	)
-	srv.RegisterHandler("/pages/delete", userHandler.IsLogged(
-		pageHandler.DeleteHandler),
+	srv.RegisterHandler("/pages/publish", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.PageHandler().Publish),
+	)
+	srv.RegisterHandler("/pages/delete", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.PageHandler().Delete),
 	)
 
-	srv.RegisterHandler("/images/delete", userHandler.IsLogged(
-		imageHandler.SoftDeleteHandler),
+	srv.RegisterHandler("/images/delete", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.ImageHandler().SoftDelete),
 	)
 
-	srv.RegisterHandler("/users", userHandler.IndexHandler)
-	// srv.RegisterHandler("/images/upload", userHandler.IsLogged(imageHandler.UploadHandler))
+	// srv.RegisterHandler("/users", handlerFactory.UserHandler().All)
 
-	srv.RegisterHandler("/profiles/update", userHandler.IsLogged(
-		profileHandler.UpdateProfile),
+	srv.RegisterHandler("/profiles/update", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.ProfileHandler().Update),
 	)
-	srv.RegisterHandler("/profiles/mine", userHandler.IsLogged(
-		profileHandler.GetProfileHandler),
+	srv.RegisterHandler("/profiles/mine", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.ProfileHandler().Mine),
 	)
-	srv.RegisterHandler("/profiles/pages", userHandler.IsLogged(
-		pageHandler.GetProfilePagesHandler),
+	srv.RegisterHandler("/profiles/pages", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.PageHandler().ProfilePages),
 	)
 
-	srv.RegisterHandler("/login", userHandler.Login)
-	srv.RegisterHandler("/signin", userHandler.SignIn)
-	srv.RegisterHandler("/logout", userHandler.IsLogged(
-		userHandler.Logout),
+	srv.RegisterHandler("/login", handlerFactory.UserHandler().Login)
+	srv.RegisterHandler("/signin", handlerFactory.UserHandler().SignIn)
+	srv.RegisterHandler("/logout", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.UserHandler().Logout),
 	)
 
 	srv.ServePublic(c.PublicPath)
