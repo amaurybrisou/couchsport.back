@@ -86,7 +86,6 @@ export default {
   methods: {
     async submit(e) {
       if (!this.valid) return;
-      this.welcome = false
       this.$store
         .dispatch(AUTH_REQUEST, this.user)
         .then(() => {
