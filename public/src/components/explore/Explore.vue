@@ -27,8 +27,18 @@
         </v-toolbar>
       </v-flex>
       <v-flex xs12>
-        <l-map :zoom="mapConfig.zoom" :center="mapConfig.center" ref="map">
-          <l-tile-layer :url="mapConfig.url" :attribution="mapConfig.attribution"></l-tile-layer>
+        <l-map
+          :zoom="mapConfig.zoom"
+          :center="mapConfig.center"
+          :maxBounds="mapConfig.maxBounds"
+          :noWrap="mapConfig.noWrap"
+          ref="map"
+        >
+          <l-tile-layer
+            :url="mapConfig.url"
+            :attribution="mapConfig.attribution"
+            :noWrap="mapConfig.noWrap"
+          ></l-tile-layer>
         </l-map>
       </v-flex>
     </v-layout>
@@ -58,6 +68,8 @@ export default {
           this.$route.query.lat || 47.41322,
           this.$route.query.lng || -1.219482
         ],
+        maxBounds: [[-90, -180], [90, 180]],
+        noWrap: true,
         url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         attribution:
           '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -27,6 +27,8 @@
           <l-map
             :zoom="mapConfig.zoom"
             :center="this.mapConfig.center"
+            :maxBounds="mapConfig.maxBounds"
+            :noWrap="mapConfig.noWrap"
             ref="map"
             style="height:45vh;width:100%;"
           >
@@ -98,6 +100,8 @@ export default {
       mapConfig: {
         zoom: 11,
         center: [46, -1],
+        maxBounds: [[-90, -180],[90, 180]],
+        noWrap: true,
         url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         attribution:
           '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',

@@ -80,6 +80,8 @@
                 <l-map
                   :zoom="mapConfig.zoom"
                   :center="mapConfig.center"
+                  :maxBounds="mapConfig.maxBounds"
+                  :nowWrap="mapConfig.nowWrap"
                   ref="map"
                   style="height:40vh;width:100%;"
                 >
@@ -152,7 +154,7 @@
 <script>
 import AppSnackBar from "@/components/utils/AppSnackBar";
 import UploadButton from "@/components/utils/UploadButton";
-import { LMap, LTileLayer } from "vue2-leaflet";
+import { LMap, LMarker, LTileLayer } from "vue2-leaflet";
 
 import pageRepo from "@/repositories/page.js";
 import activityRepo from "@/repositories/activity.js";
@@ -162,7 +164,7 @@ import { AUTH_ERROR } from "@/store/actions/auth";
 export default {
   name: "profile-page-edition-dialog",
   props: ["page", "state"],
-  components: { UploadButton, LMap, LTileLayer, AppSnackBar },
+  components: { UploadButton, LMap, LMarker, LTileLayer, AppSnackBar },
   data() {
     return {
       snackbar: false,
@@ -183,14 +185,16 @@ export default {
 
       map: null,
       mapConfig: {
-        zoom: 3,
-        center: [46, -1],
+        zoom: 1,
+        center: [this.page.Lat || 46, this.page.Lng || -1],
+        maxBounds: [[-90, -180], [90, 180]],
+        noWrap: true,
         url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         attribution:
           '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         showMarkers: true,
         hasSpotMarker: false,
-        spotMarker: null
+        spotMarker: (this.page.Lat && this.page.Lng) ? L.marker([this.page.Lat, this.page.Lng]) : null
       }
     };
   },
@@ -203,6 +207,12 @@ export default {
     var that = this;
     this.$nextTick(function() {
       that.map = this.$refs.map.mapObject;
+      if (that.mapConfig.spotMarker) {
+        that.mapConfig.hasSpotMarker = true;
+        that.mapConfig.zoom = 5;
+        that.mapConfig.spotMarker.addTo(that.map);
+      }
+
       that.map.on("click", that.hasClickOnMap);
       that.map.on("contextmenu", () => {
         if (that.mapConfig.spotMarker) {
