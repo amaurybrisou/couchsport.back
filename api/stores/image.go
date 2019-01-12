@@ -25,7 +25,7 @@ func (app imageStore) All() ([]models.Image, error) {
 
 //Delete an image by ID
 func (app imageStore) Delete(imageID uint) (bool, error) {
-	if err := app.Db.Exec("UPDATE images SET i.deleted_at = NOW() WHERE i.id = ? ", imageID).Error; err != nil {
+	if err := app.Db.Exec("UPDATE images SET deleted_at = NOW() WHERE id = ? ", imageID).Error; err != nil {
 		return false, err
 	}
 
