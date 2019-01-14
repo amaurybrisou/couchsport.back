@@ -90,7 +90,7 @@ export default {
           active: true,
           markers: [],
           popupImage: {
-            height: "255px",
+            // height: "255px",
             width: "255px"
           },
           popupOptions: {
