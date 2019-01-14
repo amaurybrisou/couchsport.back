@@ -59,14 +59,16 @@
                   return-object
                   multiple
                 ></v-autocomplete>
-
-                <!-- <v-checkbox
-                  ma-0
+                <v-slider
+                  v-model="local_page.CouchNumber"
+                  :rules="couchNumberRules"
                   color="primary"
-                  label="Public"
-                  v-model="local_page.Public"
-                  required
-                ></v-checkbox>-->
+                  label="Number of couch available"
+                  hint="Number of couch available"
+                  min="0"
+                  max="15"
+                  thumb-label
+                ></v-slider>
               </v-form>
             </v-flex>
 
@@ -178,6 +180,8 @@ export default {
         v => !!v || "Name is required",
         v => (v && v.length <= 50) || "Name must be less than 10 characters"
       ],
+
+      couchNumberRules: [val => val < 10 || `Really ?!`],
 
       showEditPageDialog: false,
       showSavingPageDialog: false,

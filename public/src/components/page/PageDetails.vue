@@ -17,6 +17,19 @@
                 :key="i"
               >{{ a.Name }}</v-chip>
             </div>
+            <v-tooltip bottom v-if="page.CouchNumber > 0">
+              <div slot="activator">
+                <v-chip
+                  color="primary"
+                  text-color="white"
+                  small
+                >{{page.CouchNumber}} Couch available</v-chip>
+              </div>
+              <span>This spot accepts guests</span>
+            </v-tooltip>
+            <div v-else>
+              <v-chip color="primary" text-color="white" small>Does not accept guests</v-chip>
+            </div>
           </v-card-title>
           <v-divider></v-divider>
           <v-card-text class="font-weight-regular body-2">{{ page.LongDescription }}</v-card-text>
@@ -179,7 +192,7 @@ export default {
   computed: {
     ...mapState({
       email: state => state.auth.email,
-      FromID: state => state.user.profile.ID,
+      FromID: state => state.user.profile.ID
     }),
     message() {
       return { FromID: this.FromID, ToID: null, Email: this.email, Text: "" };

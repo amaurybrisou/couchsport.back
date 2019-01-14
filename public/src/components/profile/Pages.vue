@@ -97,6 +97,7 @@ export default {
         Images: [],
         Lat: null,
         Lng: null,
+        CouchNumber: 0,
         Activities: []
       },
       local_pages: JSON.parse(JSON.stringify(this.pages))
@@ -151,6 +152,7 @@ export default {
           Images: [],
           Lat: null,
           Lng: null,
+          CouchNumber: 0,
           Activities: []
         };
         this.snackbar = true;
