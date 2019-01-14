@@ -8,13 +8,14 @@ import (
 //Profile definition
 type Profile struct {
 	gorm.Model
-	Username, Country, City, StreetName, Firstname, Lastname string `valid:"name" gorm:"type:varchar(50);"`
-	Gender                                                   string `valid:"in(Male|Female)"`
-	Phone                                                    string `valid:"alphanum"`
-	ZipCode                                                  string `valid:"zipcode"`
-	Avatar                                                   string `valid:"requri"`
-	AvatarFile                                               string `gorm:"-" valid:"-"`
-	StreetNumber                                             uint   `valid:"numeric"`
+	Username, Country, City, Firstname, Lastname string `valid:"name" gorm:"type:varchar(50);"`
+	StreetName                                   string `valid:"text"`
+	Gender                                       string `valid:"in(Male|Female)"`
+	Phone                                        string `valid:"alphanum"`
+	ZipCode                                      string `valid:"zipcode"`
+	Avatar                                       string `valid:"requri"`
+	AvatarFile                                   string `gorm:"-" valid:"-"`
+	StreetNumber                                 uint   `valid:"numeric"`
 	// User                                                                             User
 	// OwnerID                                                                          uint        `gorm:"association_autoupdate:false;association_autocreate:false"`
 	OwnedPages    []Page         `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false"`

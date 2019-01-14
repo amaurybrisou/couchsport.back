@@ -21,7 +21,7 @@ func (me activityStore) Migrate() {
 	me.Db.Table("profile_activities").AddForeignKey("profile_id", "profiles(id)", "CASCADE", "NO ACTION")
 	me.Db.Table("profile_activities").AddUniqueIndex("activity_id_profile_id_unique", "profile_id, activity_id")
 
-	activities := []string{"Alpinisme", "Apnée", "Acrosport", "Badminton", "Base jump", "BMX", "Skateboard", "Escalade", "Canoë-kayak", "Canyoning", "Course", "Course d'orientation", "Crosse", "Cyclisme", "Danse", "Équitation", "Football", "Surf", "Golf", "Handball", "Kitesurfing", "Marathon", "Paddle", "Pêche", "Rafting", "Roller", "Ski Alpin", "Ski de fond", "Ski nordique", "Ski nautique", "Snowboard", "Tennis", "Tir à l'arc", "ULM", "Wakeboard", "Yoga"}
+	activities := []string{"Alpinisme", "Apnée", "Acrosport", "Badminton", "Base jump", "Basketball", "BMX", "Skateboard", "Escalade", "Canoë-kayak", "Canyoning", "Course", "Course d'orientation", "Crosse", "Cyclisme", "Danse", "Équitation", "Football", "Surf", "Golf", "Handball", "Kitesurfing", "Marathon", "Paddle", "Pêche", "Rafting", "Roller", "Ski Alpin", "Ski de fond", "Ski nordique", "Ski nautique", "Snowboard", "Tennis", "Tir à l'arc", "ULM", "Wakeboard", "Yoga"}
 
 	for _, a := range activities {
 		me.Db.FirstOrCreate(&models.Activity{Name: a}, models.Activity{Name: a})

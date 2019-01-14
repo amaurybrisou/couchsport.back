@@ -9,7 +9,7 @@ import (
 type Image struct {
 	gorm.Model
 	URL     string `valid:"requri,required"`
-	Alt     string `valid:"alpha"`
+	Alt     string `valid:"text"`
 	File    string `gorm:"-"`
 	OwnerID uint
 }

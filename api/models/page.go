@@ -9,8 +9,8 @@ import (
 //Page model definition
 type Page struct {
 	gorm.Model
-	Name, Description string  `valid:"name"`
-	LongDescription   string  `gorm:"size:512;" valid:"name"`
+	Name, Description string  `valid:"text"`
+	LongDescription   string  `gorm:"size:512;" valid:"text"`
 	Images            []Image `gorm:"save_associations:true;foreignkey:OwnerID"`
 	Lat               float64 `valid:"latitude"`
 	Lng               float64 `valid:"longitude"`
