@@ -18,4 +18,9 @@ func Init() {
 		re := regexp.MustCompile("")
 		return re.MatchString(str)
 	})
+
+	govalidator.TagMap["text"] = govalidator.Validator(func(str string) bool {
+		re := regexp.MustCompile("^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]+$")
+		return re.MatchString(str)
+	})
 }

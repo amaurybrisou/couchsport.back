@@ -8,24 +8,31 @@ import (
 //Conversation model definition
 type Conversation struct {
 	gorm.Model
-	From     User `gorm:"foreignkey:FromID"`
-	FromID   uint
-	To       User `gorm:"foreignkey:ToID"`
-	ToID     uint
-	Messages []Message
+	From     Profile   `gorm:"foreignkey:FromID"`
+	FromID   uint      `gorm:"association_autoupdate:false;;association_autosave:false;save_associations:false;association_save_reference:false"`
+	To       Profile   `gorm:"foreignkey:ToID"`
+	ToID     uint      `gorm:"association_autoupdate:false;;association_autosave:false;save_associations:false;association_save_reference:false"`
+	Messages []Message `gorm:"foreignkey:OwnerID"`
 }
 
 //Validate model
-func (c *Conversation) Validate(db *gorm.DB) {
-	if c.FromID < 1 {
-		db.AddError(errors.New("invalid c.FromID"))
+func (me *Conversation) Validate(db *gorm.DB) {
+	if me.FromID < 1 {
+		db.AddError(errors.New("invalid FromID"))
 	}
 
-	if c.ToID < 1 {
-		db.AddError(errors.New("invalid c.ToID"))
+	if me.ToID < 1 {
+		db.AddError(errors.New("invalid ToID"))
 	}
 
-	if len(c.Messages) < 1 {
+	if len(me.Messages) < 1 && me.ID > 0 {
 		db.AddError(errors.New("invalid Messages"))
 	}
+}
+
+//AddMessage to the expression Messages
+func (me *Conversation) AddMessage(fromID uint, text string) Message {
+	m := Message{Text: text, OwnerID: me.ID, FromID: fromID}
+	me.Messages = append(me.Messages, m)
+	return m
 }

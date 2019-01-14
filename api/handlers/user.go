@@ -111,7 +111,7 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dbUser, err := me.Store.UserStore().GetByEmail(user.Email)
+	dbUser, err := me.Store.UserStore().GetByEmail(user.Email, false)
 	if err != nil {
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return

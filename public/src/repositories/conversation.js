@@ -7,7 +7,7 @@ export default {
     mines: () => {
         return repo.get("/profile/conversations")
     },
-    delete: (payload) => {
-        return repo.post("/profile/conversations/delete", payload)
+    delete: (id) => {
+        return repo.post("/conversations/delete?id="+id )
     }
 }

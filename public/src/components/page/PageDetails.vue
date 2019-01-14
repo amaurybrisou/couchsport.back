@@ -26,7 +26,7 @@
             color="primary"
             block
             absolute
-            :disabled="message.From == message.To"
+            :disabled="message.FromID == message.ToID"
           >Contact</v-btn>
         </v-card>
       </v-flex>
@@ -78,7 +78,7 @@
     </v-layout>
     <v-layout row justify-center>
       <v-dialog
-        v-if="page && (message.From != message.To)"
+        v-if="page && (message.FromID != message.ToID)"
         id="contact-dialog"
         v-model="showContactDialog"
         width="500"
@@ -90,6 +90,7 @@
           <v-form v-model="messageFormValid">
             <v-card-text>
               <v-text-field
+                v-if="!email"
                 name="Email"
                 label="Your email"
                 autocomplete="email"
@@ -136,20 +137,14 @@ import AppSnackBar from "@/components/utils/AppSnackBar";
 import { LMap, LTileLayer } from "vue2-leaflet";
 import pageRepo from "@/repositories/page.js";
 import conversationRepo from "@/repositories/conversation.js";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 export default {
   name: "page-details",
-  components: { LMap, LTileLayer, AppSnackBar, mapGetters },
+  components: { LMap, LTileLayer, AppSnackBar },
   data() {
     return {
       messageFormValid: false,
-      message: {
-        From: null,
-        To: null,
-        Email: "",
-        Text: ""
-      },
       emailRules: [
         v => !!v || "E-mail is required",
         v => /.+@.+/.test(v) || "E-mail must be valid"
@@ -182,7 +177,13 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["getProfile", "isProfileLoaded"]),
+    ...mapState({
+      email: state => state.auth.email,
+      FromID: state => state.user.profile.ID,
+    }),
+    message() {
+      return { FromID: this.FromID, ToID: null, Email: this.email, Text: "" };
+    },
     imagesUrl() {
       return this.page.Images.map(e => e.URL);
     },
@@ -209,17 +210,17 @@ export default {
         .get({ id: this.$route.params.page_id, profile: true })
         .then(({ data }) => {
           var page = data[0];
+
           this.map.setView([page.Lat, page.Lng]);
           L.marker([page.Lat, page.Lng]).addTo(this.map);
-          this.message.To = page.Owner.ID;
+
+          this.message.ToID = page.OwnerID;
+
           return page;
         });
     }
   },
   watch: {
-    isProfileLoaded: function(v) {
-      !!v && (this.message.From = this.getProfile.ID);
-    },
     snackbar: function(v) {
       !!v && setTimeout((this.snackbar = false), this.snackbarTimeout);
     }

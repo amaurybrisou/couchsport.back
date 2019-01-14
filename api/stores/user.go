@@ -3,6 +3,7 @@ package stores
 import (
 	"fmt"
 	"github.com/goland-amaurybrisou/couchsport/api/models"
+	"github.com/goland-amaurybrisou/couchsport/api/utils"
 	"github.com/jinzhu/gorm"
 
 	"net/url"
@@ -81,9 +82,11 @@ func (me userStore) GetByID(userID uint) (models.User, error) {
 	return outUser, nil
 }
 
-func (me userStore) GetByEmail(email string) (models.User, error) {
+func (me userStore) GetByEmail(email string, create bool) (models.User, error) {
 	var outUser = models.User{}
-	if err := me.Db.Where("email = ?", email).First(&outUser).Error; err != nil {
+	if err := me.Db.Where("email = ?", email).First(&outUser).Error; create && gorm.IsRecordNotFoundError(err) {
+		return me.NewWithoutPassword(email)
+	} else if err != nil {
 		return models.User{}, err
 	}
 	return outUser, nil
@@ -135,6 +138,29 @@ func (me userStore) OwnPage(userID, pageID uint) (bool, error) {
 	return true, nil
 }
 
+//OwnConversation tells you wheter the userID owns the conversation
+func (me userStore) OwnConversation(userID, conversationID uint) (bool, error) {
+	if userID < 1 {
+		return false, fmt.Errorf("userID cannot be below 1")
+	}
+
+	profileID, err := me.GetProfileID(userID)
+	if err != nil {
+		return false, err
+	}
+
+	var count uint
+	if err := me.Db.Model(models.Conversation{}).Where("from_id = ? OR to_id = ?", profileID, profileID).Where("id = ?", conversationID).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	if count < 1 {
+		return false, fmt.Errorf("user %v isn't part of this conversation %v", userID, conversationID)
+	}
+
+	return true, nil
+}
+
 //OwnProfile tells you wheter the userID owns the profile
 func (me userStore) OwnProfile(userID, profileID uint) (bool, error) {
 	if profileID < 1 || userID < 1 {
@@ -168,4 +194,14 @@ func parseBody(tmp interface{}) (models.User, error) {
 	}
 
 	return *r, nil
+}
+
+func (me userStore) NewWithoutPassword(email string) (models.User, error) {
+	password := utils.RandStringBytesMaskImprSrc(len(email))
+	user := models.User{
+		Email:    email,
+		Password: password,
+	}
+
+	return me.New(user)
 }

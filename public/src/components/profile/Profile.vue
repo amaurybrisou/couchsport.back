@@ -12,21 +12,27 @@
         >
           <v-tab to="#tab-1" href="#tab-1" class="subheader">Personal Information</v-tab>
           <v-tab to="#tab-2" href="#tab-2" class="subheader">Activities</v-tab>
-          <v-tab to="#tab-3" href="#tab-3" class="subheader">My Spots</v-tab>
+          <v-tab to="#tab-3" href="#tab-3" class="subheader">Conversations</v-tab>
+          <v-tab to="#tab-4" href="#tab-4" class="subheader">My Spots</v-tab>
           <v-tabs-items v-model="activeTab">
             <v-tab-item value="tab-1">
               <v-card flat>
-                <personal-information :profile="getProfile" :allLanguages="allLanguages"></personal-information>
+                <informations :profile="getProfile" :allLanguages="allLanguages"></informations>
               </v-card>
             </v-tab-item>
             <v-tab-item value="tab-2">
               <v-card flat>
-                <personal-activities :activities="getProfile.Activities || []" :allActivities="allActivities"></personal-activities>
+                <activities :activities="getProfile.Activities || []" :allActivities="allActivities"></activities>
               </v-card>
             </v-tab-item>
             <v-tab-item value="tab-3">
               <v-card flat>
-                <personal-pages :pages="getProfile.OwnedPages || []" :allActivities="allActivities"></personal-pages>
+                <conversations v-if="conversations" :conversations="conversations || []"></conversations>
+              </v-card>
+            </v-tab-item>
+            <v-tab-item value="tab-4">
+              <v-card flat>
+                <pages :pages="getProfile.OwnedPages || []" :allActivities="allActivities"></pages>
               </v-card>
             </v-tab-item>
           </v-tabs-items>
@@ -38,20 +44,23 @@
 
 <script>
 
-import PersonalInformation from "./PersonalInformation";
-import PersonalActivities from "./PersonalActivities";
-import PersonalPages from "./PersonalPages";
+import Informations from "./Informations";
+import Activities from "./Activities";
+import Pages from "./Pages";
+import Conversations from "./Conversations";
 import { mapGetters } from "vuex";
 
 import activityRepo from "@/repositories/activity.js";
 import languageRepo from "../../repositories/language.js";
+import conversationRepo from "../../repositories/conversation.js";
 
 export default {
   name: "Profile",
   components: {
-    PersonalInformation,
-    PersonalActivities,
-    PersonalPages,
+    Informations,
+    Activities,
+    Pages,
+    Conversations,
   },
   data() {
     return {
@@ -67,6 +76,9 @@ export default {
     },
     async allLanguages() {
       return await languageRepo.all().then(({ data }) => data);
+    },
+    async conversations() {
+      return await conversationRepo.mines().then(({data}) => data)
     }
   },
 }

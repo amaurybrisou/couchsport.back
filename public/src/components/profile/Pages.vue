@@ -88,7 +88,6 @@ export default {
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your page has been successfully created",
-      timeout: null,
       new_page: {
         ID: null,
         Name: "",
