@@ -129,7 +129,7 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if isLogged == false {
-		http.Error(w, fmt.Errorf("%s").Error(), http.StatusUnauthorized)
+		http.Error(w, fmt.Errorf("invalid credentials").Error(), http.StatusUnauthorized)
 		return
 	}
 
