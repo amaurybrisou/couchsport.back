@@ -18,6 +18,13 @@ Vue.use(Vuetify, {
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import 'vuetify/dist/vuetify.min.css'
 import AsyncComputed from 'vue-async-computed'
+import moment from 'moment'
+
+Vue.filter('formatDate', function(value, format) {
+  if (value) {
+    return moment(String(value)).format(format || 'MM/DD/YYYY hh:mm')
+  }
+});
 
 
 Vue.use(AsyncComputed)

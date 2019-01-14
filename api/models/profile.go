@@ -8,12 +8,13 @@ import (
 //Profile definition
 type Profile struct {
 	gorm.Model
-	Username, Country, Gender, City, StreetName, Firstname, Lastname string `valid:"name" gorm:"type:varchar(50);"`
-	Phone                                                            string `valid:"alphanum"`
-	ZipCode                                                          string `valid:"zipcode"`
-	Avatar                                                           string `valid:"requri"`
-	AvatarFile                                                       string `gorm:"-" valid:"-"`
-	StreetNumber                                                     uint   `valid:"numeric"`
+	Username, Country, City, StreetName, Firstname, Lastname string `valid:"name" gorm:"type:varchar(50);"`
+	Gender                                                   string `valid:"in(Male|Female)"`
+	Phone                                                    string `valid:"alphanum"`
+	ZipCode                                                  string `valid:"zipcode"`
+	Avatar                                                   string `valid:"requri"`
+	AvatarFile                                               string `gorm:"-" valid:"-"`
+	StreetNumber                                             uint   `valid:"numeric"`
 	// User                                                                             User
 	// OwnerID                                                                          uint        `gorm:"association_autoupdate:false;association_autocreate:false"`
 	OwnedPages    []Page         `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false"`
@@ -26,48 +27,42 @@ type Profile struct {
 //Validate model
 func (p *Profile) Validate(db *gorm.DB) {
 	if len(p.Username) > 255 {
-		db.AddError(errors.New("Username invalid"))
+		db.AddError(errors.New("invalid Username"))
 		return
 	}
 
 	if len(p.Firstname) > 255 {
-		db.AddError(errors.New("Firstname invalid"))
+		db.AddError(errors.New("invalid Firstname"))
 		return
 	}
 
 	if len(p.Lastname) > 255 {
-		db.AddError(errors.New("Lastname invalid"))
+		db.AddError(errors.New("invalid Lastname"))
 		return
 	}
 
 	if len(p.Phone) > 255 {
-		db.AddError(errors.New("Phone invalid"))
+		db.AddError(errors.New("invalid Phone"))
 		return
 	}
 
 	if len(p.ZipCode) > 255 {
-		db.AddError(errors.New("ZipCode invalid"))
+		db.AddError(errors.New("invalid ZipCode"))
 		return
 	}
 
 	if len(p.StreetName) > 255 {
-		db.AddError(errors.New("StreetName invalid"))
+		db.AddError(errors.New("invalid StreetName"))
 		return
 	}
 
 	if len(p.Country) > 255 {
-		db.AddError(errors.New("Country invalid"))
+		db.AddError(errors.New("invalid Country"))
 		return
 	}
 
 	if len(p.City) > 255 {
-		db.AddError(errors.New("City invalid"))
+		db.AddError(errors.New("invalid City"))
 		return
 	}
-
-	if len(p.Gender) > 1 {
-		db.AddError(errors.New("Gender invalid"))
-		return
-	}
-
 }

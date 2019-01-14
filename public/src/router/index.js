@@ -1,76 +1,96 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from "vue";
+import Router from "vue-router";
 
-import SignUp from '@/components/auth/SignUp'
-import Login from '@/components/auth/Login'
-import About from '@/components/About'
-import Home from '@/components/Home'
-import Explore from '@/components/explore/Explore'
-import Profile from '@/components/profile/Profile'
-import PageDetails from '@/components/page/PageDetails'
+import SignUp from "@/components/auth/SignUp";
+import Login from "@/components/auth/Login";
+import About from "@/components/About";
+import Home from "@/components/Home";
+import Explore from "@/components/explore/Explore";
+import Profile from "@/components/profile/Profile";
+import PageDetails from "@/components/page/PageDetails";
 
-import store from '../store'
+import store from "../store";
 
-
-Vue.use(Router)
-
+Vue.use(Router);
 
 const ifNotAuthenticated = (to, from, next) => {
   if (!store.getters.isAuthenticated) {
-    next()
-    return
+    next();
+    return;
   }
-  next('/')
-}
+  next("/");
+};
 
 const ifAuthenticated = (to, from, next) => {
   if (store.getters.isAuthenticated) {
-    next()
-    return
+    next();
+    return;
   }
-  next('/login')
-}
+  next("/login");
+};
 
 export default new Router({
-  mode: 'history',
+  mode: "history",
   routes: [
     {
-      path: '/',
-      name: 'home',
+      path: "/",
+      name: "home",
       component: Home
     },
     {
-      path: '/explore',
-      name: 'explore',
+      path: "/explore",
+      name: "explore",
       component: Explore
     },
     {
-      path: '/profile',
-      name: 'profile',
+      path: "/profile",
+      name: "profile",
       component: Profile,
       beforeEnter: ifAuthenticated,
+      children: [
+        {
+          path: "/profile/informations",
+          name: "informations",
+          beforeEnter: ifAuthenticated
+        },
+        {
+          path: "/profile/activities",
+          name: "activities",
+          beforeEnter: ifAuthenticated
+        },
+        {
+          path: "/profile/conversations",
+          name: "conversations",
+          beforeEnter: ifAuthenticated
+        },
+        {
+          path: "/profile/pages",
+          name: "pages",
+          beforeEnter: ifAuthenticated
+        }
+      ]
     },
     {
-      path: '/signup',
-      name: 'signup',
+      path: "/signup",
+      name: "signup",
       component: SignUp
     },
     {
-      path: '/pages/:page_id',
-      name: 'page-details',
+      path: "/pages/:page_id",
+      name: "page-details",
       component: PageDetails
     },
     {
-      path: '/login',
-      name: 'login',
+      path: "/login",
+      name: "login",
       component: Login,
       props: true,
-      beforeEnter: ifNotAuthenticated,
+      beforeEnter: ifNotAuthenticated
     },
     {
-      path: '/about',
-      name: 'about',
+      path: "/about",
+      name: "about",
       component: About
     }
   ]
-})
+});

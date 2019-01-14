@@ -23,16 +23,20 @@
           >
             <v-divider :key="c.ID"></v-divider>
             <v-list-tile slot="activator">
-              <v-list-tile-content>
+              
                 <!-- <v-list-tile-avatar>
                   <img v-if="c.From.Avatar" :src="c.From.Avatar" :alt="c.From.Avatar">
                 </v-list-tile-avatar>-->
                 <!-- <v-list-tile-avatar>
                 <img v-if="c.To.Avatar" :src="c.To.Avatar" :alt="c.To.Avatar">
                 </v-list-tile-avatar>-->
-                <v-list-tile-title>{{ c.From.Username || c.From.Firstname || c.From.Lastname }}</v-list-tile-title>
+                <v-chip v-if="c.FromID == connectedUserID" small color="" class="subheading">{{ c.To.Username || c.To.Firstname || c.From.Lastname }}</v-chip> 
+                <v-chip v-if="c.FromID != connectedUserID" small color="" class="subheading">{{ c.From.Username || c.From.Firstname || c.From.Lastname }}</v-chip> 
+                <v-list-tile-sub-title class="text--primary">
+                    Last message : {{ c.Messages[c.Messages.length - 1].Date| formatDate('MM/DD/YYYY') }} at {{ c.Messages[c.Messages.length - 1].Date| formatDate("HH:mm") }}
+                </v-list-tile-sub-title>
+
                 <!-- <v-list-tile-title>{{ c.To.Username || c.To.Firstname || c.To.Lastname }}</v-list-tile-title> -->
-              </v-list-tile-content>
               <v-list-tile-action>
                 <v-layout row>
                   <v-flex>
@@ -45,11 +49,20 @@
             </v-list-tile>
 
             <v-list-tile v-for="m in c.Messages" :key="`message-${m.ID}`">
+              
+                  <v-list-tile-avatar v-if="m.FromID == connectedUserID">
+                <img v-if="c.To.Avatar" :src="c.To.Avatar" :alt="c.To.Avatar">
+              </v-list-tile-avatar>
+              <v-list-tile-avatar v-if="m.FromID != connectedUserID">
+                <img v-if="c.To.Avatar" :src="c.From.Avatar" :alt="c.From.Avatar">
+              </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-list-tile-title>{{ m.Text }}</v-list-tile-title>
+                <v-list-tile-sub-title v-if="m.FromID != connectedUserID" class>{{ c.From.Username }}:</v-list-tile-sub-title>
+                <v-list-tile-sub-title v-if="m.FromID == connectedUserID" class>You:</v-list-tile-sub-title>
+                <v-list-tile-title class="body-1 ">{{ m.Text }}</v-list-tile-title>
               </v-list-tile-content>
 
-              <v-list-tile-action v-if="m.FromID != id">
+              <v-list-tile-action v-if="m.FromID != connectedUserID">
                 <v-layout row>
                   <v-flex>
                     <v-btn color="primary" flat @click.prevent="openMessageDialog(c)">
@@ -123,7 +136,7 @@ export default {
   components: { AppSnackBar },
   data() {
     return {
-      local_conversations: this.conversations.map(c => ({...c})),
+      local_conversations: this.conversations.map(c => ({ ...c })),
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your conversation has been successfully deleted",
@@ -137,14 +150,14 @@ export default {
 
       textRules: [
         v => !!v || "Message is required",
-        v => (v && v.length >= 20) || "Message must be more than 20 characters"
+        v => (v && v.length >= 5) || "Message must be more than 20 characters"
       ]
     };
   },
   computed: {
     ...mapState({
       email: state => state.auth.email,
-      id: state => state.user.profile.ID
+      connectedUserID: state => state.user.profile.ID
     }),
     message() {
       return { FromID: null, ToID: null, Email: this.email, Text: "" };
@@ -162,7 +175,7 @@ export default {
   methods: {
     openMessageDialog: function(c) {
       this.showContactDialog = true;
-      this.message.ToID = c.FromID;
+      this.message.ToID = (c.FromID == this.connectedUserID) ? c.ToID : c.FromID;
       this.focusedConversation = c;
     },
     reply: function(e) {
@@ -172,6 +185,7 @@ export default {
           this.snackbarText = "Your messages has been sent";
           this.snackbar = true;
           this.showContactDialog = false;
+          data.Date = new Date();
           this.focusedConversation.Messages.push(data);
         })
         .catch(res => {
@@ -181,18 +195,19 @@ export default {
         });
     },
     deleteConversation(c) {
-        var that = this;
+      var that = this;
 
       this.focusedConversation = c;
-      var id = c.ID;
 
       console.log(c, this.focusedConversation);
-      if (id != null) {
+      if (c.ID != null) {
         conversationRepo
-          .delete(id)
+          .delete(c.ID)
           .then(function({ data }) {
             console.log(data, that.local_conversations);
-            that.local_conversations = that.local_conversations.filter(function(c){
+            that.local_conversations = that.local_conversations.filter(function(
+              c
+            ) {
               console.log(that.focusedConversation.ID, c.ID);
               return that.focusedConversation.ID != c.ID;
             });

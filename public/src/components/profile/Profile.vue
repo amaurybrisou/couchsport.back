@@ -10,27 +10,27 @@
           centered
           show-arrows
         >
-          <v-tab to="#tab-1" href="#tab-1" class="subheader">Personal Information</v-tab>
-          <v-tab to="#tab-2" href="#tab-2" class="subheader">Activities</v-tab>
-          <v-tab to="#tab-3" href="#tab-3" class="subheader">Conversations</v-tab>
-          <v-tab to="#tab-4" href="#tab-4" class="subheader">My Spots</v-tab>
+          <v-tab to="#informations" href="#informations" class="subheader">Personal Information</v-tab>
+          <v-tab to="#activities" href="#activities" class="subheader">Activities</v-tab>
+          <v-tab to="#conversations" href="#conversations" class="subheader">Conversations</v-tab>
+          <v-tab to="#pages" href="#pages" class="subheader">My Spots</v-tab>
           <v-tabs-items v-model="activeTab">
-            <v-tab-item value="tab-1">
+            <v-tab-item value="informations">
               <v-card flat>
                 <informations :profile="getProfile" :allLanguages="allLanguages"></informations>
               </v-card>
             </v-tab-item>
-            <v-tab-item value="tab-2">
+            <v-tab-item value="activities">
               <v-card flat>
                 <activities :activities="getProfile.Activities || []" :allActivities="allActivities"></activities>
               </v-card>
             </v-tab-item>
-            <v-tab-item value="tab-3">
+            <v-tab-item value="conversations">
               <v-card flat>
                 <conversations v-if="conversations" :conversations="conversations || []"></conversations>
               </v-card>
             </v-tab-item>
-            <v-tab-item value="tab-4">
+            <v-tab-item value="pages">
               <v-card flat>
                 <pages :pages="getProfile.OwnedPages || []" :allActivities="allActivities"></pages>
               </v-card>
@@ -64,7 +64,7 @@ export default {
   },
   data() {
     return {
-      activeTab: "tab-1",
+      activeTab: "informations",
     };
   },
   computed: {

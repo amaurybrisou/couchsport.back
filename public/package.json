@@ -13,6 +13,7 @@
     "axios": "^0.18.0",
     "material-design-icons-iconfont": "^4.0.3",
     "mini.css": "^3.0.1",
+    "moment": "^2.23.0",
     "vue": "^2.5.2",
     "vue-async-computed": "^3.5.0",
     "vue-router": "^3.0.1",

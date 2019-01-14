@@ -25,6 +25,10 @@ func (me *Conversation) Validate(db *gorm.DB) {
 		db.AddError(errors.New("invalid ToID"))
 	}
 
+	if me.ToID == me.FromID {
+		db.AddError(errors.New("invalid Conversation"))
+	}
+
 	if len(me.Messages) < 1 && me.ID > 0 {
 		db.AddError(errors.New("invalid Messages"))
 	}
