@@ -1,9 +1,9 @@
 package stores
 
 import (
-	"couchsport/api/models"
 	"fmt"
 	"github.com/gofrs/uuid"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -21,6 +21,8 @@ type sessionStore struct {
 
 func (me sessionStore) Migrate() {
 	me.Db.AutoMigrate(&models.Session{})
+	me.Db.Model(&models.Session{}).AddForeignKey("owner_id", "users(id)", "CASCADE", "CASCADE")
+
 }
 
 func (me *sessionStore) Create(userID uint) (bool, error) {

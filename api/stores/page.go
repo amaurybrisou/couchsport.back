@@ -1,9 +1,8 @@
 package stores
 
 import (
-	"couchsport/api/models"
-	"couchsport/api/utils"
-	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
+	"github.com/goland-amaurybrisou/couchsport/api/utils"
 	"github.com/jinzhu/gorm"
 	"net/url"
 	"strconv"
@@ -19,6 +18,7 @@ type pageStore struct {
 //Migrate creates the model schema in database
 func (me pageStore) Migrate() {
 	me.Db.AutoMigrate(&models.Page{})
+	me.Db.Model(&models.Page{}).AddForeignKey("owner_id", "profiles(id)", "NO ACTION", "RESTRICT")
 }
 
 //All returns all pages in Database
@@ -63,9 +63,7 @@ func (me pageStore) GetPagesByOwnerID(profileID uint) ([]models.Page, error) {
 
 //New creates a page
 func (me pageStore) New(profileID uint, page models.Page) (models.Page, error) {
-	if !page.IsValid("NEW") {
-		return models.Page{}, fmt.Errorf("invalid page")
-	}
+	page.New = true
 
 	page.OwnerID = profileID
 
@@ -86,9 +84,7 @@ func (me pageStore) New(profileID uint, page models.Page) (models.Page, error) {
 
 //Update the page
 func (me pageStore) Update(userID uint, page models.Page) (models.Page, error) {
-	if !page.IsValid("UPDATE") {
-		return models.Page{}, fmt.Errorf("pageId cannot be below 0 %v", page.ID)
-	}
+	page.New = false
 
 	if len(page.Images) > 0 {
 		directory := "page-" + strconv.FormatUint(uint64(userID), 10)
@@ -96,11 +92,12 @@ func (me pageStore) Update(userID uint, page models.Page) (models.Page, error) {
 		if err != nil {
 			return models.Page{}, err
 		}
+		page.Images = images
 		me.Db.Model(&page).Association("Images").Replace(images) // update with newly parsed images and previous ones
 	}
 
 	me.Db.Unscoped().Table("page_activities").Where("activity_id NOT IN (?)", me.getActivitiesIDS(page.Activities)).Where("page_id = ?", page.ID).Delete(&models.Image{})
-	me.Db.Model(&page).Association("Activities").Append(page.Activities)
+	//me.Db.Model(&page).Association("Activities").Append(page.Activities)
 
 	if err := me.Db.Set("gorm:save_associations", true).Model(&page).Update(&page).Error; err != nil {
 		return models.Page{}, err
@@ -144,9 +141,13 @@ func (me pageStore) getActivitiesIDS(activities []*models.Activity) []uint {
 }
 
 func (me pageStore) downloadImages(directory string, images []models.Image) ([]models.Image, error) {
+	var tmpImages []models.Image
 	if len(images) > 0 {
 		for idx, i := range images {
-			if i.File != "" && len(images) < 9 {
+			if !i.IsValid() {
+				continue
+			}
+			if i.File != "" && idx < 6 {
 
 				//decode b64 string to bytes
 				mime, buf, err := utils.B64ToImage(i.URL)
@@ -166,9 +167,9 @@ func (me pageStore) downloadImages(directory string, images []models.Image) ([]m
 
 				i.File = ""
 				i.URL = filename
-				images[idx] = i
+				tmpImages = append(tmpImages, i)
 			}
 		}
 	}
-	return images, nil
+	return tmpImages, nil
 }

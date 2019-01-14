@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"couchsport/api/types"
+	"github.com/goland-amaurybrisou/couchsport/api/types"
 	"github.com/golang/leveldb/db"
 	"github.com/golang/leveldb/memfs"
 	"io"

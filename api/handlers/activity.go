@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"couchsport/api/stores"
 	"encoding/json"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/stores"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )

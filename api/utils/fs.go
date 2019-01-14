@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"couchsport/api/types"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/types"
 	log "github.com/sirupsen/logrus"
 )
 

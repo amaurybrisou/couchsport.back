@@ -1,29 +1,38 @@
 package main
 
 import (
-	"couchsport/api/handlers"
-	"couchsport/api/stores"
-	"couchsport/config"
-	"couchsport/server"
 	"flag"
+	"github.com/goland-amaurybrisou/couchsport/api/handlers"
+	"github.com/goland-amaurybrisou/couchsport/api/stores"
+	"github.com/goland-amaurybrisou/couchsport/api/validators"
+	"github.com/goland-amaurybrisou/couchsport/config"
+	"github.com/goland-amaurybrisou/couchsport/server"
 )
 
 func main() {
 	env := flag.String("env", "dev", "select environment config file to use (will load config.[env].json")
+	populate := flag.Bool("populate", false, "inject fixtures in database")
 	flag.Parse()
 
 	c := config.Load(*env)
+	c.Populate = *populate
 
 	srv := server.NewInstance(c)
 
 	storeFactory := stores.NewStoreFactory(srv.Db, *c)
-	storeFactory.Init()
+	storeFactory.Init(c.Populate)
 	handlerFactory := handlers.NewHandlerFactory(storeFactory)
+	validators.Init()
 
 	srv.RegisterHandler("/languages", handlerFactory.LanguageHandler().All)
 	srv.RegisterHandler("/activities", handlerFactory.ActivityHandler().All)
-	srv.RegisterHandler("/pages", handlerFactory.PageHandler().All)
 
+	srv.RegisterHandler("/conversations/message/send", handlerFactory.ConversationHandler().HandleMessage)
+	srv.RegisterHandler("/conversations/delete", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.ConversationHandler().Delete),
+	)
+
+	srv.RegisterHandler("/pages", handlerFactory.PageHandler().All)
 	srv.RegisterHandler("/pages/new", handlerFactory.UserHandler().IsLogged(
 		handlerFactory.PageHandler().New),
 	)
@@ -38,7 +47,7 @@ func main() {
 	)
 
 	srv.RegisterHandler("/images/delete", handlerFactory.UserHandler().IsLogged(
-		handlerFactory.ImageHandler().SoftDelete),
+		handlerFactory.ImageHandler().Delete),
 	)
 
 	// srv.RegisterHandler("/users", handlerFactory.UserHandler().All)
@@ -47,10 +56,13 @@ func main() {
 		handlerFactory.ProfileHandler().Update),
 	)
 	srv.RegisterHandler("/profiles/mine", handlerFactory.UserHandler().IsLogged(
-		handlerFactory.ProfileHandler().Mine),
+		handlerFactory.UserHandler().Profile),
 	)
 	srv.RegisterHandler("/profiles/pages", handlerFactory.UserHandler().IsLogged(
 		handlerFactory.PageHandler().ProfilePages),
+	)
+	srv.RegisterHandler("/profile/conversations", handlerFactory.UserHandler().IsLogged(
+		handlerFactory.ConversationHandler().ProfileConversations),
 	)
 
 	srv.RegisterHandler("/login", handlerFactory.UserHandler().Login)

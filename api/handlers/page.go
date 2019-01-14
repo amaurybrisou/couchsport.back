@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"couchsport/api/models"
-	"couchsport/api/stores"
 	"encoding/json"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
+	"github.com/goland-amaurybrisou/couchsport/api/stores"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
@@ -44,7 +44,7 @@ func (me pageHandler) ProfilePages(userID uint, w http.ResponseWriter, r *http.R
 		defer r.Body.Close()
 	}
 
-	profileID, err := me.Store.AuthorizationStore().GetProfileID(userID)
+	profileID, err := me.Store.UserStore().GetProfileID(userID)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnprocessableEntity)
@@ -84,7 +84,7 @@ func (me pageHandler) New(userID uint, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileID, err := me.Store.AuthorizationStore().GetProfileID(userID)
+	profileID, err := me.Store.UserStore().GetProfileID(userID)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnprocessableEntity)
@@ -94,7 +94,7 @@ func (me pageHandler) New(userID uint, w http.ResponseWriter, r *http.Request) {
 	pageObj, err := me.Store.PageStore().New(profileID, page)
 	if err != nil {
 		log.Error(err)
-		http.Error(w, fmt.Errorf("could not create page %s", err).Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -125,12 +125,7 @@ func (me pageHandler) Update(userID uint, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if !page.IsValid("UPDATE") {
-		http.Error(w, fmt.Errorf("Page is invalid").Error(), http.StatusUnprocessableEntity)
-		return
-	}
-
-	owns, err := me.Store.AuthorizationStore().OwnPage(userID, page.ID)
+	owns, err := me.Store.UserStore().OwnPage(userID, page.ID)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnprocessableEntity)
@@ -145,7 +140,7 @@ func (me pageHandler) Update(userID uint, w http.ResponseWriter, r *http.Request
 
 	pageObj, err := me.Store.PageStore().Update(userID, page)
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not update page %s", err).Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -175,7 +170,7 @@ func (me pageHandler) Delete(userID uint, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	owns, err := me.Store.AuthorizationStore().OwnPage(userID, page.ID)
+	owns, err := me.Store.UserStore().OwnPage(userID, page.ID)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnprocessableEntity)
@@ -220,7 +215,7 @@ func (me pageHandler) Publish(userID uint, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	owns, err := me.Store.AuthorizationStore().OwnPage(userID, page.ID)
+	owns, err := me.Store.UserStore().OwnPage(userID, page.ID)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnprocessableEntity)
@@ -235,7 +230,7 @@ func (me pageHandler) Publish(userID uint, w http.ResponseWriter, r *http.Reques
 
 	result, err := me.Store.PageStore().Publish(userID, page.ID, page.Public)
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not extract body %s", err).Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 

@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"couchsport/api/models"
-	"couchsport/api/stores"
 	"encoding/json"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
+	"github.com/goland-amaurybrisou/couchsport/api/stores"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
@@ -15,8 +15,8 @@ type imageHandler struct {
 	Store *stores.StoreFactory
 }
 
-//SoftDelete is called to set DeletedAt field to Now, not deleting the image
-func (me imageHandler) SoftDelete(userID uint, w http.ResponseWriter, r *http.Request) {
+//Delete is called to set DeletedAt field to Now, not deleting the image
+func (me imageHandler) Delete(userID uint, w http.ResponseWriter, r *http.Request) {
 	r.Close = true
 
 	if r.Body != nil {
@@ -30,7 +30,7 @@ func (me imageHandler) SoftDelete(userID uint, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	owns, err := me.Store.AuthorizationStore().OwnImage(userID, image.ID)
+	owns, err := me.Store.UserStore().OwnImage(userID, image.ID)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)

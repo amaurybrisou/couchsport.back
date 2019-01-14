@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
@@ -9,31 +10,44 @@ import (
 //User model definition
 type User struct {
 	gorm.Model
-	Email     string `gorm:"unique_index"`
-	Password  string
-	Profile   Profile `gorm:"association_foreignkey:OwnerID"`
-	ProfileID uint
-	// FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
+	Email     string  `gorm:"unique_index" valid:"email,required"`
+	Password  string  `valid:"required,length(8|255)"`
+	Profile   Profile `valid:"-" gorm:"foreignkey:ProfileID;association_autocreate:false;save_associations:false;association_save_reference:true;"`
+	ProfileID uint    `valid:"numeric"`
+	// // FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
 	// Friends         []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id;"`
-	Type string
-	New  bool `gorm:"-"`
+	Type string `valid:"in(ADMIN|USER)"`
+	New  bool   `gorm:"-" valid:"-"`
 }
 
-//IsValid say wheter the underlying structure is a valid User
-func (user *User) IsValid() bool {
+//Validate model
+func (user User) Validate(db *gorm.DB) {
 	if user.Email == "" {
-		return false
+		db.AddError(errors.New("email is empty"))
+		return
 	}
 
 	if user.Password == "" {
-		return false
+		db.AddError(errors.New("password is empty"))
+		return
 	}
 
-	return true
+	if user.ProfileID == 0 && !user.New {
+		db.AddError(errors.New("profileID invalid"))
+		return
+	}
+
+	return
 }
 
 //BeforeCreate generate the User ID, set Type to USER and hash the password
 func (user *User) BeforeCreate(scope *gorm.Scope) error {
+	profile := Profile{}
+	if err := scope.DB().Create(&profile).Error; err != nil {
+		return err
+	}
+
+	scope.SetColumn("Profile", profile)
 	scope.SetColumn("Type", "USER")
 	scope.SetColumn("Password", hashAndSalt([]byte(user.Password)))
 	return nil

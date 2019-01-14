@@ -1,9 +1,10 @@
 package server
 
 import (
-	"couchsport/config"
+	"github.com/goland-amaurybrisou/couchsport/config"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/qor/validations"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -13,7 +14,10 @@ func mustOpenDb(c *config.Config) *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db.LogMode(true)
+
+	db.LogMode(c.Verbose)
+
+	validations.RegisterCallbacks(db)
 
 	return db
 }

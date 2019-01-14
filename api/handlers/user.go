@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"couchsport/api/models"
-	"couchsport/api/stores"
 	"encoding/json"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
+	"github.com/goland-amaurybrisou/couchsport/api/stores"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"io"
@@ -42,6 +42,28 @@ func (me userHandler) All(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//Profile returns the connected user profile
+func (me userHandler) Profile(userID uint, w http.ResponseWriter, r *http.Request) {
+	profile, err := me.Store.UserStore().GetProfile(userID)
+
+	if err != nil {
+		log.Error(err)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json, err := json.Marshal(profile)
+
+	if err != nil {
+		log.Error(err)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, string(json))
+
+}
+
 //Signin create a user account
 func (me userHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	r.Close = true
@@ -53,14 +75,14 @@ func (me userHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	user, err := me.parseBody(r.Body)
 	if err != nil {
 		log.Error(err)
-		http.Error(w, fmt.Errorf("could not parse body %s", err).Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
 	user, err = me.Store.UserStore().New(user)
 	if err != nil {
 		log.Error(err)
-		http.Error(w, fmt.Errorf("could not signup : %s", err).Error(), http.StatusForbidden)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusForbidden)
 		return
 	}
 
@@ -68,7 +90,7 @@ func (me userHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Error(err)
-		http.Error(w, fmt.Errorf("could not marshal object %s", err).Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -85,13 +107,13 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := me.parseBody(r.Body)
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not extract session %s", err).Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
 	dbUser, err := me.Store.UserStore().GetByEmail(user.Email)
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not fetch user %s", err).Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -102,19 +124,19 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	isLogged, err := me.Store.SessionStore().Create(dbUser.ID)
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not create session %s", err).Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if isLogged == false {
-		http.Error(w, fmt.Errorf("could not log in").Error(), http.StatusUnauthorized)
+		http.Error(w, fmt.Errorf("%s").Error(), http.StatusUnauthorized)
 		return
 	}
 
 	cookie, err := me.Store.SessionStore().CreateCookie()
 
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not create cookie %s", err).Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -130,7 +152,7 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	json, err := json.Marshal(responseBody)
 
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not marshal object %s", err).Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
 	}
 
 	fmt.Fprintf(w, string(json))
@@ -142,7 +164,7 @@ func (me userHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r *
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, err := me.Store.SessionStore().GetSession(r)
 		if err != nil {
-			http.Error(w, fmt.Errorf("could not extract session %s", err).Error(), http.StatusUnauthorized)
+			http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnauthorized)
 			return
 		}
 
@@ -150,7 +172,7 @@ func (me userHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r *
 			me.Store.SessionStore().Destroy(r)
 
 			if err != nil {
-				http.Error(w, fmt.Errorf("could not logout properly %s", err).Error(), http.StatusInternalServerError)
+				http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
 				return
 			}
 
@@ -166,7 +188,7 @@ func (me userHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r *
 func (me userHandler) Logout(_ uint, w http.ResponseWriter, r *http.Request) {
 	success, err := me.Store.SessionStore().Destroy(r)
 	if err != nil {
-		http.Error(w, fmt.Errorf("could not logout properly %s", err).Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
 		return
 	}
 	fmt.Fprint(w, `{ "Result" : `+strconv.FormatBool(success)+` }`)

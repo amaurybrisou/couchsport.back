@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"couchsport/api/models"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
 	"github.com/jinzhu/gorm"
 )
 
@@ -10,22 +10,23 @@ type imageStore struct {
 }
 
 //Migrate creates the db table
-func (app imageStore) Migrate() {
-	app.Db.AutoMigrate(&models.Image{})
+func (me imageStore) Migrate() {
+	me.Db.AutoMigrate(&models.Image{})
+	me.Db.Model(&models.Image{}).AddForeignKey("owner_id", "pages(id)", "CASCADE", "RESTRICT")
 }
 
 //All returns all the images in db
-func (app imageStore) All() ([]models.Image, error) {
+func (me imageStore) All() ([]models.Image, error) {
 	var images []models.Image
-	if err := app.Db.Find(&images).Error; err != nil {
+	if err := me.Db.Find(&images).Error; err != nil {
 		return []models.Image{}, err
 	}
 	return images, nil
 }
 
 //Delete an image by ID
-func (app imageStore) Delete(imageID uint) (bool, error) {
-	if err := app.Db.Exec("UPDATE images SET deleted_at = NOW() WHERE id = ? ", imageID).Error; err != nil {
+func (me imageStore) Delete(imageID uint) (bool, error) {
+	if err := me.Db.Exec("UPDATE images SET deleted_at = NOW() WHERE id = ? ", imageID).Error; err != nil {
 		return false, err
 	}
 

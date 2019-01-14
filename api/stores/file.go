@@ -1,9 +1,9 @@
 package stores
 
 import (
-	"couchsport/api/types"
-	"couchsport/api/utils"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/types"
+	"github.com/goland-amaurybrisou/couchsport/api/utils"
 	log "github.com/sirupsen/logrus"
 	"io"
 )
@@ -15,25 +15,25 @@ type fileStore struct {
 
 //Save a file on the filesystem at path computed from ImageBasePath + directory + UserID
 //directory is prepend before userId
-func (app fileStore) Save(directory, filename string, buf io.Reader) (string, error) {
+func (me fileStore) Save(directory, filename string, buf io.Reader) (string, error) {
 
 	if filename == "" {
 		err := fmt.Errorf("filename is incorrect")
 		return "", err
 	}
 
-	path := app.ImageBasePath
+	path := me.ImageBasePath
 	if directory != "" {
 		path += directory + "/"
 	}
 
-	fsPath, err := utils.CreateDirIfNotExists(app.FileSystem, app.PublicPath+path)
+	fsPath, err := utils.CreateDirIfNotExists(me.FileSystem, me.PublicPath+path)
 	if err != nil {
 		return "", err
 	}
 
-	log.Printf("Openning file %s", fsPath+app.FilePrefix+filename)
-	f, err := app.FileSystem.OpenFile(fsPath + app.FilePrefix + filename)
+	log.Printf("Openning file %s", fsPath+me.FilePrefix+filename)
+	f, err := me.FileSystem.OpenFile(fsPath + me.FilePrefix + filename)
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +48,7 @@ func (app fileStore) Save(directory, filename string, buf io.Reader) (string, er
 		return "", fmt.Errorf("file not created, no data to write")
 	}
 
-	log.Printf("%d bytes wrote at %s", count, fsPath+app.FilePrefix+filename)
+	log.Printf("%d bytes wrote at %s", count, fsPath+me.FilePrefix+filename)
 
-	return "/" + path + app.FilePrefix + filename, nil
+	return "/" + path + me.FilePrefix + filename, nil
 }

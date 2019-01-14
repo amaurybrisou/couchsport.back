@@ -4,6 +4,8 @@
     "Port": 8080,
     "DataSourceName": "user:user@/dbname",
     "DatabaseParams": "charset=utf8&parseTime=True&loc=Local",
+    "Verbose": false,
+    "Populate": false,
     "DriverName": "mysql",
     "FixtureFile": "fixtures/acouch.sql",
     "PublicPath": "public/dist/",

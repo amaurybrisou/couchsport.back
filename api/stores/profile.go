@@ -1,9 +1,9 @@
 package stores
 
 import (
-	"couchsport/api/models"
-	"couchsport/api/utils"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
+	"github.com/goland-amaurybrisou/couchsport/api/utils"
 	"github.com/jinzhu/gorm"
 	"strconv"
 )
@@ -27,26 +27,10 @@ func (me profileStore) All() ([]models.Profile, error) {
 	return profiles, nil
 }
 
-//GetProfileByOwnerID returns the user profile
-func (me profileStore) GetProfileByOwnerID(userID uint) (models.Profile, error) {
-	var out = models.Profile{}
-	if err := me.Db.Model(&models.Profile{}).Preload("Languages").Preload("OwnedPages.Images").Preload("Activities").Where("owner_id = ?", userID).First(&out).Error; gorm.IsRecordNotFoundError(err) {
-		out.OwnerID = userID
-		if err := me.Db.Create(&out).Error; err != nil {
-			return models.Profile{}, err
-		}
-	}
-	return out, nil
-}
-
 //Update the profile
-func (me profileStore) Update(profileID uint, profile models.Profile) (models.Profile, error) {
-	if !profile.IsValid() {
-		return models.Profile{}, fmt.Errorf("invalid profile")
-	}
-
+func (me profileStore) Update(userID uint, profile models.Profile) (models.Profile, error) {
 	if profile.AvatarFile != "" {
-		filename, err := me.saveAvatar(profileID, profile.AvatarFile, profile.Avatar)
+		filename, err := me.saveAvatar(userID, profile.AvatarFile, profile.Avatar)
 		if err != nil {
 			return models.Profile{}, err
 		}

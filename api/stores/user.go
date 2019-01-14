@@ -1,8 +1,8 @@
 package stores
 
 import (
-	"couchsport/api/models"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
 	"github.com/jinzhu/gorm"
 
 	"net/url"
@@ -12,12 +12,13 @@ type userStore struct {
 	Db *gorm.DB
 }
 
-func (app userStore) Migrate() {
-	app.Db.AutoMigrate(&models.User{})
+func (me userStore) Migrate() {
+	me.Db.AutoMigrate(&models.User{})
+	me.Db.Model(&models.User{}).AddForeignKey("profile_id", "profiles(id)", "CASCADE", "CASCADE")
 }
 
-func (app userStore) All(keys url.Values) ([]models.User, error) {
-	var req = app.Db
+func (me userStore) All(keys url.Values) ([]models.User, error) {
+	var req = me.Db
 	for i, v := range keys {
 		switch i {
 		case "profile":
@@ -44,13 +45,11 @@ func (app userStore) All(keys url.Values) ([]models.User, error) {
 	return users, nil
 }
 
-func (app userStore) New(user models.User) (models.User, error) {
-	if !user.IsValid() {
-		return models.User{}, fmt.Errorf("Invalid user")
-	}
+func (me userStore) New(user models.User) (models.User, error) {
+	user.New = true
 
 	var count int
-	if err := app.Db.Model(models.User{}).Where("email = ?", user.Email).Count(&count).Error; err != nil {
+	if err := me.Db.Model(&user).Where("email = ?", user.Email).Count(&count).Error; err != nil {
 		return models.User{}, err
 	}
 
@@ -58,27 +57,106 @@ func (app userStore) New(user models.User) (models.User, error) {
 		return models.User{}, fmt.Errorf("user already exist")
 	}
 
-	if err := app.Db.Create(&user).Error; err != nil {
+	if err := me.Db.Create(&user).Error; err != nil {
 		return models.User{}, err
 	}
 
 	return user, nil
 }
 
-func (app userStore) GetByID(userID uint) (models.User, error) {
+//GetProfile returns the user profile
+func (me userStore) GetProfile(userID uint) (models.Profile, error) {
+	var out = models.User{}
+	if err := me.Db.Preload("Profile").Preload("Profile.Languages").Preload("Profile.Activities").Preload("Profile.OwnedPages.Images").Preload("Profile.OwnedPages.Activities").Where("id = ?", userID).First(&out).Error; err != nil { //gorm.IsRecordNotFoundError(err) {
+		return out.Profile, err
+	}
+	return out.Profile, nil
+}
+
+func (me userStore) GetByID(userID uint) (models.User, error) {
 	var outUser = models.User{}
-	if err := app.Db.Model(&models.User{}).Preload("Profile").Where("id = ?", userID).First(&outUser).Error; err != nil {
+	if err := me.Db.Model(&models.User{}).Preload("Profile").Where("id = ?", userID).First(&outUser).Error; err != nil {
 		return models.User{}, err
 	}
 	return outUser, nil
 }
 
-func (app userStore) GetByEmail(email string) (models.User, error) {
+func (me userStore) GetByEmail(email string) (models.User, error) {
 	var outUser = models.User{}
-	if err := app.Db.Where("email = ?", email).First(&outUser).Error; err != nil {
+	if err := me.Db.Where("email = ?", email).First(&outUser).Error; err != nil {
 		return models.User{}, err
 	}
 	return outUser, nil
+}
+
+//OwnImage tells you wheter the userID owns the imageID
+func (me userStore) OwnImage(userID, imageID uint) (bool, error) {
+	if userID < 1 {
+		return false, fmt.Errorf("userID cannot be below 1")
+	}
+
+	user, err := me.GetByID(userID)
+	if err != nil {
+		return false, err
+	}
+
+	var count uint
+	if err := me.Db.Model(models.Image{}).Where("owner_id = ?", user.ProfileID).Where("id = ?", imageID).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	if count < 1 {
+		return false, fmt.Errorf("user %v doesn't own this image %v", userID, imageID)
+	}
+
+	return true, nil
+}
+
+//OwnPage tells you wheter the userID owns the pageID
+func (me userStore) OwnPage(userID, pageID uint) (bool, error) {
+	if userID < 1 {
+		return false, fmt.Errorf("userID cannot be below 1")
+	}
+
+	user, err := me.GetByID(userID)
+	if err != nil {
+		return false, err
+	}
+
+	var count uint
+	if err := me.Db.Model(models.Page{}).Where("owner_id = ?", user.ProfileID).Where("id = ?", pageID).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	if count < 1 {
+		return false, fmt.Errorf("user %v doesn't own this page %v", userID, pageID)
+	}
+
+	return true, nil
+}
+
+//OwnProfile tells you wheter the userID owns the profile
+func (me userStore) OwnProfile(userID, profileID uint) (bool, error) {
+	if profileID < 1 || userID < 1 {
+		return false, fmt.Errorf("profileID or userID cannot be below 1")
+	}
+
+	user, err := me.GetByID(userID)
+	if err != nil {
+		return false, err
+	}
+
+	if user.ID != profileID {
+		return false, fmt.Errorf("user %v doesn't own this profile %v", profileID, profileID)
+	}
+
+	return true, nil
+}
+
+//GetProfileID returns the profileID of the submitted userID
+func (me userStore) GetProfileID(userID uint) (uint, error) {
+	profile, err := me.GetProfile(userID)
+	return profile.ID, err
 }
 
 func parseBody(tmp interface{}) (models.User, error) {

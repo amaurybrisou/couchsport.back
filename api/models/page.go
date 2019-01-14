@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -8,11 +9,11 @@ import (
 //Page model definition
 type Page struct {
 	gorm.Model
-	Name, Description string
-	LongDescription   string  `gorm:"size:512;"`
-	Images            []Image `gorm:"save_associations:false;foreignkey:OwnerID"`
-	Lat               float64
-	Lng               float64
+	Name, Description string  `valid:"name"`
+	LongDescription   string  `gorm:"size:512;" valid:"name"`
+	Images            []Image `gorm:"save_associations:true;foreignkey:OwnerID"`
+	Lat               float64 `valid:"latitude"`
+	Lng               float64 `valid:"longitude"`
 	Followers         []*User `gorm:"many2many:user_page_follower"`
 	Owner             Profile `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false"`
 	OwnerID           uint
@@ -33,18 +34,24 @@ func (page *Page) AfterCreate(scope *gorm.Scope) error {
 	return nil
 }
 
-//IsValid  tells wheter the page is valid
-func (page *Page) IsValid(state string) bool {
-	if state == "UPDATE" && page.ID < 1 {
-		return false
+//Validate  tells wheter the page is valid
+func (page *Page) Validate(db *gorm.DB) {
+	if !page.New && page.ID < 1 {
+		db.AddError(errors.New("invalid PageID"))
+		return
 	}
 
 	if page.Name == "" {
-		return false
+		db.AddError(errors.New("Name is empty"))
+		return
 	}
 	if page.Description == "" {
-		return false
+		db.AddError(errors.New("Description is empty"))
+		return
 	}
 
-	return true
+	if len(page.LongDescription) > 512 {
+		db.AddError(errors.New("invalid LongDescription"))
+		return
+	}
 }

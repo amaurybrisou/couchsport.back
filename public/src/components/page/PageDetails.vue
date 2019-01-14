@@ -20,6 +20,14 @@
           </v-card-title>
           <v-divider></v-divider>
           <v-card-text class="font-weight-regular body-2">{{ page.LongDescription }}</v-card-text>
+          <v-btn
+            @click="showContactDialog = true"
+            class="contact-btn"
+            color="primary"
+            block
+            absolute
+            :disabled="message.From == message.To"
+          >Contact</v-btn>
         </v-card>
       </v-flex>
       <v-flex xs6 pl-2>
@@ -54,7 +62,7 @@
               </v-img>
             </v-card>
           </v-flex>
-          <v-dialog class="image-dialog" v-model="showImageDialog">
+          <v-dialog id="image-dialog" v-model="showImageDialog">
             <v-carousel interval="700000000" height="80vh" hide-delimiters>
               <v-icon
                 @click="showImageDialog = false"
@@ -62,16 +70,56 @@
                 class="right pa-0 ma-1 close-icon"
                 icon
               >close</v-icon>
-              <v-carousel-item
-                v-for="(image, i) in page.Images"
-                :key="i"
-                :src="image.URL"
-                lazy
-              ></v-carousel-item>
+              <v-carousel-item v-for="(image, i) in page.Images" :key="i" :src="image.URL" lazy></v-carousel-item>
             </v-carousel>
           </v-dialog>
         </v-layout>
       </v-flex>
+    </v-layout>
+    <v-layout row justify-center>
+      <v-dialog
+        v-if="page && (message.From != message.To)"
+        id="contact-dialog"
+        v-model="showContactDialog"
+        width="500"
+      >
+        <v-card>
+          <v-toolbar color="primary">
+            <v-card-title class="title font-weight-regular">Your message to {{ contactName }}</v-card-title>
+          </v-toolbar>
+          <v-form v-model="messageFormValid">
+            <v-card-text>
+              <v-text-field
+                name="Email"
+                label="Your email"
+                autocomplete="email"
+                v-model="message.Email"
+                :rules="emailRules"
+              ></v-text-field>
+              <v-textarea
+                name="Message"
+                label="Your Message"
+                v-model="message.Text"
+                :rules="textRules"
+                row="1"
+                maxlength="128"
+                hide-details
+                no-resize
+              ></v-textarea>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" flat @click.prevent.native="showContactDialog = false">Cancel</v-btn>
+              <v-btn
+                color="primary"
+                flat
+                @click.native="sendMessage"
+                :disabled="!messageFormValid"
+              >Send</v-btn>
+            </v-card-actions>
+          </v-form>
+        </v-card>
+      </v-dialog>
     </v-layout>
     <app-snack-bar
       :state="snackbar"
@@ -87,20 +135,42 @@
 import AppSnackBar from "@/components/utils/AppSnackBar";
 import { LMap, LTileLayer } from "vue2-leaflet";
 import pageRepo from "@/repositories/page.js";
+import conversationRepo from "@/repositories/conversation.js";
+import { mapGetters } from "vuex";
 
 export default {
   name: "page-details",
-  components: { LMap, LTileLayer, AppSnackBar },
+  components: { LMap, LTileLayer, AppSnackBar, mapGetters },
   data() {
     return {
+      messageFormValid: false,
+      message: {
+        From: null,
+        To: null,
+        Email: "",
+        Text: ""
+      },
+      emailRules: [
+        v => !!v || "E-mail is required",
+        v => /.+@.+/.test(v) || "E-mail must be valid"
+      ],
+
+      textRules: [
+        v => !!v || "Message is required",
+        v => (v && v.length >= 20) || "Message must be more than 20 characters"
+      ],
+
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "an error occured",
+
       showImageDialog: false,
+      showContactDialog: false,
+
       mapConfig: {
         zoom: 11,
         center: [46, -1],
-        maxBounds: [[-90, -180],[90, 180]],
+        maxBounds: [[-90, -180], [90, 180]],
         noWrap: true,
         url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         attribution:
@@ -112,6 +182,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["getProfile", "isProfileLoaded"]),
     imagesUrl() {
       return this.page.Images.map(e => e.URL);
     },
@@ -123,33 +194,50 @@ export default {
     map: function() {
       return this.$refs.map.mapObject;
     },
-    
+    contactName: function() {
+      return (
+        this.page.Owner.Username ||
+        this.page.Owner.Firstname ||
+        this.page.Owner.Lastname
+      );
+    }
   },
   asyncComputed: {
     page: async function() {
       if (Number(this.$route.params.page_id) < 1) return this.$router.push("/");
       return pageRepo
-        .get(this.$route.params.page_id)
+        .get({ id: this.$route.params.page_id, profile: true })
         .then(({ data }) => {
           var page = data[0];
-          this.map.setView([page.Lat, page.Lng])
-          L.marker([page.Lat, page.Lng]).addTo(this.map)
-          return page
+          this.map.setView([page.Lat, page.Lng]);
+          L.marker([page.Lat, page.Lng]).addTo(this.map);
+          this.message.To = page.Owner.ID;
+          return page;
         });
-    },
+    }
   },
-  mounted() {
-    this.$nextTick(function() {
-      
-     
-    });
+  watch: {
+    isProfileLoaded: function(v) {
+      !!v && (this.message.From = this.getProfile.ID);
+    },
+    snackbar: function(v) {
+      !!v && setTimeout((this.snackbar = false), this.snackbarTimeout);
+    }
   },
   methods: {
-    setTimeout() {
-      var that = this;
-      setTimeout(function() {
-        that.snackbar = false;
-      }, that.snackbarTimeout);
+    sendMessage: function(e) {
+      conversationRepo
+        .sendMessage(this.message)
+        .then(() => {
+          this.snackbarText = "Your messages has been sent";
+          this.snackbar = true;
+          this.showContactDialog = false;
+        })
+        .catch(() => {
+          this.snackbarText = "An error occured while sending your message";
+          this.snackbar = true;
+          this.showContactDialog = false;
+        });
     }
   }
 };
@@ -163,8 +251,14 @@ export default {
   margin-left: 1vh;
   height: 45vh;
   opacity: 0.8;
+  .contact-btn {
+    bottom: 0vh;
+    margin: 0;
+  }
 }
-.image-dialog,
+
+#image-dialog,
+#contact-dialog,
 .close-icon {
   z-index: 1100;
 }
@@ -185,7 +279,7 @@ export default {
 .app-background {
   position: absolute;
   background-size: cover;
-  opacity: .4;
+  opacity: 0.4;
   width: 100%;
   height: 100%;
   top: 0;

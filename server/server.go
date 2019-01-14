@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	"couchsport/config"
+	"github.com/goland-amaurybrisou/couchsport/config"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"net/http"

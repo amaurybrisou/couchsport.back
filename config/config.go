@@ -11,6 +11,7 @@ type Config struct {
 	Name                                                                     string
 	Listen                                                                   string
 	Port                                                                     int
+	Populate, Verbose                                                        bool
 	Env, FilePrefix, Username, Password, DataFile, PublicPath, ImageBasePath string
 	DataSourceName, DatabaseParams, DriverName, FixtureFile                  string
 	Logger                                                                   struct {

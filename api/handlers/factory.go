@@ -1,28 +1,30 @@
 package handlers
 
 import (
-	"couchsport/api/stores"
+	"github.com/goland-amaurybrisou/couchsport/api/stores"
 )
 
 //HandlerFactory hols all the handler of the application
 type HandlerFactory struct {
-	activityHandler activityHandler
-	imageHandler    imageHandler
-	languageHandler languageHandler
-	pageHandler     pageHandler
-	profileHandler  profileHandler
-	userHandler     userHandler
+	activityHandler     activityHandler
+	imageHandler        imageHandler
+	languageHandler     languageHandler
+	pageHandler         pageHandler
+	profileHandler      profileHandler
+	userHandler         userHandler
+	conversationHandler conversationHandler
 }
 
 //NewHandlerFactory generates the handlerFactory holding every handler in the application
 func NewHandlerFactory(storeFactory *stores.StoreFactory) *HandlerFactory {
 	return &HandlerFactory{
-		activityHandler: activityHandler{Stores: storeFactory},
-		imageHandler:    imageHandler{Store: storeFactory},
-		languageHandler: languageHandler{Store: storeFactory},
-		pageHandler:     pageHandler{Store: storeFactory},
-		profileHandler:  profileHandler{Store: storeFactory},
-		userHandler:     userHandler{Store: storeFactory},
+		activityHandler:     activityHandler{Stores: storeFactory},
+		imageHandler:        imageHandler{Store: storeFactory},
+		languageHandler:     languageHandler{Store: storeFactory},
+		pageHandler:         pageHandler{Store: storeFactory},
+		profileHandler:      profileHandler{Store: storeFactory},
+		userHandler:         userHandler{Store: storeFactory},
+		conversationHandler: conversationHandler{Store: storeFactory},
 	}
 }
 
@@ -54,4 +56,9 @@ func (me HandlerFactory) ProfileHandler() *profileHandler {
 //UserHandler returns the applicatioin UserHandler
 func (me HandlerFactory) UserHandler() *userHandler {
 	return &me.userHandler
+}
+
+//ConversationHandler returns the applicatioin ConversationHandler
+func (me HandlerFactory) ConversationHandler() *conversationHandler {
+	return &me.conversationHandler
 }
