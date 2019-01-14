@@ -5,18 +5,9 @@
       <v-flex xs6>
         <v-card flat class="fill-height transparent"></v-card>
         <v-card v-if="page" class="page-detail-text">
-          <v-card-title class="title font-weight-bold">
-            <v-list-tile>{{ page.Name}}</v-list-tile>
+          <v-card-title class="title font-weight-bold pb-0">
+            <div class="font-weight-bold">{{ page.Name}}</div>
             <v-spacer></v-spacer>
-            <div v-if="page.Activities">
-              <v-chip
-                v-for="(a, i) in page.Activities"
-                color="primary"
-                text-color="white"
-                small
-                :key="i"
-              >{{ a.Name }}</v-chip>
-            </div>
             <v-tooltip bottom v-if="page.CouchNumber > 0">
               <div slot="activator">
                 <v-chip color="info" text-color="white" small>{{page.CouchNumber}} Couch available</v-chip>
@@ -27,6 +18,18 @@
               <v-chip color="primary" text-color="white" small>Does not accept guests</v-chip>
             </div>
           </v-card-title>
+          <v-list-tile avatar>
+            <div v-if="page.Activities">
+              <v-chip
+                v-for="(a, i) in page.Activities"
+                color="primary"
+                text-color="white"
+                small
+                :key="i"
+              >{{ a.Name }}</v-chip>
+            </div>
+          </v-list-tile>
+
           <v-divider></v-divider>
           <v-card-text class="font-weight-regular body-2">{{ page.LongDescription }}</v-card-text>
           <v-btn
