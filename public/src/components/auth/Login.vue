@@ -91,7 +91,7 @@ export default {
         .then(() => {
           this.$router.push("/profile");
         })
-        .catch((data) => {
+        .catch(data => {
           this.errors = [];
           this.errors.push(data);
         });

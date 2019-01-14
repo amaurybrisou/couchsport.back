@@ -9,11 +9,9 @@
           :max-width="image.width"
           :height="image.height"
           :width="image.width"
-    
           aspect-ratio="1"
           class="grey lighten-2"
-    
-        />
+        >
       </span>
       <v-card-title class="pa-0">
         <div>

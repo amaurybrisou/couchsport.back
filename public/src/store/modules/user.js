@@ -3,17 +3,9 @@ import {
   SAVE_PROFILE,
   PROFILE_SAVED,
   PROFILE_ERROR,
-  
   USER_REQUEST,
   USER_ERROR,
-  USER_SUCCESS,
-  
-  EDIT_PAGE,
-  DELETE_PAGE,
-  NEW_PAGE,
-  PUBLISH_PAGE,
-
-  DELETE_IMAGE
+  USER_SUCCESS
 } from "../actions/user";
 import profileRepo from "../../repositories/profile";
 import pageRepo from "../../repositories/page";
@@ -60,7 +52,7 @@ const actions = {
         }
         throw resp;
       });
-  },  
+  }
 };
 
 const mutations = {
@@ -75,9 +67,8 @@ const mutations = {
     state.status = "error";
   },
 
-
   [MODIFY_PROFILE]: (state, profile) => {
-    state.profile = {...state.profile, ...profile}
+    state.profile = { ...state.profile, ...profile };
   },
   [SAVE_PROFILE]: state => {
     state.status = "loading";

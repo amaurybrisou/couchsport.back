@@ -161,7 +161,6 @@ import { LMap, LMarker, LTileLayer } from "vue2-leaflet";
 import pageRepo from "@/repositories/page.js";
 import activityRepo from "@/repositories/activity.js";
 import imageRepo from "@/repositories/image.js";
-import { AUTH_ERROR } from "@/store/actions/auth";
 
 export default {
   name: "profile-page-edition-dialog",
@@ -285,12 +284,24 @@ export default {
           this.snackbarText = "This image is too big";
           return (this.snackbar = true);
         }
+
+        var exists = this.local_page.Images.filter(
+          i =>
+            (i.URL && i.URL.indexOf(file.name) > -1) ||
+            (i.File && i.File.indexOf(file.name) > -1)
+        ).length;
+        console.log(exists);
+        if (exists > 0) {
+          this.snackbarText = "This images already exists in this page";
+          return (this.snackbar = true);
+        }
+
         var that = this;
         var reader = new FileReader();
         reader.onload = function(e) {
           that.local_page.Images.push({
             URL: e.target.result,
-            file: file.name
+            File: file.name
           });
         };
 

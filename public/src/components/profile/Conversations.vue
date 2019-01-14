@@ -23,20 +23,29 @@
           >
             <v-divider :key="c.ID"></v-divider>
             <v-list-tile slot="activator">
-              
-                <!-- <v-list-tile-avatar>
+              <!-- <v-list-tile-avatar>
                   <img v-if="c.From.Avatar" :src="c.From.Avatar" :alt="c.From.Avatar">
-                </v-list-tile-avatar>-->
-                <!-- <v-list-tile-avatar>
+              </v-list-tile-avatar>-->
+              <!-- <v-list-tile-avatar>
                 <img v-if="c.To.Avatar" :src="c.To.Avatar" :alt="c.To.Avatar">
-                </v-list-tile-avatar>-->
-                <v-chip v-if="c.FromID == connectedUserID" small color="" class="subheading">{{ c.To.Username || c.To.Firstname || c.From.Lastname }}</v-chip> 
-                <v-chip v-if="c.FromID != connectedUserID" small color="" class="subheading">{{ c.From.Username || c.From.Firstname || c.From.Lastname }}</v-chip> 
-                <v-list-tile-sub-title class="text--primary">
-                    Last message : {{ c.Messages[c.Messages.length - 1].Date| formatDate('MM/DD/YYYY') }} at {{ c.Messages[c.Messages.length - 1].Date| formatDate("HH:mm") }}
-                </v-list-tile-sub-title>
+              </v-list-tile-avatar>-->
+              <v-chip
+                v-if="c.FromID == connectedUserID"
+                small
+                color
+                class="subheading"
+              >{{ c.To.Username || c.To.Firstname || c.From.Lastname }}</v-chip>
+              <v-chip
+                v-if="c.FromID != connectedUserID"
+                small
+                color
+                class="subheading"
+              >{{ c.From.Username || c.From.Firstname || c.From.Lastname }}</v-chip>
+              <v-list-tile-sub-title
+                class="text--primary"
+              >Last message : {{ c.Messages[c.Messages.length - 1].Date| formatDate('MM/DD/YYYY') }} at {{ c.Messages[c.Messages.length - 1].Date| formatDate("HH:mm") }}</v-list-tile-sub-title>
 
-                <!-- <v-list-tile-title>{{ c.To.Username || c.To.Firstname || c.To.Lastname }}</v-list-tile-title> -->
+              <!-- <v-list-tile-title>{{ c.To.Username || c.To.Firstname || c.To.Lastname }}</v-list-tile-title> -->
               <v-list-tile-action>
                 <v-layout row>
                   <v-flex>
@@ -49,17 +58,19 @@
             </v-list-tile>
 
             <v-list-tile v-for="m in c.Messages" :key="`message-${m.ID}`">
-              
-                  <v-list-tile-avatar v-if="m.FromID == connectedUserID">
+              <v-list-tile-avatar v-if="m.FromID == connectedUserID">
                 <img v-if="c.To.Avatar" :src="c.To.Avatar" :alt="c.To.Avatar">
               </v-list-tile-avatar>
               <v-list-tile-avatar v-if="m.FromID != connectedUserID">
                 <img v-if="c.To.Avatar" :src="c.From.Avatar" :alt="c.From.Avatar">
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-list-tile-sub-title v-if="m.FromID != connectedUserID" class>{{ c.From.Username }}:</v-list-tile-sub-title>
+                <v-list-tile-sub-title
+                  v-if="m.FromID != connectedUserID"
+                  class
+                >{{ c.From.Username }}:</v-list-tile-sub-title>
                 <v-list-tile-sub-title v-if="m.FromID == connectedUserID" class>You:</v-list-tile-sub-title>
-                <v-list-tile-title class="body-1 ">{{ m.Text }}</v-list-tile-title>
+                <v-list-tile-title class="body-1">{{ m.Text }}</v-list-tile-title>
               </v-list-tile-content>
 
               <v-list-tile-action v-if="m.FromID != connectedUserID">
@@ -125,7 +136,6 @@
 
 
 <script>
-import { AUTH_ERROR } from "@/store/actions/auth";
 import AppSnackBar from "@/components/utils/AppSnackBar";
 import conversationRepo from "../../repositories/conversation.js";
 import { mapState } from "vuex";
@@ -175,7 +185,7 @@ export default {
   methods: {
     openMessageDialog: function(c) {
       this.showContactDialog = true;
-      this.message.ToID = (c.FromID == this.connectedUserID) ? c.ToID : c.FromID;
+      this.message.ToID = c.FromID == this.connectedUserID ? c.ToID : c.FromID;
       this.focusedConversation = c;
     },
     reply: function(e) {

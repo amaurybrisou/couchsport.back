@@ -24,7 +24,12 @@
                   ></v-checkbox>
 
                   <v-flex>
-                    <page-edition-dialog @NewPageCreated="NewPageCreated" :state="'edit'" :page="p" :allActivities="allActivities">
+                    <page-edition-dialog
+                      @NewPageCreated="NewPageCreated"
+                      :state="'edit'"
+                      :page="p"
+                      :allActivities="allActivities"
+                    >
                       <template slot="open-btn">
                         <v-btn :to="`/pages/${p.ID}`" class="align-center" color="primary">
                           <v-icon>visibility</v-icon>
@@ -74,9 +79,9 @@
 import { LMap, LTileLayer, LMarker } from "vue2-leaflet";
 import PageEditionDialog from "@/components/profile/PageEditionDialog";
 import pageRepo from "@/repositories/page.js";
-import { AUTH_ERROR } from "@/store/actions/auth";
 import AppSnackBar from "@/components/utils/AppSnackBar";
-import { mapGetters } from "vuex";
+import { MODIFY_PROFILE } from "@/store/actions/user.js";
+import { mapMutations } from "vuex";
 
 export default {
   name: "Pages",
@@ -84,7 +89,6 @@ export default {
   components: { LMap, LTileLayer, LMarker, PageEditionDialog, AppSnackBar },
   data() {
     return {
-      
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your page has been successfully created",
@@ -113,6 +117,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([MODIFY_PROFILE]),
     deletePage(id) {
       if (id != null) {
         var that = this;
@@ -137,12 +142,13 @@ export default {
       } else if (state === "edit") {
         this.snackbarText = "your page has been successfully edited";
         var idx = this.local_pages.map(p => p.ID).indexOf(page.ID);
-
         this.local_pages[idx] = page;
+        this.MODIFY_PROFILE({ OwnedPages: this.local_pages });
         this.snackbar = true;
         return;
       } else if (state === "new") {
         this.local_pages.push(page);
+        this.MODIFY_PROFILE({ OwnedPages: this.local_pages });
         this.new_page = {
           ID: null,
           Name: "",

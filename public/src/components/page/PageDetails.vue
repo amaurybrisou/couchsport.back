@@ -19,11 +19,7 @@
             </div>
             <v-tooltip bottom v-if="page.CouchNumber > 0">
               <div slot="activator">
-                <v-chip
-                  color="info"
-                  text-color="white"
-                  small
-                >{{page.CouchNumber}} Couch available</v-chip>
+                <v-chip color="info" text-color="white" small>{{page.CouchNumber}} Couch available</v-chip>
               </div>
               <span>This spot accepts guests</span>
             </v-tooltip>

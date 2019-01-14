@@ -8,7 +8,7 @@ import (
 //Image model definition
 type Image struct {
 	gorm.Model
-	URL     string `valid:"requri,required"`
+	URL     string `valid:"requri,required" gorm:"unique_index"`
 	Alt     string `valid:"text"`
 	File    string `gorm:"-"`
 	OwnerID uint

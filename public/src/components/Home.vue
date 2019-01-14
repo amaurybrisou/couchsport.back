@@ -11,11 +11,10 @@
         <div class="body-1 mt-2">Begin the tour browsing available spots in the
           <router-link to="/explore">
             <span color="accent">explore</span>
-          </router-link> page or create your
+          </router-link>page or create your
           <router-link to="/signup">
             <span color="accent">account</span>
-          </router-link>
-          and promote your own spot!
+          </router-link>and promote your own spot!
         </div>
       </v-card-text>
       <!-- <v-flex class="text-xs-center"> -->

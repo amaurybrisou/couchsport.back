@@ -1,7 +1,7 @@
-import repo from './repository';
+import repo from "./repository";
 
 export default {
-    all(){
-        return repo.get('/activities');
-    }
-}
+  all() {
+    return repo.get("/activities");
+  }
+};

@@ -168,6 +168,8 @@ func (me pageStore) downloadImages(directory string, images []models.Image) ([]m
 				i.File = ""
 				i.URL = filename
 				tmpImages = append(tmpImages, i)
+			} else {
+				tmpImages = append(tmpImages, i)
 			}
 		}
 	}

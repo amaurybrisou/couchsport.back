@@ -11,8 +11,8 @@
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim non eveniet labore! Rem cum mollitia odit ullam animi, deleniti nemo praesentium perferendis doloribus officia ratione molestiae, vel quaerat architecto unde?</p>
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim non eveniet labore! Rem cum mollitia odit ullam animi, deleniti nemo praesentium perferendis doloribus officia ratione molestiae, vel quaerat architecto unde?</p>
             <v-layout row wrap>
-                <v-spacer></v-spacer>
-                <v-btn flat to="/signin" >Sign In</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn flat to="/signin">Sign In</v-btn>
             </v-layout>
           </v-card-text>
         </v-card>

@@ -8,7 +8,7 @@
           </v-toolbar>
           <v-card-text>
             <div v-if="errors.length" color="error">
-                <v-alert v-for="(err, i) in errors" :key="i" :value="err" type="error">{{err}}</v-alert>
+              <v-alert v-for="(err, i) in errors" :key="i" :value="err" type="error">{{err}}</v-alert>
             </div>
             <v-form @keypress.enter.native="submit" ref="form" v-model="valid">
               <v-text-field
@@ -61,7 +61,7 @@ export default {
       errors: [],
       user: {
         email: "",
-        password: "",
+        password: ""
       },
       emailRules: [
         v => !!v || "E-mail is required",
@@ -71,21 +71,28 @@ export default {
       ],
       passwordRules: [
         v => !!v || "Password is required",
-        v => /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(v) || "Password must contain at least : one digit, one lower case and one upper case letter"
+        v =>
+          /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(v) ||
+          "Password must contain at least : one digit, one lower case and one upper case letter"
       ]
     };
   },
   methods: {
     async submit(e) {
-      if(!this.valid) return;
+      if (!this.valid) return;
       var that = this;
-      await userRepository.create(this.user).then(({data}) => {
-        that.$router.push({ name : 'login', params : { welcome : `Welcome, you can now login.` }});
-      })
-      .catch(({response : {data}}) => {
-        that.errors = [];
-        that.errors.push(data);        
-      }) 
+      await userRepository
+        .create(this.user)
+        .then(({ data }) => {
+          that.$router.push({
+            name: "login",
+            params: { welcome: `Welcome, you can now login.` }
+          });
+        })
+        .catch(({ response: { data } }) => {
+          that.errors = [];
+          that.errors.push(data);
+        });
     }
   },
   computed: {
