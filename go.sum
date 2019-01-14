@@ -13,8 +13,6 @@ github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZp
 github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
 github.com/gofrs/uuid v3.2.0+incompatible h1:y12jRkkFxsd7GpqdSZ+/KCs/fJbqpEXSGd4+jfEaewE=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
-github.com/goland-amaurybrisou/validations v0.0.0-20171228122639-f364bca61b46 h1:n6usxCDjoek8mn4qQ97gSB2A2suofpBlfwIOgAMV7/k=
-github.com/goland-amaurybrisou/validations v0.0.0-20171228122639-f364bca61b46/go.mod h1:ofn1/5tIU8CZ4vw2OU/ZtlO35kzy47K8079DkAu1PZ0=
 github.com/golang/leveldb v0.0.0-20170107010102-259d9253d719 h1:yahFtfWlyALYDkXw2ETowZqG4vi8hiE0yOEBOkpaXl0=
 github.com/golang/leveldb v0.0.0-20170107010102-259d9253d719/go.mod h1:etEpE0xVqxA0N3WNUa5wic5HCNSsQvYm+PFNmOnx2iU=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=

@@ -7,7 +7,6 @@ require (
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/go-sql-driver/mysql v1.4.1 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
-	github.com/goland-amaurybrisou/validations v0.0.0-20171228122639-f364bca61b46
 	github.com/golang/leveldb v0.0.0-20170107010102-259d9253d719
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/jinzhu/gorm v1.9.2
