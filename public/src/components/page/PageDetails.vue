@@ -1,10 +1,10 @@
 <template>
   <v-container>
     <div class="app-background" :style="{ 'background-image': 'url(' + backgroundImage + ')' }"></div>
-    <v-layout row wrap>
-      <v-flex xs6>
-        <v-card flat class="fill-height transparent"></v-card>
-        <v-card v-if="page" class="page-detail-text">
+    <v-layout :class="{'column mt-1': $vuetify.breakpoint.xsOnly, 'row wrap pr-2': $vuetify.breakpoint.smAndUp}">
+      <v-flex xs12 sm6>
+        <!-- <v-card flat class="transparent" fill-height></v-card> -->
+        <v-card v-if="page" class="fill-height">
           <v-card-title class="title font-weight-bold pb-0">
             <div class="font-weight-bold">{{ page.Name}}</div>
             <v-spacer></v-spacer>
@@ -32,17 +32,18 @@
 
           <v-divider></v-divider>
           <v-card-text class="font-weight-regular body-2">{{ page.LongDescription }}</v-card-text>
-          <v-btn
+          <v-list-tile-action :class="{'fill-height pb-2': $vuetify.breakpoint.smAndUp}">
+             <v-btn
+             depressed
             @click="showContactDialog = true"
-            class="contact-btn"
             color="primary"
             block
-            absolute
             :disabled="message.FromID == message.ToID"
           >Contact</v-btn>
+          </v-list-tile-action>
         </v-card>
       </v-flex>
-      <v-flex xs6 pl-2>
+      <v-flex  :class="{'xs12 mt-2': $vuetify.breakpoint.xsOnly, 'sm6 pl-2': $vuetify.breakpoint.smAndUp}" >
         <v-card pa-5>
           <l-map
             :zoom="mapConfig.zoom"
@@ -58,7 +59,7 @@
       </v-flex>
       <v-flex xs12 mt-2>
         <v-layout v-if="page && page.Images" row wrap flex>
-          <v-flex v-for="(image, idx) in page.Images" :key="idx" align-content-space-between ml-2>
+          <v-flex v-for="(image, idx) in page.Images" :key="idx" align-content-space-between>
             <v-card class="rounded">
               <v-img
                 max-height="250px"
@@ -258,17 +259,6 @@ export default {
 
 
 <style lang="scss">
-.page-detail-text {
-  position: relative;
-  top: -45vh;
-  margin-left: 1vh;
-  height: 45vh;
-  opacity: 0.8;
-  .contact-btn {
-    bottom: 0vh;
-    margin: 0;
-  }
-}
 
 #image-dialog,
 #contact-dialog,

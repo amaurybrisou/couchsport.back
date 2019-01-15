@@ -3,7 +3,7 @@
     <v-layout column>
       <v-flex>
         <v-toolbar dark color="secondary">
-          <v-toolbar-title>Start your trip</v-toolbar-title>
+          <v-toolbar-title class="hidden-xs-only" >Start your trip</v-toolbar-title>
           <v-autocomplete
             :loading="loading"
             :items="items"

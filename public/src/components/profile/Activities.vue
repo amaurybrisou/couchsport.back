@@ -1,6 +1,6 @@
 
 <template>
-  <v-container class="second-profile-step" fluild grid-list-md>
+  <v-container fluild grid-list-xs>
     <v-layout align-center pb-3>
       <div>Select the activities you're looking for.</div>
     </v-layout>

@@ -25,9 +25,14 @@
         </v-btn>
       </v-toolbar>
       <template>
-        <v-container fluid pl-5 pr-5>
+        <v-container
+          fluid
+          :class="{ 'sm4 px-5 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+        >
           <v-layout row wrap>
-            <v-flex xs6>
+            <v-flex
+              :class="{ 'sm6 pr-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+            >
               <v-form v-model="valid" ref="form" lazy-validation>
                 <v-text-field
                   label="Name"
@@ -72,7 +77,9 @@
               </v-form>
             </v-flex>
 
-            <v-flex pl-2 xs6 class="text-xs-center text-sm-center text-md-center text-lg-center">
+            <v-flex
+              :class="{ 'sm6 pl-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+            >
               <v-card pa-5>
                 <div>
                   <v-subheader color="warning">
@@ -99,8 +106,12 @@
                 :disabled="local_page.Images.length > 5"
                 @formData="addImage"
               ></upload-button>
-              <v-layout v-if="local_page.Images && local_page.Images.length > 0" row wrap d-flex>
-                <v-flex class="px-4 xs2" v-for="(i, idx) in local_page.Images" :key="idx">
+              <v-layout v-if="local_page.Images && local_page.Images.length > 0" row wrap>
+                <v-flex
+                  :class="{ 'sm2 px-2': $vuetify.breakpoint.smAndUp, 'xs6 px-1 py-2': $vuetify.breakpoint.xsOnly }"
+                  v-for="(i, idx) in local_page.Images"
+                  :key="idx"
+                >
                   <v-card class="rounded">
                     <v-img
                       :src="i.URL"

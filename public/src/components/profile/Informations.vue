@@ -1,7 +1,7 @@
 <template>
-  <v-container class="first-profile-step" fluild grid-list-md>
-    <v-layout align-center justify-center>
-      <v-flex xs4 pa-5>
+  <v-container fluild grid-list-xs>
+    <v-layout row wrap align-center justify-center>
+      <v-flex :class="{ 'sm4 pr-5': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }">
         <upload-button @formData="handleImage">
           <v-card slot="appearance" flat tile class="d-flex profile-avatar">
             <v-img
@@ -19,14 +19,14 @@
           </v-card>
         </upload-button>
       </v-flex>
-      <v-flex xs12 sm6 md4>
+      <v-flex :class="{ 'sm4': $vuetify.breakpoint.smAndUp, 'xs12': $vuetify.breakpoint.xsOnly }">
         <v-text-field flat disabled readonly label="Email" v-model="email"></v-text-field>
         <v-text-field flat label="Username" v-model="local_profile.Username"></v-text-field>
         <v-text-field flat label="Firstname" v-model="local_profile.Firstname"></v-text-field>
         <v-text-field flat label="Lastname" v-model="local_profile.Lastname"></v-text-field>
         <v-select :items="[`` ,`Male`, `Female`]" v-model="local_profile.Gender" label="Gender"></v-select>
       </v-flex>
-      <v-flex xs12 sm8 md4>
+      <v-flex :class="{ 'sm4': $vuetify.breakpoint.smAndUp, 'xs12': $vuetify.breakpoint.xsOnly }">
         <v-text-field flat label="StreetName" v-model="local_profile.StreetName"></v-text-field>
         <v-text-field flat label="City" v-model="local_profile.City"></v-text-field>
         <v-text-field flat label="ZipCode" v-model="local_profile.ZipCode"></v-text-field>

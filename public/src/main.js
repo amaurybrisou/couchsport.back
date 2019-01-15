@@ -26,6 +26,12 @@ Vue.filter("formatDate", function(value, format) {
   }
 });
 
+Vue.filter("shorten", function(value, max = 10) {
+  if (value) {
+    return value.slice(0,max) + "...";
+  }
+});
+
 Vue.use(AsyncComputed);
 
 import App from "./App";

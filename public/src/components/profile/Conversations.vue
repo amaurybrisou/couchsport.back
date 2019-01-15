@@ -1,5 +1,5 @@
 <template>
-  <v-container class="third-profile-step" fluild grid-list-md>
+  <v-container fluild grid-list-xs>
     <v-flex
       v-if="!local_conversations || local_conversations.length == 0"
       xs12

@@ -1,77 +1,90 @@
 <template>
-  <v-container class="third-profile-step" fluild grid-list-md>
+  <div fluild grid-list-xs class="v-list__container pa-0">
     <v-layout v-if="local_pages" row wrap>
       <v-flex>
         <v-list>
           <template v-for="(p) in local_pages">
             <v-divider :key="p.ID"></v-divider>
-            <v-list-tile class="page-line" :key="`preview-image-${p.ID}`" avatar>
-              <v-list-tile-avatar v-if="p.Images && p.Images.length > 0">
-                <img :src="p.Images[0].URL" :alt="p.Images[0].Alt">
-              </v-list-tile-avatar>
+            <div class="v-list__tile page-line px-0 mx-0" :key="`preview-image-${p.ID}`">
+              <v-layout row wrap d-flex class="v-list__tile px-0 mx-0">
+                <v-flex class="v-list__tile__avatar xs2 sm2 md2 px-0 mx-0">
+                  <v-list-tile-avatar v-if="p.Images && p.Images.length > 0">
+                    <img :src="p.Images[0].URL" :alt="p.Images[0].Alt">
+                  </v-list-tile-avatar>
+                </v-flex>
+                <v-flex class="v-list__tile__content xs2 sm2 md2 px-0 mx-0">
+                  <v-list-tile-title>{{ p.Description| shorten(10) }}</v-list-tile-title>
+                </v-flex>
 
-              <v-list-tile-content>
-                <v-list-tile-title>{{ p.Description }}</v-list-tile-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <v-layout row>
+                <v-flex class="xs8 sm8 md8 px-0 d-flex v-list__tile__action text-xs-right">
                   <v-checkbox
-                    class="align-center"
-                    color="primary"
-                    label="Public"
+                    :class="{'v-btn v-btn--small v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
+                    :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
+                    :label="$vuetify.breakpoint.xsOnly ? '' : (p.Public ? 'Public' : 'Private')"
                     v-model="p.Public"
                     @change="publishPage(p.ID, $event)"
                   ></v-checkbox>
 
-                  <v-flex>
-                    <page-edition-dialog
-                      @NewPageCreated="NewPageCreated"
-                      :state="'edit'"
-                      :page="p"
-                      :allActivities="allActivities"
-                    >
-                      <template slot="open-btn">
-                        <v-btn :to="`/pages/${p.ID}`" class="align-center" color="primary">
-                          <v-icon>visibility</v-icon>
-                        </v-btn>
-                        <v-btn color="primary" @click.prevent>
-                          <v-icon>edit</v-icon>
-                        </v-btn>
-                      </template>
+                  <page-edition-dialog
+                    @NewPageCreated="onNewPageCreated"
+                    :state="'edit'"
+                    :page="p"
+                    :allActivities="allActivities"
+                  >
+                    <template slot="open-btn">
+                      <v-btn
+                        small
+                        :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
+                        :class="{'v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
+                        :to="`/pages/${p.ID}`"
+                      >
+                        <v-icon>visibility</v-icon>
+                      </v-btn>
+                      <v-btn
+                        small
+                        :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
+                        :class="{'v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
+                        @click.prevent
+                      >
+                        <v-icon>edit</v-icon>
+                      </v-btn>
+                      <v-btn
+                        small
+                        :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
+                        :class="{'v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
+                        v-on:click.stop="deletePage(p.ID)"
+                      >
+                        <v-icon>delete</v-icon>
+                      </v-btn>
+                    </template>
 
-                      <span slot="submitText">Save Modifications</span>
-                      
-                      <span slot="pageTitle">Edit page : {{p.title}}</span>
-                    </page-edition-dialog>
-
-                    <v-btn color="primary" @click.prevent="deletePage(p.ID)">
-                      <v-icon>delete</v-icon>
-                    </v-btn>
-                  </v-flex>
-                </v-layout>
-              </v-list-tile-action>
-            </v-list-tile>
+                    <span slot="submitText">Save Modifications</span>
+                    <span slot="pageTitle">Edit page : {{p.title}}</span>
+                  </page-edition-dialog>
+                </v-flex>
+              </v-layout>
+            </div>
           </template>
         </v-list>
       </v-flex>
     </v-layout>
-    <v-layout row wrap justify-center align-center>
-      <v-flex xs1>
+    <v-layout>
+      <v-flex d-flex>
         <page-edition-dialog
-          @NewPageCreated="NewPageCreated"
+          @NewPageCreated="onNewPageCreated"
           :state="'new'"
           :page="new_page"
           :allActivities="allActivities"
         >
           <template slot="open-btn">
-            <v-btn color="success" flat>New Page</v-btn>
+            <v-btn block color="success" flat>New Page</v-btn>
           </template>
           <span slot="pageTitle">New Page</span>
         </page-edition-dialog>
       </v-flex>
     </v-layout>
     <app-snack-bar :state="snackbar" @snackClose="snackbar = false" :text="snackbarText"></app-snack-bar>
-  </v-container>
+  </div>
 </template>
 
 
@@ -134,7 +147,7 @@ export default {
           });
       }
     },
-    NewPageCreated(page, state) {
+    onNewPageCreated(page, state) {
       if (state === "error") {
         this.snackbarText = "there was an error saving your page";
         this.snackbar = true;
@@ -176,6 +189,7 @@ export default {
             that.snackbar = true;
           })
           .catch(() => {
+            that.local_pages[id].Public = true;
             that.snackbarText = "there was an error publishing your page";
             that.snackbar = true;
           });

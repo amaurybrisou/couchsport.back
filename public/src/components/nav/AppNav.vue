@@ -1,5 +1,5 @@
 <template>
-  <nav class="app-nav">
+  <nav>
     <v-system-bar color="primary">
       <!-- <v-toolbar-side-icon></v-toolbar-side-icon> -->
       <v-toolbar-items>
@@ -9,9 +9,9 @@
         <v-btn to="/explore" flat>Explore</v-btn>
       </v-toolbar-items>
       <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-sm-and-down">
+      <v-toolbar-items>
         <v-btn v-if="isProfileLoaded" to="/profile" flat>Profile</v-btn>
-        <v-btn to="/about" flat>About</v-btn>
+        <v-btn class="hidden-xs-only" to="/about" flat>About</v-btn>
         <v-btn v-if="!isAuthenticated" to="/signup" flat>Sign Up</v-btn>
         <v-btn v-if="!isAuthenticated && !authLoading" to="/login" flat>Login</v-btn>
         <v-btn v-if="isAuthenticated" @click="logout" to="/logout" flat>Logout</v-btn>
