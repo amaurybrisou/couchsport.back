@@ -1,10 +1,12 @@
 <template>
   <v-container>
     <div class="app-background" :style="{ 'background-image': 'url(' + backgroundImage + ')' }"></div>
-    <v-layout :class="{'column mt-1': $vuetify.breakpoint.xsOnly, 'row wrap pr-2': $vuetify.breakpoint.smAndUp}">
+    <v-layout
+      :class="{'column mt-1': $vuetify.breakpoint.xsOnly, 'row wrap pr-2': $vuetify.breakpoint.smAndUp}"
+    >
       <v-flex xs12 sm6>
         <!-- <v-card flat class="transparent" fill-height></v-card> -->
-        <v-card v-if="page" class="fill-height">
+        <v-card v-if="page" class="flexcard fill-height">
           <v-card-title class="title font-weight-bold pb-0">
             <div class="font-weight-bold">{{ page.Name}}</div>
             <v-spacer></v-spacer>
@@ -18,7 +20,7 @@
               <v-chip color="primary" text-color="white" small>Does not accept guests</v-chip>
             </div>
           </v-card-title>
-          <v-list-tile avatar>
+           <v-list-tile avatar>
             <div v-if="page.Activities">
               <v-chip
                 v-for="(a, i) in page.Activities"
@@ -29,21 +31,26 @@
               >{{ a.Name }}</v-chip>
             </div>
           </v-list-tile>
-
           <v-divider></v-divider>
-          <v-card-text class="font-weight-regular body-2">{{ page.LongDescription }}</v-card-text>
-          <v-list-tile-action :class="{'fill-height pb-2': $vuetify.breakpoint.smAndUp}">
-             <v-btn
-             depressed
-            @click="showContactDialog = true"
-            color="primary"
-            block
-            :disabled="message.FromID == message.ToID"
-          >Contact</v-btn>
-          </v-list-tile-action>
+
+          <v-card-text class="grow">
+            <div class="font-weight-regular body-2">{{ page.LongDescription }}</div>
+          </v-card-text>
+
+          <v-card-actions class="ma-0 pa-0">
+            <v-btn
+              depressed
+              @click="showContactDialog = true"
+              color="primary"
+              block
+              :disabled="message.FromID == message.ToID"
+            >Contact</v-btn>
+          </v-card-actions>
         </v-card>
       </v-flex>
-      <v-flex  :class="{'xs12 mt-2': $vuetify.breakpoint.xsOnly, 'sm6 pl-2': $vuetify.breakpoint.smAndUp}" >
+      <v-flex
+        :class="{'xs12 mt-2': $vuetify.breakpoint.xsOnly, 'sm6 pl-2': $vuetify.breakpoint.smAndUp}"
+      >
         <v-card pa-5>
           <l-map
             :zoom="mapConfig.zoom"
@@ -60,7 +67,7 @@
       <v-flex xs12 mt-2>
         <v-layout v-if="page && page.Images" row wrap flex>
           <v-flex v-for="(image, idx) in page.Images" :key="idx" align-content-space-between>
-            <v-card class="rounded">
+            <v-card class="rounded ma-1">
               <v-img
                 max-height="250px"
                 :src="image.URL"
@@ -259,7 +266,6 @@ export default {
 
 
 <style lang="scss">
-
 #image-dialog,
 #contact-dialog,
 .close-icon {
@@ -287,5 +293,10 @@ export default {
   height: 100%;
   top: 0;
   left: 0;
+}
+
+.flexcard {
+  display: flex;
+  flex-direction: column;
 }
 </style>
