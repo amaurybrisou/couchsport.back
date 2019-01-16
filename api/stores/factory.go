@@ -51,6 +51,8 @@ func NewStoreFactory(Db *gorm.DB, c config.Config) *StoreFactory {
 
 //Init initialize Databse tables
 func (me StoreFactory) Init(populate bool) {
+	go me.wsStore.run()
+
 	if !populate {
 		return
 	}
@@ -67,7 +69,6 @@ func (me StoreFactory) Init(populate bool) {
 	me.activityStore.Migrate() //activity needs page & profile
 	me.imageStore.Migrate()    //image needs page
 
-	go me.wsStore.run()
 }
 
 //WsStore returns the app wesocket hub

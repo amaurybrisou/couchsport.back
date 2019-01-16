@@ -6,8 +6,6 @@ import (
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"os"
-	"os/signal"
 	"strconv"
 	"time"
 )
@@ -46,27 +44,12 @@ func (s *Instance) Start() {
 
 	defer s.Db.Close()
 
-	signalChan := make(chan os.Signal, 1)
-	signalDone := make(chan struct{})
-	signal.Notify(signalChan, os.Interrupt)
-
 	go func() {
 		log.Printf("Listenning on  %s:%s", s.C.Listen, strconv.Itoa(s.C.Port))
 		if err := s.HTTPServer.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatal(err)
 		}
 	}()
-
-	go func() {
-		<-signalChan
-		log.Info("received os.Interrupt signal, stopping services")
-		if err := s.HTTPServer.Shutdown(nil); err != nil {
-			log.Panic(err)
-		}
-		close(signalDone)
-	}()
-
-	<-signalDone
 
 }
 func (s *Instance) Shutdown() {

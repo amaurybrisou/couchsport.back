@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"os"
+	"os/signal"
 )
 
 func main() {
@@ -91,5 +93,23 @@ func main() {
 	srv.ServePublic(c.PublicPath)
 
 	srv.Start()
+
+	signalChan := make(chan os.Signal, 1)
+	signalDone := make(chan struct{})
+	signal.Notify(signalChan, os.Interrupt)
+	go func() {
+		<-signalChan
+		log.Info("received os.Interrupt signal, stopping services")
+		storeFactory.WsStore().Close()
+
+		if err := srv.HTTPServer.Shutdown(nil); err != nil {
+			log.Panic(err)
+		}
+		log.Info("HTTPServer gracefully closed")
+
+		close(signalDone)
+	}()
+
+	<-signalDone
 
 }

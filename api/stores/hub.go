@@ -22,6 +22,8 @@ type hub struct {
 	// Registered clients.
 	clients map[uint]*client
 
+	close chan bool
+
 	// Inbound messages from the clients.
 	broadcast chan []byte
 
@@ -37,6 +39,7 @@ type hub struct {
 
 func newHub() *hub {
 	return &hub{
+		close:      make(chan bool),
 		broadcast:  make(chan []byte),
 		dispatch:   make(chan query),
 		register:   make(chan *client),
@@ -66,6 +69,15 @@ func (me *hub) run() {
 					delete(me.clients, client.ID)
 				}
 			}
+		case ok := <-me.close:
+			if ok {
+				for _, client := range me.clients {
+					close(client.send)
+					delete(me.clients, client.ID)
+				}
+			}
+			me.close <- true
+			break
 		}
 	}
 }
@@ -117,4 +129,11 @@ func (me *hub) emit(q query) error {
 	c.send <- jsonBody
 
 	return nil
+}
+
+func (me *hub) Close() {
+	me.close <- true
+	log.Println("closing websocket hub")
+	<-me.close
+	log.Println("websocket hub closed gracefully")
 }
