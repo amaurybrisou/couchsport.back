@@ -88,8 +88,8 @@ func (me *hub) Register(profileID uint, conn *websocket.Conn) {
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
-	go client.writePump()
-	go client.readPump()
+	go client.writePump(me.close)
+	go client.readPump(me.close)
 }
 
 func (me *hub) handleQueries(q query) {

@@ -49,7 +49,7 @@ type client struct {
 // The application runs readPump in a per-connection goroutine. The application
 // ensures that there is at most one reader on a connection by executing all
 // reads from this goroutine.
-func (c *client) readPump() {
+func (c *client) readPump(close chan bool) {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
@@ -75,6 +75,11 @@ func (c *client) readPump() {
 		q.ID = c.ID
 
 		c.hub.dispatch <- q
+
+		select {
+		case <-close:
+			break
+		}
 	}
 }
 
@@ -83,7 +88,7 @@ func (c *client) readPump() {
 // A goroutine running writePump is started for each connection. The
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
-func (c *client) writePump() {
+func (c *client) writePump(close chan bool) {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -121,6 +126,8 @@ func (c *client) writePump() {
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
+		case <-close:
+			break
 		}
 	}
 }
