@@ -35,6 +35,7 @@
             </v-list-tile>
           </v-list>
         </v-menu>
+        <v-btn v-if="!isAuthenticated && !isProfileLoaded" to="/about" flat>About</v-btn>
         <v-btn v-if="!isAuthenticated" to="/signup" flat>Sign Up</v-btn>
         <v-btn v-if="!isAuthenticated && !authLoading" to="/login" flat>Login</v-btn>
       </v-toolbar-items>
@@ -53,11 +54,11 @@ export default {
   data() {
     return {
       links: [
-        { to: "/profile#informations", name: "Profile" },
-        { to: "/profile#activities", name: "Activities" },
-        { to: "/profile#conversations", name: "Conversations" },
-        { to: "/profile#pages", name: "Pages" },
-        { to: "/about", name: "About" }
+        { auth: true, to: "/profile#informations", name: "Profile" },
+        { auth: true, to: "/profile#activities", name: "Activities" },
+        { auth: true, to: "/profile#conversations", name: "Conversations" },
+        { auth: true, to: "/profile#pages", name: "Pages" },
+        { auth: false, to: "/about", name: "About" }
       ]
     };
   },
