@@ -90,7 +90,7 @@ func (me userHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Error(err)
-		http.Error(w, fmt.Errorf("%s", "could not create user %s", err).Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Errorf("could not create user %s", err).Error(), http.StatusInternalServerError)
 		return
 	}
 
