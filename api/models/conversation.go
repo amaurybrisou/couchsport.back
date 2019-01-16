@@ -35,8 +35,8 @@ func (me *Conversation) Validate(db *gorm.DB) {
 }
 
 //AddMessage to the expression Messages
-func (me *Conversation) AddMessage(fromID uint, text string) Message {
-	m := Message{Text: text, OwnerID: me.ID, FromID: fromID}
+func (me *Conversation) AddMessage(fromID, toID uint, text string) Message {
+	m := Message{Text: text, OwnerID: me.ID, FromID: fromID, ToID: toID}
 	me.Messages = append(me.Messages, m)
 	return m
 }

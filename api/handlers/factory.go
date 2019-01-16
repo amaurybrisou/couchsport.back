@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"github.com/goland-amaurybrisou/couchsport/api/stores"
+	"github.com/gorilla/websocket"
 )
 
 //HandlerFactory hols all the handler of the application
 type HandlerFactory struct {
+	wsHandler           wsHandler
 	activityHandler     activityHandler
 	imageHandler        imageHandler
 	languageHandler     languageHandler
@@ -16,8 +18,9 @@ type HandlerFactory struct {
 }
 
 //NewHandlerFactory generates the handlerFactory holding every handler in the application
-func NewHandlerFactory(storeFactory *stores.StoreFactory) *HandlerFactory {
+func NewHandlerFactory(storeFactory *stores.StoreFactory, wsUpgrader *websocket.Upgrader) *HandlerFactory {
 	return &HandlerFactory{
+		wsHandler:           wsHandler{WsUpgrader: wsUpgrader, Stores: storeFactory},
 		activityHandler:     activityHandler{Stores: storeFactory},
 		imageHandler:        imageHandler{Store: storeFactory},
 		languageHandler:     languageHandler{Store: storeFactory},
@@ -26,6 +29,11 @@ func NewHandlerFactory(storeFactory *stores.StoreFactory) *HandlerFactory {
 		userHandler:         userHandler{Store: storeFactory},
 		conversationHandler: conversationHandler{Store: storeFactory},
 	}
+}
+
+//WsHandler returns the applicatioin Upgrader
+func (me HandlerFactory) WsHandler() *wsHandler {
+	return &me.wsHandler
 }
 
 //ActivityHandler returns the applicatioin ActivityHandler

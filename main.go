@@ -7,6 +7,9 @@ import (
 	"github.com/goland-amaurybrisou/couchsport/api/validators"
 	"github.com/goland-amaurybrisou/couchsport/config"
 	"github.com/goland-amaurybrisou/couchsport/server"
+	"github.com/gorilla/websocket"
+	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
 func main() {
@@ -21,8 +24,22 @@ func main() {
 
 	storeFactory := stores.NewStoreFactory(srv.Db, *c)
 	storeFactory.Init(c.Populate)
-	handlerFactory := handlers.NewHandlerFactory(storeFactory)
+
+	var upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	if *env == "dev" {
+		log.Println("enable WebSocket All Origins")
+		upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	}
+
+	handlerFactory := handlers.NewHandlerFactory(storeFactory, &upgrader)
+
 	validators.Init()
+
+	srv.RegisterHandler("/ws", handlerFactory.WsHandler().EntryPoint)
 
 	srv.RegisterHandler("/languages", handlerFactory.LanguageHandler().All)
 	srv.RegisterHandler("/activities", handlerFactory.ActivityHandler().All)

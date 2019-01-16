@@ -20,7 +20,7 @@
               <v-chip color="primary" text-color="white" small>Does not accept guests</v-chip>
             </div>
           </v-card-title>
-           <v-list-tile avatar>
+          <v-list-tile avatar>
             <div v-if="page.Activities">
               <v-chip
                 v-for="(a, i) in page.Activities"
@@ -247,6 +247,7 @@ export default {
   },
   methods: {
     sendMessage: function(e) {
+      if (!this.message.ToID) return;
       conversationRepo
         .sendMessage(this.message)
         .then(() => {

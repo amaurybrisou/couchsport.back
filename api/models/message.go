@@ -15,6 +15,8 @@ type Message struct {
 	Text    string    `valid:"text,required"`
 	From    Profile   `gorm:"foreign_key:ProfileID"`
 	FromID  uint      `gorm:"required"`
+	To      Profile   `gorm:"foreign_key:ProfileID"`
+	ToID    uint      `gorm:"required"`
 	OwnerID uint      `valid:"numeric,required"`
 }
 

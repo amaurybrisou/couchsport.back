@@ -7,9 +7,10 @@ import {
   USER_ERROR,
   USER_SUCCESS
 } from "../actions/user";
+
+import { SOCKET_CONNECT } from "../actions/ws";
+
 import profileRepo from "../../repositories/profile";
-import pageRepo from "../../repositories/page";
-import imageRepo from "../../repositories/image";
 
 import Vue from "vue";
 import { AUTH_LOGOUT } from "../actions/auth";
@@ -27,6 +28,7 @@ const actions = {
     profileRepo
       .get()
       .then(({ data }) => {
+        dispatch(SOCKET_CONNECT, data.ID);
         commit(USER_SUCCESS, data);
       })
       .catch(resp => {

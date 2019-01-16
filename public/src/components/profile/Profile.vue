@@ -22,7 +22,10 @@
             </v-tab-item>
             <v-tab-item value="activities">
               <v-card flat>
-                <activities :activities="getProfile.Activities || []" :allActivities="allActivities"></activities>
+                <activities
+                  :activities="getProfile.Activities || []"
+                  :allActivities="allActivities"
+                ></activities>
               </v-card>
             </v-tab-item>
             <v-tab-item value="conversations">
@@ -43,7 +46,6 @@
 </template>
 
 <script>
-
 import Informations from "./Informations";
 import Activities from "./Activities";
 import Pages from "./Pages";
@@ -60,15 +62,15 @@ export default {
     Informations,
     Activities,
     Pages,
-    Conversations,
+    Conversations
   },
   data() {
     return {
-      activeTab: "informations",
+      activeTab: "informations"
     };
   },
   computed: {
-    ...mapGetters(['isProfileLoaded', 'getProfile'])
+    ...mapGetters(["isProfileLoaded", "getProfile"])
   },
   asyncComputed: {
     async allActivities() {
@@ -78,8 +80,17 @@ export default {
       return await languageRepo.all().then(({ data }) => data);
     },
     async conversations() {
-      return await conversationRepo.mines().then(({data}) => data)
+      return await conversationRepo.mines().then(({ data }) => data);
     }
   },
-}
+  mounted() {
+    var that = this;
+    setTimeout(function() {
+      that.$store.dispatch("EMIT", {
+        action: "send.message",
+        message: "Bonjour à vous!"
+      });
+    }, 1000);
+  }
+};
 </script>

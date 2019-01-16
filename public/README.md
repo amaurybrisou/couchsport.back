@@ -25,3 +25,4 @@ https://restcountries.eu/
 https://github.com/DanSnow/vue-recaptcha
 https://github.com/adrg/postcode
 https://github.com/asaskevich/govalidator
+https://www.npmjs.com/package/vue-native-websocket

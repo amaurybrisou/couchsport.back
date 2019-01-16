@@ -9,6 +9,7 @@ import (
 //StoreFactory holds references to every Store in the application
 type StoreFactory struct {
 	Db                *gorm.DB
+	wsStore           *hub
 	activityStore     *activityStore
 	languageStore     *languageStore
 	imageStore        *imageStore
@@ -22,6 +23,9 @@ type StoreFactory struct {
 
 //NewStoreFactory is the first store layer. ask him what store you want
 func NewStoreFactory(Db *gorm.DB, c config.Config) *StoreFactory {
+
+	hub := newHub()
+
 	fileStore := fileStore{
 		FileSystem:    types.OsFS{},
 		PublicPath:    c.PublicPath,
@@ -32,6 +36,7 @@ func NewStoreFactory(Db *gorm.DB, c config.Config) *StoreFactory {
 	profileStore := profileStore{Db: Db, FileStore: fileStore}
 
 	return &StoreFactory{
+		wsStore:           hub,
 		activityStore:     &activityStore{Db: Db},
 		languageStore:     &languageStore{Db: Db},
 		imageStore:        &imageStore{Db: Db},
@@ -62,6 +67,12 @@ func (me StoreFactory) Init(populate bool) {
 	me.activityStore.Migrate() //activity needs page & profile
 	me.imageStore.Migrate()    //image needs page
 
+	go me.wsStore.run()
+}
+
+//WsStore returns the app wesocket hub
+func (me StoreFactory) WsStore() *hub {
+	return me.wsStore
 }
 
 //PageStore returns the app pageStore

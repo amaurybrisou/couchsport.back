@@ -65,6 +65,11 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	if fromProfile.ID == toProfile.ID {
+		http.Error(w, fmt.Errorf("%s", "invalid request").Error(), http.StatusBadRequest)
+		return
+	}
+
 	//TODO send Email "account_created" with set password
 
 	conversation, err := me.Store.ConversationStore().GetByReferents(fromProfile, toProfile)
@@ -74,7 +79,7 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	message := conversation.AddMessage(fromProfile.ID, jsonBody.Text)
+	message := conversation.AddMessage(fromProfile.ID, toProfile.ID, jsonBody.Text)
 
 	err = me.Store.ConversationStore().Save(conversation)
 	if err != nil {
@@ -89,6 +94,8 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
 		return
 	}
+
+	me.Store.WsStore().Emit(message.ToID, "message.new", string(json))
 
 	fmt.Fprint(w, string(json))
 }
