@@ -86,6 +86,8 @@ func (me userStore) GetByEmail(email string, create bool) (models.User, error) {
 	var outUser = models.User{}
 	if err := me.Db.Where("email = ?", email).First(&outUser).Error; create && gorm.IsRecordNotFoundError(err) {
 		return me.NewWithoutPassword(email)
+	} else if gorm.IsRecordNotFoundError(err) {
+		return models.User{}, fmt.Errorf("User does not exists")
 	} else if err != nil {
 		return models.User{}, err
 	}

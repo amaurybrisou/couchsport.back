@@ -82,15 +82,6 @@ export default {
     async conversations() {
       return await conversationRepo.mines().then(({ data }) => data);
     }
-  },
-  mounted() {
-    var that = this;
-    setTimeout(function() {
-      that.$store.dispatch("EMIT", {
-        action: "send.message",
-        message: "Bonjour à vous!"
-      });
-    }, 1000);
   }
 };
 </script>

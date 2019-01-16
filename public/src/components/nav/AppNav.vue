@@ -20,8 +20,7 @@
           v-if="isProfileLoaded"
           open-on-hover
           offset-y
-          origin="left top"
-          transition="scale-transition"
+          transition="slide-y-transition"
         >
           <v-btn icon slot="activator">
             <v-icon>account_box</v-icon>

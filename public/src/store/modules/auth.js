@@ -38,6 +38,7 @@ const actions = {
           resolve(resp);
         })
         .catch(({ response: { data } }) => {
+          commit(AUTH_ERROR)
           reject(data);
         });
     });
