@@ -92,8 +92,6 @@ func main() {
 
 	srv.ServePublic(c.PublicPath)
 
-	srv.Start()
-
 	signalChan := make(chan os.Signal, 1)
 	signalDone := make(chan struct{})
 	signal.Notify(signalChan, os.Interrupt)
@@ -110,6 +108,6 @@ func main() {
 		close(signalDone)
 	}()
 
-	<-signalDone
+	srv.Start(signalDone)
 
 }

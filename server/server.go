@@ -40,7 +40,7 @@ func NewInstance(c *config.Config) *Instance {
 }
 
 //Start the current Instance
-func (s *Instance) Start() {
+func (s *Instance) Start(signalDone chan struct{}) {
 
 	defer s.Db.Close()
 
@@ -50,6 +50,8 @@ func (s *Instance) Start() {
 			log.Fatal(err)
 		}
 	}()
+
+	<-signalDone
 
 }
 func (s *Instance) Shutdown() {
