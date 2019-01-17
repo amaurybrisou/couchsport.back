@@ -75,10 +75,22 @@ export default {
   },
   asyncComputed: {
     async allActivities() {
-      return await activityRepo.all().then(({ data }) => data);
+      if(localStorage.Activities){
+        return JSON.parse(localStorage.Activities);
+      }
+      return await activityRepo.all().then(({ data }) => {
+        localStorage.Activities = JSON.stringify(data);
+        return data;
+      });
     },
     async allLanguages() {
-      return await languageRepo.all().then(({ data }) => data);
+      if(localStorage.Languages){
+        return JSON.parse(localStorage.Languages);
+      }
+      return await languageRepo.all().then(({ data }) => {
+        localStorage.Languages = JSON.stringify(data);
+        return data;
+      });
     }
   }
 };
