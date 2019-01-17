@@ -12,7 +12,7 @@
         >
           <v-tab to="#informations" href="#informations" class="subheader">Personal Information</v-tab>
           <v-tab to="#activities" href="#activities" class="subheader">Activities</v-tab>
-          <v-tab to="#conversations" href="#conversations" class="subheader">Conversations</v-tab>
+          <v-tab to="#conversations" href="#conversations" class="subheader" @click="$store.commit('conversations/MESSAGES_READ')">Conversations</v-tab>
           <v-tab to="#pages" href="#pages" class="subheader">My Spots</v-tab>
           <v-tabs-items v-model="activeTab">
             <v-tab-item value="informations">

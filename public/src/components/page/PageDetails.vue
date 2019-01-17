@@ -146,7 +146,6 @@
       :state="snackbar"
       :text="snackbarText"
       @snackClose="snackbar = false"
-      @snackOpen.once="setTimeout"
     ></app-snack-bar>
   </v-container>
 </template>
@@ -227,8 +226,12 @@ export default {
     }
   },
   watch: {
-    snackbar: function(v) {
-      !!v && setTimeout((this.snackbar = false), this.snackbarTimeout);
+    snackbar(v) {
+      if (!v) return;
+      var that = this;
+      setTimeout(function() {
+        that.snackbar = false;
+      }, that.snackbarTimeout);
     }
   },
   mounted: async function() {
@@ -257,16 +260,17 @@ export default {
     ]),
     sendMessage: function(e) {
       if (!this.message.ToID) return;
+      var that = this;
       this["conversations/" + CONVERSATION_SEND_MESSAGE](this.message)
         .then(() => {
-          this.snackbarText = "Your messages has been sent";
-          this.snackbar = true;
-          this.showContactDialog = false;
+          that.snackbarText = "Your messages has been sent";
+          that.snackbar = true;
+          that.showContactDialog = false;
         })
         .catch(() => {
-          this.snackbarText = "An error occured while sending your message";
-          this.snackbar = true;
-          this.showContactDialog = false;
+          that.snackbarText = "An error occured while sending your message";
+          that.snackbar = true;
+          that.showContactDialog = false;
         });
     }
   }

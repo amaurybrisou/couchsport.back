@@ -3,7 +3,7 @@
     <v-layout v-if="pages" row wrap>
       <v-flex>
         <v-list>
-          <template v-for="(p) in pages">
+          <template v-for="(p, idx) in pages">
             <v-divider :key="p.ID"></v-divider>
             <div class="v-list__tile page-line px-0 mx-0" :key="`preview-image-${p.ID}`">
               <v-layout row wrap d-flex class="v-list__tile px-0 mx-0">
@@ -21,7 +21,7 @@
                     :class="{'v-btn v-btn--small v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
                     :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
                     :label="$vuetify.breakpoint.xsOnly ? '' : (p.Public ? 'Public' : 'Private')"
-                    v-bind:value="p.Public"
+                    v-model="isPublic[idx]"
                     @change="publishPage(p.ID, $event)"
                   ></v-checkbox>
 
@@ -128,6 +128,9 @@ export default {
       get() {
         return this.$store.state.profile.pages.pages;
       }
+    },
+    isPublic: {
+      get() { return this.$store.state.profile.pages.pages.map((p, i) => p.Public) }
     }
   },
   watch: {

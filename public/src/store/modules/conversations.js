@@ -42,6 +42,7 @@ const actions = {
       .sendMessage(message)
       .then(({ data }) => {
         commit(CONVERSATION_MESSAGE_SENT, data);
+        return data;
       })
       .catch(resp => {
         if (resp.response.statusCode == 401) {
