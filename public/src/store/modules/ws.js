@@ -13,11 +13,11 @@ import {
 import Vue from "vue";
 
 const state = {
+  status: "",
   socket: {
     isConnected: false,
     reconnectError: false
-  },
-  messages: []
+  }
 };
 
 const getters = {};
@@ -44,18 +44,16 @@ const mutations = {
     state.socket.isConnected = false;
   },
   [SOCKET_ONERROR]: state => {
-    console.error(state, event);
+    state.status = "ws_error";
   },
   // default handler called for all methods
-  [SOCKET_ONMESSAGE]: (state, message) => {
-    state.messages.push(message);
-  },
-  [MESSAGES_READ]: (state, message) => {
-    state.messages = [];
-  },
-  // mutations for reconnect methods
+  // [SOCKET_ONMESSAGE]: (state, rootState, message) => {
+  //   console.log(rootState)
+  //   rootState.profile.conversations.conversations = MessageHub(state.messenger.conversations, message);
+  //   state.messenger.unread_message = true;
+  // },
   [SOCKET_RECONNECT]: (state, count) => {
-    console.info(state, count);
+    state.status = `ws_reconnecting ${count}`;
   },
   [SOCKET_RECONNECT_ERROR]: state => {
     state.socket.reconnectError = true;

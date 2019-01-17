@@ -1,14 +1,15 @@
 import {
   MODIFY_PROFILE,
   SAVE_PROFILE,
-  PROFILE_SAVED,
   PROFILE_ERROR,
-  USER_REQUEST,
-  USER_ERROR,
-  USER_SUCCESS
-} from "../actions/user";
+  PROFILE_REQUEST,
+  PROFILE_SUCCESS
+} from "../actions/profile";
 
 import { SOCKET_CONNECT } from "../actions/ws";
+
+import pages from "./pages";
+import conversations from "./conversations";
 
 import profileRepo from "../../repositories/profile";
 
@@ -23,17 +24,17 @@ const getters = {
 };
 
 const actions = {
-  [USER_REQUEST]: ({ commit, dispatch }) => {
-    commit(USER_REQUEST);
+  [PROFILE_REQUEST]: ({ commit, dispatch }) => {
+    commit(PROFILE_REQUEST);
     profileRepo
       .get()
       .then(({ data }) => {
         dispatch(SOCKET_CONNECT, data.ID);
-        commit(USER_SUCCESS, data);
+        commit(PROFILE_SUCCESS, data);
       })
       .catch(resp => {
         if (resp.response.status == 401) {
-          commit(USER_ERROR);
+          commit(PROFILE_ERROR);
           // if resp is unauthorized, logout, to
           dispatch(AUTH_LOGOUT);
         }
@@ -44,7 +45,7 @@ const actions = {
     return profileRepo
       .update(state.profile)
       .then(({ data }) => {
-        commit(PROFILE_SAVED, data);
+        commit(PROFILE_SUCCESS, data);
       })
       .catch(resp => {
         if (resp.response.statusCode == 401) {
@@ -58,29 +59,21 @@ const actions = {
 };
 
 const mutations = {
-  [USER_REQUEST]: state => {
+  [PROFILE_REQUEST]: state => {
     state.status = "loading";
   },
-  [USER_SUCCESS]: (state, profile) => {
-    state.status = "success";
-    Vue.set(state, "profile", profile);
-  },
-  [USER_ERROR]: state => {
-    state.status = "error";
-  },
-
-  [MODIFY_PROFILE]: (state, profile) => {
-    state.profile = { ...state.profile, ...profile };
-  },
-  [SAVE_PROFILE]: state => {
-    state.status = "loading";
-  },
-  [PROFILE_SAVED]: (state, profile) => {
+  [PROFILE_SUCCESS]: (state, profile) => {
     state.status = "success";
     Vue.set(state, "profile", profile);
   },
   [PROFILE_ERROR]: state => {
     state.status = "error";
+  },
+  [MODIFY_PROFILE]: (state, { key, value }) => {
+    state.profile[key] = value;
+  },
+  [SAVE_PROFILE]: state => {
+    state.status = "loading";
   },
   [AUTH_LOGOUT]: state => {
     state.profile = {};
@@ -91,5 +84,9 @@ export default {
   state,
   getters,
   actions,
-  mutations
+  mutations,
+  modules: {
+    pages,
+    conversations
+  }
 };

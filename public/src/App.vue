@@ -1,7 +1,13 @@
 <template>
   <div id="app">
     <v-app>
-      <v-carousel v-if="['/', '/about', '/signup', '/login'].indexOf($route.path) >= 0" class="background-carousel" height="100vh" hide-delimiters hide-controls>
+      <v-carousel
+        v-if="['/', '/about', '/signup', '/login'].indexOf($route.path) >= 0"
+        class="background-carousel"
+        height="100vh"
+        hide-delimiters
+        hide-controls
+      >
         <v-carousel-item
           class="carousel-item"
           lazy
@@ -23,9 +29,9 @@
 import WebFontLoader from "webfontloader";
 import AppNav from "@/components/nav/AppNav";
 
-import { USER_REQUEST } from "@/store/actions/user";
+import { PROFILE_REQUEST } from "@/store/actions/profile";
 import { AUTH_ERROR } from "@/store/actions/auth";
-import axios from '@/repositories/repository';
+import axios from "@/repositories/repository";
 
 import L from "leaflet";
 delete L.Icon.Default.prototype._getIconUrl;
@@ -54,7 +60,7 @@ export default {
   },
   created: function() {
     if (this.$store.getters.isAuthenticated) {
-      this.$store.dispatch(USER_REQUEST);
+      this.$store.dispatch(PROFILE_REQUEST);
     }
 
     var that = this;

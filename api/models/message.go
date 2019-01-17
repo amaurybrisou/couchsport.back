@@ -11,6 +11,7 @@ import (
 //Message model definition
 type Message struct {
 	ID      uint      `gorm:"primarykey"`
+	Email   string    `valid:"email"`
 	Date    time.Time `gorm:"default:NOW()"`
 	Text    string    `valid:"text,required"`
 	From    Profile   `gorm:"foreign_key:ProfileID"`

@@ -12,8 +12,11 @@ import (
 )
 
 type query struct {
-	ID              uint
-	Action, Message string
+	ID        uint   `json:"ID"`
+	Action    string `json:"action"`
+	Data      string `json:"data"`
+	Namespace string `json:"namespace"`
+	Mutation  string `json:"mutation"`
 }
 
 //hub maintains the set of active clients and broadcasts messages to the
@@ -93,21 +96,49 @@ func (me *hub) Register(profileID uint, conn *websocket.Conn) {
 }
 
 func (me *hub) handleQueries(q query) {
-	log.Printf("ws hub: received query : action = %s, message = %s", q.Action, q.Message)
+	log.Printf("ws hub: received query : action = %s, message = %s", q.Action, q.Data)
 
 	// me.emit(query{
 	// 	ID:      q.ID,
 	// 	Action:  "message.new",
-	// 	Message: q.Message,
+	// 	Data: q.Data,
 	// })
 }
 
 func (me *hub) Emit(profileID uint, action, message string) {
 	log.Printf("ws hub: sending to %d action %s", profileID, action)
 	q := query{
-		ID:      profileID,
-		Action:  action,
-		Message: message,
+		ID:     profileID,
+		Action: action,
+		Data:   message,
+	}
+
+	if err := me.emit(q); err != nil {
+		log.Printf("ws hub error: %s", err)
+	}
+}
+
+func (me *hub) EmitToNamespace(profileID uint, action, message, namespace string) {
+	log.Printf("ws hub: sending to %d action %s", profileID, action)
+	q := query{
+		ID:        profileID,
+		Action:    action,
+		Data:      message,
+		Namespace: namespace,
+	}
+
+	if err := me.emit(q); err != nil {
+		log.Printf("ws hub error: %s", err)
+	}
+}
+
+func (me *hub) EmitToMutationNamespace(profileID uint, action, message, namespace string) {
+	log.Printf("ws hub: sending to %d action %s", profileID, action)
+	q := query{
+		ID:        profileID,
+		Mutation:  action,
+		Data:      message,
+		Namespace: namespace,
 	}
 
 	if err := me.emit(q); err != nil {

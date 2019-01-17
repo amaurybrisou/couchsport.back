@@ -42,15 +42,28 @@ func (me conversationStore) GetByReferents(fromProfile, toProfile models.Profile
 	if err := me.Db.Model(&models.Conversation{}).Where("from_id = ? AND to_id = ?", fromProfile.ID, toProfile.ID).Or("from_id = ? AND to_id = ?", toProfile.ID, fromProfile.ID).FirstOrCreate(&outConversation, models.Conversation{
 		FromID: fromProfile.ID,
 		ToID:   toProfile.ID,
+		New:    true,
 	}).Error; err != nil {
 		return models.Conversation{}, err
 	}
 	return outConversation, nil
 }
 
-func (me conversationStore) Save(conversation models.Conversation) error {
-	if err := me.Db.Model(&models.Conversation{}).Update(&conversation).Error; err != nil {
-		return err
+//AddMessage in database
+func (me conversationStore) AddMessage(conversation models.Conversation, fromID, toID uint, fromEmail, text string) (models.Conversation, models.Message, error) {
+	m := models.Message{Text: text, OwnerID: conversation.ID, FromID: fromID, ToID: toID, Email: fromEmail}
+	if err := me.Db.Create(&m).Error; err != nil {
+		return models.Conversation{}, models.Message{}, err
 	}
-	return nil
+
+	conversation.Messages = append(conversation.Messages, m)
+
+	return conversation, m, nil
+}
+
+func (me conversationStore) Save(conversation models.Conversation) (models.Conversation, error) {
+	if err := me.Db.Model(&models.Conversation{}).Update(&conversation).Error; err != nil {
+		return models.Conversation{}, err
+	}
+	return conversation, nil
 }

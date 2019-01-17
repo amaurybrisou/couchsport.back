@@ -10,18 +10,17 @@
       </v-toolbar-items>
       <v-spacer></v-spacer>
       <v-toolbar-items>
-        <a class="new-message-link" v-if="messages.length" @click="goToConversations">
+        <a
+          class="new-message-link"
+          v-if="unread_message && $route.hash !== '#conversations'"
+          @click="goToConversations"
+        >
           <v-chip small color="info">
-            {{messages.length}}
+            {{unread_message}}
             <v-icon>mail_outline</v-icon>
           </v-chip>
         </a>
-        <v-menu
-          v-if="isProfileLoaded"
-          open-on-hover
-          offset-y
-          transition="slide-y-transition"
-        >
+        <v-menu v-if="isProfileLoaded" open-on-hover offset-y transition="slide-y-transition">
           <v-btn icon slot="activator">
             <v-icon>account_box</v-icon>
           </v-btn>
@@ -44,9 +43,11 @@
 
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapGetters, mapState, mapMutations } from "vuex";
 import { AUTH_LOGOUT } from "@/store/actions/auth";
-import { MESSAGES_READ } from "@/store/actions/ws";
+import { MESSAGES_READ } from "@/store/actions/conversations";
+
+const NAMESPACE = "conversations/";
 
 export default {
   name: "AppNav",
@@ -64,7 +65,7 @@ export default {
   computed: {
     ...mapGetters(["getProfile", "isAuthenticated", "isProfileLoaded"]),
     ...mapState({
-      messages: state => state.ws.messages,
+      unread_message: state => state.profile.conversations.unread,
       authLoading: state => state.auth.status === "loading",
       name: state =>
         `${state.user.profile.Firstname} ${state.user.profile.Lastname}`
@@ -74,8 +75,9 @@ export default {
     this.$root.$emit("navBarLoaded");
   },
   methods: {
+    ...mapMutations([NAMESPACE + MESSAGES_READ]),
     goToConversations() {
-      this.$store.commit(MESSAGES_READ);
+      this[NAMESPACE + MESSAGES_READ]();
       this.$router.push("/profile#conversations");
     },
     logout: function() {

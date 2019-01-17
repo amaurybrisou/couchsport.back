@@ -115,7 +115,7 @@ func (me pageStore) Delete(userID, pageID uint) (bool, error) {
 
 //Publish set page.Public field to 0 or 1
 func (me pageStore) Publish(userID, pageID uint, status bool) (bool, error) {
-	if err := me.Db.Model(&models.Page{}).Where("id = ?", pageID).Update("Public", status).Error; err != nil {
+	if err := me.Db.Table("pages").Where("id = ?", pageID).Update("Public", status).Error; err != nil {
 		return false, err
 	}
 

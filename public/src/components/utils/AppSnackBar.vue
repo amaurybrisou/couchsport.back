@@ -22,7 +22,7 @@ export default {
     x: { type: String, default: null },
     mode: { type: String, default: "" },
     text: { type: String, default: "Your profile has been successfully saved" }
-  },
+  }
 };
 </script>
 

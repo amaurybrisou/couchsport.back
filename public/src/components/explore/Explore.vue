@@ -3,7 +3,7 @@
     <v-layout column>
       <v-flex>
         <v-toolbar dark color="secondary">
-          <v-toolbar-title class="hidden-xs-only" >Start your trip</v-toolbar-title>
+          <v-toolbar-title class="hidden-xs-only">Start your trip</v-toolbar-title>
           <v-autocomplete
             :loading="loading"
             :items="items"
@@ -48,7 +48,7 @@
 <script>
 import { LMap, LTileLayer, LMarker } from "vue2-leaflet";
 
-import pageRepo from "@/repositories/page.js";
+import pageRepo from "@/repositories/pages.js";
 import MarkerPopup from "@/components/explore/MarkerPopup";
 import Vue from "vue";
 

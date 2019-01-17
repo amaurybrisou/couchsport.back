@@ -39,8 +39,9 @@
 
 <script>
 import AppSnackBar from "@/components/utils/AppSnackBar";
-import { MODIFY_PROFILE, SAVE_PROFILE } from "@/store/actions/user.js";
-import { mapMutations, mapActions } from "vuex";
+import { MODIFY_PROFILE, SAVE_PROFILE } from "@/store/actions/profile.js";
+import { mapMutations, mapActions, mapGetters, mapState } from "vuex";
+
 export default {
   name: "Activities",
   props: ["activities", "allActivities"],
@@ -56,10 +57,10 @@ export default {
   computed: {
     selected_activities: {
       set(val) {
-        this.MODIFY_PROFILE({ Activities: val });
+        this.MODIFY_PROFILE({ key: "Activities", value: val });
       },
       get() {
-        return this.$store.state.user.profile.Activities;
+        return this.$store.state.profile.profile.Activities;
       }
     }
   },

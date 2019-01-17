@@ -5,7 +5,7 @@ import {
   AUTH_SUCCESS,
   AUTH_LOGOUT
 } from "../actions/auth";
-import { USER_REQUEST } from "../actions/user";
+import { PROFILE_REQUEST } from "../actions/profile";
 import userRepository from "../../repositories/user";
 import axios from "../../repositories/repository";
 
@@ -34,11 +34,11 @@ const actions = {
           // axios.defaults.headers.common = {'Authorization': `bearer ${resp.data.Token}`}
 
           commit(AUTH_SUCCESS, resp);
-          dispatch(USER_REQUEST);
+          dispatch(PROFILE_REQUEST);
           resolve(resp);
         })
         .catch(({ response: { data } }) => {
-          commit(AUTH_ERROR)
+          commit(AUTH_ERROR);
           reject(data);
         });
     });

@@ -1,12 +1,14 @@
 <template>
   <v-container fluild grid-list-xs>
-    <v-layout row wrap align-center justify-center>
-      <v-flex :class="{ 'sm4 pr-5': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }">
+    <v-layout v-if="isProfileLoaded" row wrap align-center justify-center>
+      <v-flex
+        :class="{ 'sm4 pr-5': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }"
+      >
         <upload-button @formData="handleImage">
           <v-card slot="appearance" flat tile class="d-flex profile-avatar">
             <v-img
               :src="Avatar"
-              :alt="local_profile.Username"
+              :alt="Username"
               :value="Avatar"
               aspect-ratio="1"
               class="grey lighten-2"
@@ -21,23 +23,23 @@
       </v-flex>
       <v-flex :class="{ 'sm4': $vuetify.breakpoint.smAndUp, 'xs12': $vuetify.breakpoint.xsOnly }">
         <v-text-field flat disabled readonly label="Email" v-model="email"></v-text-field>
-        <v-text-field flat label="Username" v-model="local_profile.Username"></v-text-field>
-        <v-text-field flat label="Firstname" v-model="local_profile.Firstname"></v-text-field>
-        <v-text-field flat label="Lastname" v-model="local_profile.Lastname"></v-text-field>
-        <v-select :items="[`` ,`Male`, `Female`]" v-model="local_profile.Gender" label="Gender"></v-select>
+        <v-text-field flat label="Username" v-model="Username"></v-text-field>
+        <v-text-field flat label="Firstname" v-model="Firstname"></v-text-field>
+        <v-text-field flat label="Lastname" v-model="Lastname"></v-text-field>
+        <v-select :items="[`` ,`Male`, `Female`]" v-model="Gender" label="Gender"></v-select>
       </v-flex>
       <v-flex :class="{ 'sm4': $vuetify.breakpoint.smAndUp, 'xs12': $vuetify.breakpoint.xsOnly }">
-        <v-text-field flat label="StreetName" v-model="local_profile.StreetName"></v-text-field>
-        <v-text-field flat label="City" v-model="local_profile.City"></v-text-field>
-        <v-text-field flat label="ZipCode" v-model="local_profile.ZipCode"></v-text-field>
-        <v-text-field flat label="Country" v-model="local_profile.Country"></v-text-field>
-        <v-text-field flat label="Phone" v-model="local_profile.Phone"></v-text-field>
+        <v-text-field flat label="StreetName" v-model="StreetName"></v-text-field>
+        <v-text-field flat label="City" v-model="City"></v-text-field>
+        <v-text-field flat label="ZipCode" v-model="ZipCode"></v-text-field>
+        <v-text-field flat label="Country" v-model="Country"></v-text-field>
+        <v-text-field flat label="Phone" v-model="Phone"></v-text-field>
       </v-flex>
     </v-layout>
     <v-layout row wrap>
       <v-flex xs8 offset-xs2>
         <v-autocomplete
-          v-model="local_profile.Languages"
+          v-model="Languages"
           :items="allLanguages"
           label="Languages"
           return-object
@@ -65,18 +67,17 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { MODIFY_PROFILE, SAVE_PROFILE } from "@/store/actions/user.js";
+import { MODIFY_PROFILE, SAVE_PROFILE } from "@/store/actions/profile.js";
 
 import UploadButton from "@/components/utils/UploadButton";
 import AppSnackBar from "@/components/utils/AppSnackBar";
 
 export default {
   name: "PersonalInformation",
-  props: ["profile", "allLanguages"],
+  props: ["allLanguages"],
   components: { UploadButton, AppSnackBar },
   data() {
     return {
-      local_profile: { ...{}, ...this.profile },
       snackbar: false,
       snackbarTimeout: 4000,
       snackbarText: "your profile has been successfully saved",
@@ -84,20 +85,94 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["email"]),
+    ...mapGetters(["email", "isProfileLoaded"]),
     Avatar: {
       get() {
-        return this.$store.state.user.profile.Avatar;
+        return this.$store.state.profile.profile.Avatar;
+      }
+    },
+    Username: {
+      get() {
+        return this.$store.state.profile.profile.Username;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "Username", value: v });
+      }
+    },
+    Firstname: {
+      get() {
+        return this.$store.state.profile.profile.Firstname;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "Firstname", value: v });
+      }
+    },
+    Lastname: {
+      get() {
+        return this.$store.state.profile.profile.Lastname;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "Lastname", value: v });
+      }
+    },
+    Gender: {
+      get() {
+        return this.$store.state.profile.profile.Gender;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "Gender", value: v });
+      }
+    },
+    StreetName: {
+      get() {
+        return this.$store.state.profile.profile.StreetName;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "StreetName", value: v });
+      }
+    },
+    City: {
+      get() {
+        return this.$store.state.profile.profile.City;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "City", value: v });
+      }
+    },
+    ZipCode: {
+      get() {
+        return this.$store.state.profile.profile.ZipCode;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "ZipCode", value: v });
+      }
+    },
+    Country: {
+      get() {
+        return this.$store.state.profile.profile.Country;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "Country", value: v });
+      }
+    },
+    Phone: {
+      get() {
+        return this.$store.state.profile.profile.Phone;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "Phone", value: v });
+      }
+    },
+    Languages: {
+      get() {
+        return this.$store.state.profile.profile.Languages;
+      },
+      set(v) {
+        this.MODIFY_PROFILE({ key: "Languages", value: v });
       }
     }
   },
   watch: {
-    local_profile: {
-      handler: function(v) {
-        this.MODIFY_PROFILE(v);
-      },
-      deep: true
-    },
     snackbar(v) {
       if (!v) return;
       var that = this;
@@ -134,10 +209,8 @@ export default {
         var that = this;
         var reader = new FileReader();
         reader.onload = function(e) {
-          that.MODIFY_PROFILE({
-            Avatar: e.target.result,
-            AvatarFile: file.name
-          });
+          that.MODIFY_PROFILE({ key: "Avatar", value: e.target.result });
+          that.MODIFY_PROFILE({ key: "AvatarFile", value: file.name });
         };
 
         reader.readAsDataURL(file);

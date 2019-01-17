@@ -155,15 +155,20 @@
 <script>
 import AppSnackBar from "@/components/utils/AppSnackBar";
 import { LMap, LTileLayer } from "vue2-leaflet";
-import pageRepo from "@/repositories/page.js";
-import conversationRepo from "@/repositories/conversation.js";
-import { mapGetters, mapState } from "vuex";
+
+import { GET_PAGE } from "@/store/actions/pages";
+import { CONVERSATION_SEND_MESSAGE } from "@/store/actions/conversations";
+
+import { mapGetters, mapState, mapActions } from "vuex";
 
 export default {
   name: "page-details",
   components: { LMap, LTileLayer, AppSnackBar },
   data() {
     return {
+      contactName: "",
+      page: {},
+
       messageFormValid: false,
       emailRules: [
         v => !!v || "E-mail is required",
@@ -199,10 +204,15 @@ export default {
   computed: {
     ...mapState({
       email: state => state.auth.email,
-      FromID: state => state.user.profile.ID
+      FromID: state => state.profile.profile.ID
     }),
     message() {
-      return { FromID: this.FromID, ToID: null, Email: this.email, Text: "" };
+      return {
+        FromID: this.FromID,
+        ToID: null,
+        Email: this.email,
+        Text: ""
+      };
     },
     imagesUrl() {
       return this.page.Images.map(e => e.URL);
@@ -214,30 +224,6 @@ export default {
     },
     map: function() {
       return this.$refs.map.mapObject;
-    },
-    contactName: function() {
-      return (
-        this.page.Owner.Username ||
-        this.page.Owner.Firstname ||
-        this.page.Owner.Lastname
-      );
-    }
-  },
-  asyncComputed: {
-    page: async function() {
-      if (Number(this.$route.params.page_id) < 1) return this.$router.push("/");
-      return pageRepo
-        .get({ id: this.$route.params.page_id, profile: true })
-        .then(({ data }) => {
-          var page = data[0];
-
-          this.map.setView([page.Lat, page.Lng]);
-          L.marker([page.Lat, page.Lng]).addTo(this.map);
-
-          this.message.ToID = page.OwnerID;
-
-          return page;
-        });
     }
   },
   watch: {
@@ -245,11 +231,33 @@ export default {
       !!v && setTimeout((this.snackbar = false), this.snackbarTimeout);
     }
   },
+  mounted: async function() {
+    if (Number(this.$route.params.page_id) < 1) return this.$router.push("/");
+    this.page = await this["pages/" + GET_PAGE]({
+      id: this.$route.params.page_id,
+      profile: true
+    }).then(data => {
+      var page = data[0];
+      this.message.ToID = page.OwnerID;
+      this.contactName =
+        page.Owner.Username ||
+        page.Owner.Firstname ||
+        page.Owner.Lastname ||
+        this.email;
+
+      this.map.setView([page.Lat, page.Lng]);
+      L.marker([page.Lat, page.Lng]).addTo(this.map);
+      return page;
+    });
+  },
   methods: {
+    ...mapActions([
+      "pages/" + GET_PAGE,
+      "conversations/" + CONVERSATION_SEND_MESSAGE
+    ]),
     sendMessage: function(e) {
       if (!this.message.ToID) return;
-      conversationRepo
-        .sendMessage(this.message)
+      this["conversations/" + CONVERSATION_SEND_MESSAGE](this.message)
         .then(() => {
           this.snackbarText = "Your messages has been sent";
           this.snackbar = true;

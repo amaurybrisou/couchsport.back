@@ -79,25 +79,32 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	message := conversation.AddMessage(fromProfile.ID, toProfile.ID, jsonBody.Text)
-
-	err = me.Store.ConversationStore().Save(conversation)
+	conversation, message, err := me.Store.ConversationStore().AddMessage(conversation, fromProfile.ID, toProfile.ID, jsonBody.Email, jsonBody.Text)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	json, err := json.Marshal(&message)
+	j, err := json.Marshal(&message)
 
 	if err != nil {
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
 		return
 	}
 
-	me.Store.WsStore().Emit(message.ToID, "message.new", string(json))
+	if !conversation.New {
+		me.Store.WsStore().EmitToMutationNamespace(message.ToID, "CONVERSATION_ADD_MESSAGE", string(j), "conversations")
+	} else {
+		c, err := conversation.ToJSON()
+		if err != nil {
+			http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)
+			return
+		}
+		me.Store.WsStore().EmitToMutationNamespace(message.ToID, "NEW_CONVERSATION", c, "conversations")
+	}
 
-	fmt.Fprint(w, string(json))
+	fmt.Fprint(w, string(j))
 }
 
 func (me conversationHandler) ProfileConversations(userID uint, w http.ResponseWriter, r *http.Request) {

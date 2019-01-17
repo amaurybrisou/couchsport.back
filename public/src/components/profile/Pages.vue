@@ -1,9 +1,9 @@
 <template>
   <div fluild grid-list-xs class="v-list__container pa-0">
-    <v-layout v-if="local_pages" row wrap>
+    <v-layout v-if="pages" row wrap>
       <v-flex>
         <v-list>
-          <template v-for="(p) in local_pages">
+          <template v-for="(p) in pages">
             <v-divider :key="p.ID"></v-divider>
             <div class="v-list__tile page-line px-0 mx-0" :key="`preview-image-${p.ID}`">
               <v-layout row wrap d-flex class="v-list__tile px-0 mx-0">
@@ -21,14 +21,13 @@
                     :class="{'v-btn v-btn--small v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
                     :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
                     :label="$vuetify.breakpoint.xsOnly ? '' : (p.Public ? 'Public' : 'Private')"
-                    v-model="p.Public"
+                    v-bind:value="p.Public"
                     @change="publishPage(p.ID, $event)"
                   ></v-checkbox>
 
                   <page-edition-dialog
-                    @NewPageCreated="onNewPageCreated"
                     :state="'edit'"
-                    :page="p"
+                    :pageID="p.ID"
                     :allActivities="allActivities"
                   >
                     <template slot="open-btn">
@@ -44,7 +43,7 @@
                         small
                         :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
                         :class="{'v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
-                        @click.prevent
+                        v-on:click="editPage(p.ID)"
                       >
                         <v-icon>edit</v-icon>
                       </v-btn>
@@ -70,12 +69,7 @@
     </v-layout>
     <v-layout>
       <v-flex d-flex>
-        <page-edition-dialog
-          @NewPageCreated="onNewPageCreated"
-          :state="'new'"
-          :page="new_page"
-          :allActivities="allActivities"
-        >
+        <page-edition-dialog :state="'new'" :page="new_page" :allActivities="allActivities">
           <template slot="open-btn">
             <v-btn block color="success" flat>New Page</v-btn>
           </template>
@@ -91,14 +85,24 @@
 <script>
 import { LMap, LTileLayer, LMarker } from "vue2-leaflet";
 import PageEditionDialog from "@/components/profile/PageEditionDialog";
-import pageRepo from "@/repositories/page.js";
 import AppSnackBar from "@/components/utils/AppSnackBar";
-import { MODIFY_PROFILE } from "@/store/actions/user.js";
-import { mapMutations } from "vuex";
+
+import {
+  MODIFY_PAGE,
+  GET_PAGES,
+  EDIT_PAGE,
+  PUBLISH_PAGE,
+  DELETE_PAGE,
+  PAGE_ADD_PHOTO,
+  NEW_PAGE
+} from "@/store/actions/pages";
+import { mapMutations, mapActions, mapState } from "vuex";
+
+const NAMESPACE = "pages/";
 
 export default {
   name: "Pages",
-  props: ["pages", "allActivities"],
+  props: ["allActivities"],
   components: { LMap, LTileLayer, LMarker, PageEditionDialog, AppSnackBar },
   data() {
     return {
@@ -116,9 +120,15 @@ export default {
         Lng: null,
         CouchNumber: 0,
         Activities: []
-      },
-      local_pages: JSON.parse(JSON.stringify(this.pages))
+      }
     };
+  },
+  computed: {
+    pages: {
+      get() {
+        return this.$store.state.profile.pages.pages;
+      }
+    }
   },
   watch: {
     snackbar(v) {
@@ -129,15 +139,25 @@ export default {
       }, that.snackbarTimeout);
     }
   },
+  mounted() {
+    this[NAMESPACE + GET_PAGES]();
+  },
   methods: {
-    ...mapMutations([MODIFY_PROFILE]),
+    ...mapActions([
+      NAMESPACE + GET_PAGES,
+      NAMESPACE + NEW_PAGE,
+      NAMESPACE + PUBLISH_PAGE,
+      NAMESPACE + DELETE_PAGE
+    ]),
+    ...mapMutations([NAMESPACE + EDIT_PAGE]),
+    editPage(id) {
+      this[NAMESPACE + EDIT_PAGE](id);
+    },
     deletePage(id) {
       if (id != null) {
         var that = this;
-        pageRepo
-          .delete({ ID: id })
-          .then(function({ data }) {
-            that.local_pages = that.local_pages.filter(p => p.ID != id);
+        this[NAMESPACE + DELETE_PAGE]({ ID: id })
+          .then(function() {
             that.snackbarText = "the page has been successfully deleted";
             that.snackbar = true;
           })
@@ -147,49 +167,18 @@ export default {
           });
       }
     },
-    onNewPageCreated(page, state) {
-      if (state === "error") {
-        this.snackbarText = "there was an error saving your page";
-        this.snackbar = true;
-        return;
-      } else if (state === "edit") {
-        this.snackbarText = "your page has been successfully edited";
-        var idx = this.local_pages.map(p => p.ID).indexOf(page.ID);
-        this.local_pages[idx] = page;
-        this.MODIFY_PROFILE({ OwnedPages: this.local_pages });
-        this.snackbar = true;
-        return;
-      } else if (state === "new") {
-        this.local_pages.push(page);
-        this.MODIFY_PROFILE({ OwnedPages: this.local_pages });
-        this.new_page = {
-          ID: null,
-          Name: "",
-          Description: "",
-          Public: true,
-          LongDescription: "",
-          Images: [],
-          Lat: null,
-          Lng: null,
-          CouchNumber: 0,
-          Activities: []
-        };
-        this.snackbar = true;
-      }
-    },
     publishPage(id, state) {
       var that = this;
-      if (id != null && (state == false || state == true)) {
-        pageRepo
-          .publish({ ID: id, Public: state })
-          .then(({ data }) => {
+      if (id != null && (state == null || state == true)) {
+        this[NAMESPACE + PUBLISH_PAGE]({ ID: id, Public: state })
+          .then(() => {
             that.snackbarText = state
               ? "your page is now public"
               : "your page is now private";
             that.snackbar = true;
           })
           .catch(() => {
-            that.local_pages[id].Public = true;
+            that.pages[id].Public = true;
             that.snackbarText = "there was an error publishing your page";
             that.snackbar = true;
           });

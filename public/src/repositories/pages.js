@@ -4,7 +4,7 @@ export default {
   all() {
     return repo.get("/pages");
   },
-  mine() {
+  mines() {
     return repo.get("/profiles/pages");
   },
   get({ id, profile }) {

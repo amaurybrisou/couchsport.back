@@ -55,6 +55,12 @@ const mutations = {
   SOCKET_RECONNECT_ERROR
 };
 
+import VueLodash from "vue-lodash";
+
+const options = { name: "_" }; // customize the way you want to call it
+
+Vue.use(VueLodash, options); // options is optional
+
 import VueNativeSock from "vue-native-websocket";
 Vue.use(
   VueNativeSock,

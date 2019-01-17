@@ -54,6 +54,8 @@ func (s *Instance) Start(signalDone chan struct{}) {
 	<-signalDone
 
 }
+
+//Shutdown http server
 func (s *Instance) Shutdown() {
 	if s.HTTPServer != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

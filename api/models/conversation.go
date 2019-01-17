@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/jinzhu/gorm"
 )
@@ -13,6 +14,7 @@ type Conversation struct {
 	To       Profile   `gorm:"foreignkey:ToID"`
 	ToID     uint      `gorm:"association_autoupdate:false;;association_autosave:false;save_associations:false;association_save_reference:false"`
 	Messages []Message `gorm:"foreignkey:OwnerID"`
+	New      bool      `gorm:"-"`
 }
 
 //Validate model
@@ -29,7 +31,7 @@ func (me *Conversation) Validate(db *gorm.DB) {
 		db.AddError(errors.New("invalid Conversation"))
 	}
 
-	if len(me.Messages) < 1 && me.ID > 0 {
+	if len(me.Messages) < 1 && me.ID < 1 && !me.New {
 		db.AddError(errors.New("invalid Messages"))
 	}
 }
@@ -39,4 +41,13 @@ func (me *Conversation) AddMessage(fromID, toID uint, text string) Message {
 	m := Message{Text: text, OwnerID: me.ID, FromID: fromID, ToID: toID}
 	me.Messages = append(me.Messages, m)
 	return m
+}
+
+//ToJSON converts model to a json string
+func (me *Conversation) ToJSON() (string, error) {
+	j, err := json.Marshal(me)
+	if err != nil {
+		return "", err
+	}
+	return string(j), nil
 }

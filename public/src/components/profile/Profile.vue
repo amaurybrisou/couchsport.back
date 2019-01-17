@@ -17,10 +17,10 @@
           <v-tabs-items v-model="activeTab">
             <v-tab-item value="informations">
               <v-card flat>
-                <informations :profile="getProfile" :allLanguages="allLanguages"></informations>
+                <informations :allLanguages="allLanguages"></informations>
               </v-card>
             </v-tab-item>
-            <v-tab-item value="activities">
+            <v-tab-item lazy value="activities">
               <v-card flat>
                 <activities
                   :activities="getProfile.Activities || []"
@@ -28,12 +28,12 @@
                 ></activities>
               </v-card>
             </v-tab-item>
-            <v-tab-item value="conversations">
+            <v-tab-item lazy value="conversations">
               <v-card flat>
-                <conversations v-if="conversations" :conversations="conversations || []"></conversations>
+                <conversations></conversations>
               </v-card>
             </v-tab-item>
-            <v-tab-item value="pages">
+            <v-tab-item lazy value="pages">
               <v-card flat>
                 <pages :pages="getProfile.OwnedPages || []" :allActivities="allActivities"></pages>
               </v-card>
@@ -50,11 +50,12 @@ import Informations from "./Informations";
 import Activities from "./Activities";
 import Pages from "./Pages";
 import Conversations from "./Conversations";
-import { mapGetters } from "vuex";
+
+import { GET_CONVERSATIONS } from "@/store/actions/conversations";
+import { mapGetters, mapActions } from "vuex";
 
 import activityRepo from "@/repositories/activity.js";
 import languageRepo from "../../repositories/language.js";
-import conversationRepo from "../../repositories/conversation.js";
 
 export default {
   name: "Profile",
@@ -78,9 +79,6 @@ export default {
     },
     async allLanguages() {
       return await languageRepo.all().then(({ data }) => data);
-    },
-    async conversations() {
-      return await conversationRepo.mines().then(({ data }) => data);
     }
   }
 };

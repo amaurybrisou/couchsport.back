@@ -68,7 +68,7 @@ func (me userStore) New(user models.User) (models.User, error) {
 //GetProfile returns the user profile
 func (me userStore) GetProfile(userID uint) (models.Profile, error) {
 	var out = models.User{}
-	if err := me.Db.Preload("Profile").Preload("Profile.Languages").Preload("Profile.Activities").Preload("Profile.OwnedPages.Images").Preload("Profile.OwnedPages.Activities").Where("id = ?", userID).First(&out).Error; err != nil { //gorm.IsRecordNotFoundError(err) {
+	if err := me.Db.Preload("Profile").Preload("Profile.Languages").Preload("Profile.Activities").Where("id = ?", userID).First(&out).Error; err != nil { //gorm.IsRecordNotFoundError(err) {
 		return out.Profile, err
 	}
 	return out.Profile, nil

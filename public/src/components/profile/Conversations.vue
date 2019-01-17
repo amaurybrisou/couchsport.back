@@ -1,11 +1,6 @@
 <template>
   <v-container fluild grid-list-xs>
-    <v-flex
-      v-if="!local_conversations || local_conversations.length == 0"
-      xs12
-      text-sm-center
-      text-xs-center
-    >
+    <v-flex v-if="!conversations || conversations.length == 0" xs12 text-sm-center text-xs-center>
       <v-alert
         color="info"
         flat
@@ -13,10 +8,10 @@
       >You don't have any conversations</v-alert>
     </v-flex>
     <v-layout row wrap>
-      <v-flex v-if="local_conversations">
+      <v-flex v-if="conversations">
         <v-list>
           <v-list-group
-            v-for="(c) in local_conversations"
+            v-for="(c) in conversations"
             :key="`conversation-${c.ID}`"
             no-action
             prepend-icon="message"
@@ -30,18 +25,19 @@
                 <img v-if="c.To.Avatar" :src="c.To.Avatar" :alt="c.To.Avatar">
               </v-list-tile-avatar>-->
               <v-chip
-                v-if="c.FromID == connectedUserID"
+                v-if="c.FromID == connectedProfileID && c.To"
                 small
                 color
                 class="subheading"
-              >{{ c.To.Username || c.To.Firstname || c.From.Lastname }}</v-chip>
+              >{{ c.To.Username || c.To.Firstname || c.To.Lastname || c.To.Email }}</v-chip>
               <v-chip
-                v-if="c.FromID != connectedUserID"
+                v-if="c.FromID != connectedProfileID && c.From"
                 small
                 color
                 class="subheading"
-              >{{ c.From.Username || c.From.Firstname || c.From.Lastname }}</v-chip>
+              >{{ c.From.Username || c.From.Firstname || c.From.Lastname || c.From.Email }}</v-chip>
               <v-list-tile-sub-title
+                v-if="c.Messages"
                 class="text--primary"
               >Last message : {{ c.Messages[c.Messages.length - 1].Date| formatDate('MM/DD/YYYY') }} at {{ c.Messages[c.Messages.length - 1].Date| formatDate("HH:mm") }}</v-list-tile-sub-title>
 
@@ -58,22 +54,22 @@
             </v-list-tile>
 
             <v-list-tile v-for="m in c.Messages" :key="`message-${m.ID}`">
-              <v-list-tile-avatar v-if="m.FromID == connectedUserID">
+              <v-list-tile-avatar v-if="m.FromID == connectedProfileID">
                 <img v-if="c.To.Avatar" :src="c.To.Avatar" :alt="c.To.Avatar">
               </v-list-tile-avatar>
-              <v-list-tile-avatar v-if="m.FromID != connectedUserID">
+              <v-list-tile-avatar v-if="m.FromID != connectedProfileID">
                 <img v-if="c.To.Avatar" :src="c.From.Avatar" :alt="c.From.Avatar">
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-sub-title
-                  v-if="m.FromID != connectedUserID"
+                  v-if="m.FromID != connectedProfileID"
                   class
-                >{{ c.From.Username }}:</v-list-tile-sub-title>
-                <v-list-tile-sub-title v-if="m.FromID == connectedUserID" class>You:</v-list-tile-sub-title>
+                >{{ c.From.Username || m.Email }}:</v-list-tile-sub-title>
+                <v-list-tile-sub-title v-if="m.FromID == connectedProfileID" class>You:</v-list-tile-sub-title>
                 <v-list-tile-title class="body-1">{{ m.Text }}</v-list-tile-title>
               </v-list-tile-content>
 
-              <v-list-tile-action v-if="m.FromID != connectedUserID">
+              <v-list-tile-action v-if="m.FromID != connectedProfileID">
                 <v-layout row>
                   <v-flex>
                     <v-btn color="primary" flat @click.prevent="openMessageDialog(c)">
@@ -88,12 +84,7 @@
       </v-flex>
     </v-layout>
     <v-layout row justify-center>
-      <v-dialog
-        v-if="local_conversations"
-        id="contact-dialog"
-        v-model="showContactDialog"
-        width="500"
-      >
+      <v-dialog v-if="conversations" id="contact-dialog" v-model="showContactDialog" width="500">
         <v-card>
           <v-toolbar color="primary">
             <v-card-title class="title font-weight-regular">Write your reply</v-card-title>
@@ -137,16 +128,21 @@
 
 <script>
 import AppSnackBar from "@/components/utils/AppSnackBar";
-import conversationRepo from "../../repositories/conversation.js";
-import { mapState } from "vuex";
+
+import { mapState, mapActions } from "vuex";
+import {
+  GET_CONVERSATIONS,
+  CONVERSATION_SEND_MESSAGE,
+  REMOVE_CONVERSATION
+} from "@/store/actions/conversations";
+
+const NAMESPACE = "conversations/";
 
 export default {
   name: "Conversations",
-  props: ["conversations"],
   components: { AppSnackBar },
   data() {
     return {
-      local_conversations: this.conversations.map(c => ({ ...c })),
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your conversation has been successfully deleted",
@@ -165,9 +161,14 @@ export default {
     };
   },
   computed: {
+    conversations: {
+      get() {
+        return this.$store.state.profile.conversations.conversations;
+      }
+    },
     ...mapState({
       email: state => state.auth.email,
-      connectedUserID: state => state.user.profile.ID
+      connectedProfileID: state => state.profile.profile.ID
     }),
     message() {
       return { FromID: null, ToID: null, Email: this.email, Text: "" };
@@ -182,21 +183,27 @@ export default {
       }, that.snackbarTimeout);
     }
   },
+  mounted() {
+    this[NAMESPACE + GET_CONVERSATIONS]();
+  },
   methods: {
+    ...mapActions([
+      NAMESPACE + GET_CONVERSATIONS,
+      NAMESPACE + CONVERSATION_SEND_MESSAGE,
+      NAMESPACE + REMOVE_CONVERSATION
+    ]),
     openMessageDialog: function(c) {
       this.showContactDialog = true;
-      this.message.ToID = c.FromID == this.connectedUserID ? c.ToID : c.FromID;
+      this.message.ToID =
+        c.FromID == this.connectedProfileID ? c.ToID : c.FromID;
       this.focusedConversation = c;
     },
     reply: function(e) {
-      conversationRepo
-        .sendMessage(this.message)
-        .then(({ data }) => {
+      this[NAMESPACE + CONVERSATION_SEND_MESSAGE](this.message)
+        .then(() => {
           this.snackbarText = "Your messages has been sent";
           this.snackbar = true;
           this.showContactDialog = false;
-          data.Date = new Date();
-          this.focusedConversation.Messages.push(data);
         })
         .catch(res => {
           this.snackbarText = "An error occured while sending your message";
@@ -209,18 +216,9 @@ export default {
 
       this.focusedConversation = c;
 
-      console.log(c, this.focusedConversation);
       if (c.ID != null) {
-        conversationRepo
-          .delete(c.ID)
-          .then(function({ data }) {
-            console.log(data, that.local_conversations);
-            that.local_conversations = that.local_conversations.filter(function(
-              c
-            ) {
-              console.log(that.focusedConversation.ID, c.ID);
-              return that.focusedConversation.ID != c.ID;
-            });
+        this[NAMESPACE + REMOVE_CONVERSATION](c.ID)
+          .then(function() {
             that.snackbarText =
               "this conversation has been successfully deleted";
             that.snackbar = true;
