@@ -2,6 +2,7 @@ package stores
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"html/template"
@@ -49,9 +50,72 @@ func (me mailStore) parseTemplate(fileName string, data interface{}) error {
 func (me *mailStore) sendMail() error {
 	body := "To: " + me.r.to[0] + "\r\nSubject: " + me.r.subject + "\r\n" + mime + "\r\n" + me.r.body
 	SMTP := fmt.Sprintf("%s:%d", me.Server, me.Port)
+
 	if err := smtp.SendMail(SMTP, smtp.PlainAuth("", me.Email, me.Password, me.Server), me.Email, me.r.to, []byte(body)); err != nil {
 		return err
 	}
+
+	me.r = nil
+
+	return nil
+}
+
+func (me *mailStore) sendMailTLS() error {
+	body := "To: " + me.r.to[0] + "\r\nSubject: " + me.r.subject + "\r\n" + mime + "\r\n" + me.r.body
+	smtpServer := fmt.Sprintf("%s:%d", me.Server, me.Port)
+
+	auth := smtp.PlainAuth("", me.Email, me.Password, me.Server)
+
+	// TLS config
+	tlsconfig := &tls.Config{
+		InsecureSkipVerify: true,
+		ServerName:         me.Server,
+	}
+
+	// Here is the key, you need to call tls.Dial instead of smtp.Dial
+	// for smtp servers running on 465 that require an ssl connection
+	// from the very beginning (no starttls)
+	conn, err := tls.Dial("tcp", smtpServer, tlsconfig)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	c, err := smtp.NewClient(conn, me.Server)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Auth
+	if err = c.Auth(auth); err != nil {
+		log.Panic(err)
+	}
+
+	// To && From
+	if err = c.Mail(me.r.to[0]); err != nil {
+		log.Panic(err)
+	}
+
+	if err = c.Rcpt(me.Email); err != nil {
+		log.Panic(err)
+	}
+
+	// Data
+	w, err := c.Data()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	_, err = w.Write([]byte(body))
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = w.Close()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	c.Quit()
 
 	me.r = nil
 
@@ -63,7 +127,7 @@ func (me *mailStore) send(templateName string, items interface{}) error {
 	if err != nil {
 		return err
 	}
-	if err := me.sendMail(); err != nil {
+	if err := me.sendMailTLS(); err != nil {
 		return err
 	}
 
