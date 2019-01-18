@@ -12,7 +12,7 @@ import {
 } from "../actions/conversations";
 
 import conversationRepo from "../../repositories/conversation";
-
+import Vue from "vue";
 import { AUTH_LOGOUT } from "../actions/auth";
 
 const state = { status: "", conversations: [], unread: 0 };
@@ -72,8 +72,11 @@ const actions = {
 };
 
 const mutations = {
-  [MESSAGES_READ]: state => {
+  [MESSAGES_READ]: (state, conversationIDX) => {
     state.unread = 0;
+    if (conversationIDX) {
+      Vue.set(state.conversations[conversationIDX], "unread", false);
+    }
   },
   [GET_CONVERSATIONS]: state => {
     state.status = "loading";
@@ -82,12 +85,13 @@ const mutations = {
     state.status = "get_success";
     state.conversations = conversations;
   },
-  [CONVERSATION_ADD_MESSAGE]: (state, message) => {
+  [CONVERSATION_ADD_MESSAGE]: (state, message, rootState) => {
     state.unread++;
     message.data = JSON.parse(message.data);
     for (var i = 0; i < state.conversations.length; i++) {
       var c = state.conversations[i];
       if (c.ID === message.data.OwnerID) {
+        Vue.set(state.conversations[i], "unread", true);
         state.conversations[i].Messages.push(message.data);
         break;
       }
@@ -95,7 +99,9 @@ const mutations = {
   },
   [NEW_CONVERSATION]: (state, message) => {
     state.unread++;
-    state.conversations.push(JSON.parse(message.data));
+    let m = JSON.parse(message.data);
+    m.unread = true;
+    state.conversations.push(m);
   },
   [CONVERSATION_SEND_MESSAGE]: state => {
     state.status = "sending";

@@ -34,7 +34,13 @@
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
-        <v-btn class="mr-2" color="secondary" small flat :href="url">view details</v-btn>
+        <v-btn
+          class="mr-2"
+          color="secondary"
+          small
+          flat
+          :href="url"
+        >{{ $t('p.explore.view_details') }}</v-btn>
       </v-card-actions>
     </v-card>
   </div>

@@ -9,6 +9,7 @@ import (
 type Profile struct {
 	gorm.Model
 	Username, Country, City, Firstname, Lastname string `valid:"name" gorm:"type:varchar(50);"`
+	Email                                        string `valid:"email"`
 	StreetName                                   string `valid:"text"`
 	Gender                                       string `valid:"in(Male|Female)"`
 	Phone                                        string `valid:"alphanum"`

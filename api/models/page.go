@@ -14,7 +14,7 @@ type Page struct {
 	Images            []Image `gorm:"save_associations:true;foreignkey:OwnerID"`
 	Lat               float64 `valid:"latitude"`
 	Lng               float64 `valid:"longitude"`
-	CouchNumber       int     `valid:"numeric"`
+	CouchNumber       *int    `valid:"numeric"`
 	Followers         []*User `gorm:"many2many:user_page_follower"`
 	Owner             Profile `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false"`
 	OwnerID           uint
@@ -52,7 +52,7 @@ func (page *Page) Validate(db *gorm.DB) {
 		return
 	}
 
-	if page.CouchNumber < 0 {
+	if (*page.CouchNumber) < 0 {
 		db.AddError(errors.New("invalid CouchNumber"))
 		return
 	}

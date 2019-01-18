@@ -57,6 +57,7 @@ func (me conversationStore) AddMessage(conversation models.Conversation, fromID,
 	}
 
 	conversation.Messages = append(conversation.Messages, m)
+	conversation.From.Email = m.Email
 
 	return conversation, m, nil
 }

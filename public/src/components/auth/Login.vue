@@ -4,7 +4,7 @@
       <v-flex xs12 sm8 md4>
         <v-card>
           <v-toolbar dark color="secondary">
-            <v-toolbar-title>Login</v-toolbar-title>
+            <v-toolbar-title>{{ $t("login") }}</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
             <div v-if="errors.length" color="error">
@@ -16,7 +16,7 @@
 
             <v-form @keypress.enter.native="submit" ref="form" v-model="valid">
               <v-text-field
-                label="Email"
+                :label="$t('email')"
                 type="text"
                 v-model="user.email"
                 name="email"
@@ -24,7 +24,7 @@
                 autocomplete="email"
               ></v-text-field>
               <v-text-field
-                label="Password"
+                :label="$t('password')"
                 :type="'password'"
                 v-model="user.password"
                 name="password"
@@ -36,7 +36,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn @click="submit" :disabled="!valid">Login</v-btn>
+            <v-btn @click="submit" :disabled="!valid">{{ $t("login") }}</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -52,9 +52,10 @@ import { validationMixin } from "vuelidate";
 import { required, maxLength, email } from "vuelidate/lib/validators";
 
 import { AUTH_REQUEST } from "@/store/actions/auth";
+import Vue from "vue";
 
 export default {
-  name: "SignIn",
+  name: "Login",
   mixins: [validationMixin],
   props: { welcome: { type: String, default: null } },
   validations: {
@@ -70,16 +71,16 @@ export default {
         password: ""
       },
       emailRules: [
-        v => !!v || "E-mail is required",
+        v => !!v || this.$t("message.auth.required", ["email"]),
         v =>
           /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
-          "E-mail must be valid"
+          this.$t("message.auth.invalid", ["email"])
       ],
       passwordRules: [
-        v => !!v || "Password is required",
+        v => !!v || this.$t("message.auth.required", ["password"]),
         v =>
           /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(v) ||
-          "Password must be valid"
+          this.$t("message.auth.password_hint")
       ]
     };
   },
@@ -89,7 +90,7 @@ export default {
       this.$store
         .dispatch(AUTH_REQUEST, this.user)
         .then(() => {
-          this.$router.push("/profile");
+          this.$router.push({ name: "profile" });
         })
         .catch(data => {
           this.errors = [];
@@ -104,16 +105,19 @@ export default {
     emailErrors() {
       const errors = [];
       if (!this.$v.user.email.$dirty) return errors;
-      !this.$v.user.email.email && errors.push("Must be valid e-mail");
-      !this.$v.user.email.required && errors.push("E-mail is required");
+      !this.$v.user.email.email &&
+        errors.push(this.$t("message.auth.invalid", ["email"]));
+      !this.$v.user.email.required &&
+        errors.push(this.$t("message.auth.required", ["email"]));
       return errors;
     },
     passwordErrors() {
       const errors = [];
       if (!this.$v.user.password.$dirty) return errors;
       !this.$v.user.passwor.maxLength &&
-        errors.push("Password must be at most 8 characters long");
-      !this.$v.user.password.required && errors.push("Password is required.");
+        errors.push(this.$t("message.auth.password_hint", [8]));
+      !this.$v.user.password.required &&
+        errors.push(this.$t("message.auth.required", ["password"]));
       return errors;
     }
   }

@@ -26,8 +26,8 @@
                   ></v-checkbox>
 
                   <page-edition-dialog
+                    @page_saved="onPageSaved"
                     :state="'edit'"
-                    :pageID="p.ID"
                     :allActivities="allActivities"
                   >
                     <template slot="open-btn">
@@ -35,7 +35,7 @@
                         small
                         :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
                         :class="{'v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
-                        :to="`/pages/${p.ID}`"
+                        :to="{ name: 'page-details', params: { page_id: p.ID }}"
                       >
                         <v-icon>visibility</v-icon>
                       </v-btn>
@@ -57,8 +57,8 @@
                       </v-btn>
                     </template>
 
-                    <span slot="submitText">Save Modifications</span>
-                    <span slot="pageTitle">Edit page : {{p.title}}</span>
+                    <span slot="submitText">{{ $t('save') }} {{ $t('modifications') }}</span>
+                    <span slot="pageTitle">{{ $t('edit') }} {{ $t('page') }} : {{p.title}}</span>
                   </page-edition-dialog>
                 </v-flex>
               </v-layout>
@@ -69,11 +69,16 @@
     </v-layout>
     <v-layout>
       <v-flex d-flex>
-        <page-edition-dialog :state="'new'" :page="new_page" :allActivities="allActivities">
+        <page-edition-dialog
+          @page_saved="onPageSaved"
+          :state="'new'"
+          :page="new_page"
+          :allActivities="allActivities"
+        >
           <template slot="open-btn">
-            <v-btn block color="success" flat>New Page</v-btn>
+            <v-btn block color="success" flat>{{ $t('new') }} {{ $t('page') }}</v-btn>
           </template>
-          <span slot="pageTitle">New Page</span>
+          <span slot="pageTitle">{{ $t('new') }} {{ $t('page') }}</span>
         </page-edition-dialog>
       </v-flex>
     </v-layout>
@@ -130,7 +135,11 @@ export default {
       }
     },
     isPublic: {
-      get() { return this.$store.state.profile.pages.pages.map((p, i) => p.Public) }
+      get() {
+        return this.$store.state.profile.pages.pages.map((p, i) => {
+          return p.Public ? "true" : "false";
+        });
+      }
     }
   },
   watch: {
@@ -153,6 +162,15 @@ export default {
       NAMESPACE + DELETE_PAGE
     ]),
     ...mapMutations([NAMESPACE + EDIT_PAGE]),
+    onPageSaved(state) {
+      if (state) {
+        this.snackbarText = this.$t("message.success_saving", ["page"]);
+        this.snackbar = true;
+      } else {
+        this.snackbarText = this.$t("message.error_saving", ["page"]);
+        this.snackbar = true;
+      }
+    },
     editPage(id) {
       this[NAMESPACE + EDIT_PAGE](id);
     },
@@ -161,28 +179,28 @@ export default {
         var that = this;
         this[NAMESPACE + DELETE_PAGE]({ ID: id })
           .then(function() {
-            that.snackbarText = "the page has been successfully deleted";
+            that.snackbarText = this.$t("message.success_deleting", ["page"]);
             that.snackbar = true;
           })
           .catch(() => {
-            that.snackbarText = "there was an error deleting your page";
+            that.snackbarText = this.$t("message.error_deleting", ["page"]);
             that.snackbar = true;
           });
       }
     },
     publishPage(id, state) {
       var that = this;
-      if (id != null && (state == null || state == true)) {
+      if (id != null && (state == false || state == true)) {
         this[NAMESPACE + PUBLISH_PAGE]({ ID: id, Public: state })
           .then(() => {
             that.snackbarText = state
-              ? "your page is now public"
-              : "your page is now private";
+              ? this.$t("message.state", ["page", "public"])
+              : this.$t("message.state", ["page", "private"]);
             that.snackbar = true;
           })
           .catch(() => {
             that.pages[id].Public = true;
-            that.snackbarText = "there was an error publishing your page";
+            that.snackbarText = this.$t("message.error_updating", ["page"]);
             that.snackbar = true;
           });
       }

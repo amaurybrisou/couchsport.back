@@ -5,6 +5,7 @@
     fullscreen
     transition="dialog-bottom-transition"
     :overlay="false"
+    style="z-index:600;"
   >
     <template slot="activator">
       <slot name="open-btn"></slot>
@@ -13,12 +14,12 @@
     <v-card>
       <v-toolbar dark color="primary">
         <v-toolbar-title>
-          <slot name="pageTitle">Edit page : {{Name}}</slot>
+          <slot name="pageTitle">{{ $t('edit_page') }} : {{Name}}</slot>
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items></v-toolbar-items>
         <v-btn dark flat @click.native="submit">
-          <slot name="submitText">Save</slot>
+          <slot name="submitText">{{ $t('save') }}</slot>
         </v-btn>
         <v-btn icon @click.native.prevent="cancelEdit()" dark>
           <v-icon>close</v-icon>
@@ -34,13 +35,24 @@
               :class="{ 'sm6 pr-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
             >
               <v-form v-model="valid" ref="form" lazy-validation>
-                <v-text-field label="Name" v-model="Name" :rules="nameRules" required hide-details></v-text-field>
-                <v-text-field label="Description" v-model="Description" required hide-details></v-text-field>
+                <v-text-field
+                  :label="$t('p.ped.name')"
+                  v-model="Name"
+                  :rules="nameRules"
+                  required
+                  hide-details
+                ></v-text-field>
+                <v-text-field
+                  :label="$t('p.ped.description')"
+                  v-model="Description"
+                  required
+                  hide-details
+                ></v-text-field>
                 <v-textarea
                   name="LongDescription"
                   v-model="LongDescription"
                   maxlength="512"
-                  placeholder="Describe the spot with more details"
+                  :placeholder="$t('p.ped.long_desc_ph')"
                   row="1"
                   hide-details
                   no-resize
@@ -48,7 +60,7 @@
                 <v-autocomplete
                   v-model="Activities"
                   :items="allActivities"
-                  label="Activity"
+                  :label="$t('activities')"
                   item-text="Name"
                   return-object
                   multiple
@@ -57,8 +69,8 @@
                   v-model="CouchNumber"
                   :rules="couchNumberRules"
                   color="primary"
-                  label="Number of couch available"
-                  hint="Number of couch available"
+                  :label="$t('p.ped.couch_number')"
+                  :hint="$t('p.ped.couch_number')"
                   min="0"
                   max="15"
                   thumb-label
@@ -72,7 +84,8 @@
               <v-card pa-5>
                 <div>
                   <v-subheader color="warning">
-                    <v-icon color="warning">help</v-icon>Left click to the determine the spot location, right click to remove it!
+                    <v-icon color="warning">help</v-icon>
+                    {{ $t('p.ped.map_help') }}
                   </v-subheader>
                 </div>
                 <l-map
@@ -89,7 +102,7 @@
             </v-flex>
             <v-flex v-if="Images" xs12 mt-1>
               <upload-button
-                label="Add photos of the spot!"
+                :label="$t('p.ped.upload_image_hint')"
                 :multiple="false"
                 title="Browser"
                 :disabled="Images.length > 5"
@@ -143,7 +156,8 @@
         </v-container>
         <v-dialog lazy v-model="showSavingPageDialog" hide-overlay persistent width="300">
           <v-card color="primary" dark>
-            <v-card-text>Please stand by
+            <v-card-text>
+              {{ $t('message.stand_by') }}
               <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
             </v-card-text>
           </v-card>
@@ -173,7 +187,7 @@ const NAMESPACE = "pages/";
 
 export default {
   name: "profile-page-edition-dialog",
-  props: ["pageID", "state", "allActivities"],
+  props: ["state", "allActivities"],
   components: { UploadButton, LMap, LMarker, LTileLayer, AppSnackBar },
   data() {
     return {
@@ -185,8 +199,8 @@ export default {
 
       valid: true,
       nameRules: [
-        v => !!v || "Name is required",
-        v => (v && v.length <= 50) || "Name must be less than 10 characters"
+        v => !!v || this.$t("message.auth.required", ["name"]),
+        v => (v && v.length <= 50) || this.$t("message.length_below", [50])
       ],
 
       couchNumberRules: [val => val < 15 || `Really ?!`],
@@ -197,7 +211,7 @@ export default {
       map: null,
       mapConfig: {
         zoom: 1,
-        center: [this.Lat || 46, this.Lng || -1],
+        center: [46, -1],
         maxBounds: [[-90, -180], [90, 180]],
         noWrap: true,
         url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
@@ -205,7 +219,7 @@ export default {
           '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         showMarkers: true,
         hasSpotMarker: false,
-        spotMarker: this.Lat && this.Lng ? L.marker([this.Lat, this.Lng]) : null
+        spotMarker: null
       }
     };
   },
@@ -287,12 +301,6 @@ export default {
     var that = this;
     this.$nextTick(function() {
       that.map = this.$refs.map.mapObject;
-      if (that.mapConfig.spotMarker) {
-        that.mapConfig.hasSpotMarker = true;
-        that.mapConfig.zoom = 5;
-        that.mapConfig.spotMarker.addTo(that.map);
-      }
-
       that.map.on("click", that.hasClickOnMap);
       that.map.on("contextmenu", () => {
         if (that.mapConfig.spotMarker) {
@@ -303,6 +311,17 @@ export default {
     });
   },
   watch: {
+    Lat() {
+      if (!this.mapConfig.spotMarker && this.Lng) {
+        this.mapConfig.spotMarker = L.marker([this.Lat, this.Lng]);
+        this.mapConfig.center = [this.Lat, this.Lng];
+
+        this.mapConfig.zoom = 5;
+
+        this.mapConfig.spotMarker.addTo(this.map);
+        this.mapConfig.hasSpotMarker = true;
+      }
+    },
     showEditPageDialog(v) {
       if (!v) return;
       var that = this;
@@ -332,15 +351,13 @@ export default {
         var that = this;
         this[NAMESPACE + SAVE_PAGE](this.state)
           .then(() => {
-            this.showEditPageDialog = false;
             this.showSavingPageDialog = false;
-            this.snackbarText = "your page has been successfully created";
-            this.snackbar = true;
+            this.showEditPageDialog = false;
+            that.$emit("page_saved", true);
           })
           .catch(e => {
             this.showSavingPageDialog = false;
-            this.snackbarText = "There was an error creating this page";
-            this.snackbar = true;
+            that.$emit("page_saved_error", false);
           });
       }
     },
@@ -377,14 +394,14 @@ export default {
     },
     addImage(formData) {
       if (this.Images.length > 5) {
-        this.snackbarText = "Maximum number of images allowed";
+        this.snackbarText = this.$t("p.pde.max_images");
         return (this.snackbar = true);
       }
 
       var file = formData.get("file");
       if (file instanceof File) {
         if (file.size > 500000) {
-          this.snackbarText = "This image is too big";
+          this.snackbarText = this.$t("message.too_big", ["image"]);
           return (this.snackbar = true);
         }
 
@@ -394,7 +411,7 @@ export default {
             (i.File && i.File.indexOf(file.name) > -1)
         ).length;
         if (exists > 0) {
-          this.snackbarText = "This images already exists in this page";
+          this.snackbarText = this.$t("message.exist", ["image"]);
           return (this.snackbar = true);
         }
 
@@ -412,7 +429,7 @@ export default {
     },
     deleteImage(idx) {
       this[NAMESPACE + PAGE_DELETE_IMAGE](idx);
-      this.snackbarText = "image successfully deleted";
+      this.snackbarText = this.$t("message.success_deleting", ["image"]);
       this.snackbar = true;
     }
   }

@@ -16,6 +16,8 @@
     "moment": "^2.23.0",
     "vue": "^2.5.2",
     "vue-async-computed": "^3.5.0",
+    "vue-flag-icon": "^1.0.6",
+    "vue-i18n": "^8.7.0",
     "vue-native-websocket": "^2.0.12",
     "vue-router": "^3.0.1",
     "vue2-leaflet": "^1.2.3",

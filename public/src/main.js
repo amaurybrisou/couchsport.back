@@ -17,19 +17,6 @@ Vue.use(Vuetify, {
   }
 });
 
-import moment from "moment";
-Vue.filter("formatDate", function(value, format) {
-  if (value) {
-    return moment(String(value)).format(format || "MM/DD/YYYY hh:mm");
-  }
-});
-
-Vue.filter("shorten", function(value, max = 10) {
-  if (value) {
-    return value.slice(0, max) + "...";
-  }
-});
-
 import AsyncComputed from "vue-async-computed";
 Vue.use(AsyncComputed);
 
@@ -55,6 +42,11 @@ const mutations = {
   SOCKET_RECONNECT_ERROR
 };
 
+import { i18n } from "./trans";
+import FlagIcon from "vue-flag-icon";
+
+Vue.use(FlagIcon);
+
 import VueNativeSock from "vue-native-websocket";
 Vue.use(
   VueNativeSock,
@@ -69,13 +61,34 @@ Vue.use(
   }
 );
 
-Vue.config.productionTip = false;
+import Filters from "./plugins/filter";
+Vue.use(Filters);
+import AppMessenger from "./plugins/messenger";
 
+import {
+  MESSAGES_READ,
+  CONVERSATION_SEND_MESSAGE
+} from "./store/actions/conversations";
+
+Vue.use(AppMessenger, {
+  namespace: "conversations",
+  mutations: {
+    MESSAGES_READ
+  },
+  actions: {
+    CONVERSATION_SEND_MESSAGE
+  },
+  store
+});
+
+Vue.config.productionTip = false;
 /* eslint-disable no-new */
 new Vue({
   el: "#app",
   router,
+  i18n,
   store,
+  AppMessenger,
   components: { App },
   template: "<App/>"
 });

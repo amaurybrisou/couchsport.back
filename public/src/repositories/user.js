@@ -2,7 +2,7 @@ import repo from "./repository";
 
 export default {
   create(payload) {
-    return repo.put("/signin", payload);
+    return repo.put("/signup", payload);
   },
   login(payload) {
     return repo.post("/login", payload);

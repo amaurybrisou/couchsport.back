@@ -85,7 +85,7 @@ func main() {
 	)
 
 	srv.RegisterHandler("/login", handlerFactory.UserHandler().Login)
-	srv.RegisterHandler("/signin", handlerFactory.UserHandler().SignIn)
+	srv.RegisterHandler("/signup", handlerFactory.UserHandler().SignUp)
 	srv.RegisterHandler("/logout", handlerFactory.UserHandler().IsLogged(
 		handlerFactory.UserHandler().Logout),
 	)

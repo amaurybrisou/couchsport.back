@@ -3,7 +3,7 @@
     <v-layout column>
       <v-flex>
         <v-toolbar dark color="secondary">
-          <v-toolbar-title class="hidden-xs-only">Start your trip</v-toolbar-title>
+          <v-toolbar-title class="hidden-xs-only">{{ $t('p.explore.sb_title') | capitalize }}</v-toolbar-title>
           <v-autocomplete
             :loading="loading"
             :items="items"
@@ -17,7 +17,7 @@
             flat
             hide-no-data
             hide-details
-            label="Look for a place or an activity ?"
+            :label="$t('p.explore.sb_placeholder') | capitalize"
             solo-inverted
             :menu-props="{zIndex:'2000'}"
           ></v-autocomplete>
@@ -120,10 +120,11 @@ export default {
         if (!p.Public) continue;
 
         MarkerPopup.router = this.$router;
+        MarkerPopup.i18n = this.$i18n;
         const MarkerPopupConst = Vue.extend(MarkerPopup);
         const comp = new MarkerPopupConst({
           propsData: {
-            url: "/pages/" + p.ID,
+            url: "/" + this.$i18n.locale + "/pages/" + p.ID,
             name: p.Name,
             image:
               p.Images.length > 0

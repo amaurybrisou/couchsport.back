@@ -2,18 +2,18 @@
 <template>
   <v-container fluild grid-list-xs>
     <v-layout align-center pb-3>
-      <div>Select the activities you're looking for.</div>
+      <div>{{ $t('p.activities.hint') | capitalize }}</div>
     </v-layout>
     <v-divider></v-divider>
     <v-layout v-if="allActivities" wrap align-center justify-center>
       <v-flex xs6 md2 v-for="(item, i) in allActivities" :key="i">
         <v-checkbox
           height="0"
-          :label="item.Name"
+          :label="$t(`allActivities.${item.Name}`) | capitalize"
           :value="item"
           multiple
           v-model="selected_activities"
-        >{{ item.Name }}</v-checkbox>
+        >{{ item.Name | capitalize }}</v-checkbox>
       </v-flex>
     </v-layout>
     <v-layout row wrap>
@@ -50,7 +50,7 @@ export default {
     return {
       snackbar: false,
       snackbarTimeout: 3000,
-      snackbarText: "your profile has been successfully saved",
+      snackbarText: this.$t("message.success_saving", ["profile"]),
       showSavingProfileDialog: false
     };
   },
@@ -82,10 +82,11 @@ export default {
       this.SAVE_PROFILE()
         .then(() => {
           that.showSavingProfileDialog = false;
+          that.snackbarText = this.$t("message.success_saving", ["profile"]);
           that.snackbar = true;
         })
         .catch(e => {
-          that.snackbarText = "there was and error saving your profile";
+          that.snackbarText = this.$t("message.error_saving", ["profile"]);
           that.snackbar = true;
         });
     }

@@ -12,12 +12,16 @@
             <v-spacer></v-spacer>
             <v-tooltip bottom v-if="page.CouchNumber > 0">
               <div slot="activator">
-                <v-chip color="info" text-color="white" small>{{page.CouchNumber}} Couch available</v-chip>
+                <v-chip
+                  color="info"
+                  text-color="white"
+                  small
+                >{{page.CouchNumber}} {{ $t('p.pd.avail_couch') }}</v-chip>
               </div>
-              <span>This spot accepts guests</span>
+              <span>{{ $t('p.pd.guests') }}</span>
             </v-tooltip>
             <div v-else>
-              <v-chip color="primary" text-color="white" small>Does not accept guests</v-chip>
+              <v-chip color="primary" text-color="white" small>{{ $t('p.pd.no_guests') }}</v-chip>
             </div>
           </v-card-title>
           <v-list-tile avatar>
@@ -28,7 +32,7 @@
                 text-color="white"
                 small
                 :key="i"
-              >{{ a.Name }}</v-chip>
+              >{{ a.Name | capitalize }}</v-chip>
             </div>
           </v-list-tile>
           <v-divider></v-divider>
@@ -43,8 +47,8 @@
               @click="showContactDialog = true"
               color="primary"
               block
-              :disabled="message.FromID == message.ToID"
-            >Contact</v-btn>
+              :disabled="message.FromID == message.ToID || page.CouchNumber == 0"
+            >{{ $t('contact') }}</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -105,21 +109,23 @@
       >
         <v-card>
           <v-toolbar color="primary">
-            <v-card-title class="title font-weight-regular">Your message to {{ contactName }}</v-card-title>
+            <v-card-title
+              class="title font-weight-regular"
+            >{{ $t('your') }} {{ $t('_message') }} {{ $t('to') }} {{ contactName }}</v-card-title>
           </v-toolbar>
           <v-form v-model="messageFormValid">
             <v-card-text>
               <v-text-field
                 v-if="!email"
                 name="Email"
-                label="Your email"
+                :label="$t('email')"
                 autocomplete="email"
                 v-model="message.Email"
                 :rules="emailRules"
               ></v-text-field>
               <v-textarea
                 name="Message"
-                label="Your Message"
+                :label="$t('_message')"
                 v-model="message.Text"
                 :rules="textRules"
                 row="1"
@@ -130,23 +136,23 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" flat @click.prevent.native="showContactDialog = false">Cancel</v-btn>
+              <v-btn
+                color="primary"
+                flat
+                @click.prevent.native="showContactDialog = false"
+              >{{ $t('cancel') }}</v-btn>
               <v-btn
                 color="primary"
                 flat
                 @click.native="sendMessage"
                 :disabled="!messageFormValid"
-              >Send</v-btn>
+              >{{ $t('send') }}</v-btn>
             </v-card-actions>
           </v-form>
         </v-card>
       </v-dialog>
     </v-layout>
-    <app-snack-bar
-      :state="snackbar"
-      :text="snackbarText"
-      @snackClose="snackbar = false"
-    ></app-snack-bar>
+    <app-snack-bar :state="snackbar" :text="snackbarText" @snackClose="snackbar = false"></app-snack-bar>
   </v-container>
 </template>
 
@@ -156,7 +162,6 @@ import AppSnackBar from "@/components/utils/AppSnackBar";
 import { LMap, LTileLayer } from "vue2-leaflet";
 
 import { GET_PAGE } from "@/store/actions/pages";
-import { CONVERSATION_SEND_MESSAGE } from "@/store/actions/conversations";
 
 import { mapGetters, mapState, mapActions } from "vuex";
 
@@ -246,7 +251,7 @@ export default {
         page.Owner.Username ||
         page.Owner.Firstname ||
         page.Owner.Lastname ||
-        this.email;
+        page.Owner.email;
 
       this.map.setView([page.Lat, page.Lng]);
       L.marker([page.Lat, page.Lng]).addTo(this.map);
@@ -254,14 +259,12 @@ export default {
     });
   },
   methods: {
-    ...mapActions([
-      "pages/" + GET_PAGE,
-      "conversations/" + CONVERSATION_SEND_MESSAGE
-    ]),
+    ...mapActions(["pages/" + GET_PAGE]),
     sendMessage: function(e) {
       if (!this.message.ToID) return;
       var that = this;
-      this["conversations/" + CONVERSATION_SEND_MESSAGE](this.message)
+      this.$messenger
+        .sendMessage(this.message)
         .then(() => {
           that.snackbarText = "Your messages has been sent";
           that.snackbar = true;

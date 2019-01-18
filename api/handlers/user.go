@@ -64,8 +64,8 @@ func (me userHandler) Profile(userID uint, w http.ResponseWriter, r *http.Reques
 
 }
 
-//Signin create a user account
-func (me userHandler) SignIn(w http.ResponseWriter, r *http.Request) {
+//SignUp create a user account
+func (me userHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	r.Close = true
 
 	if r.Body != nil {

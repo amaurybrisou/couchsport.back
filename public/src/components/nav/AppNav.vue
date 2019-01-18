@@ -6,13 +6,27 @@
         <v-btn to="/" flat>
           <v-icon>home</v-icon>
         </v-btn>
-        <v-btn to="/explore" flat>Explore</v-btn>
+        <v-btn :to="{ name : 'explore' }" flat>{{ $t("explore") }}</v-btn>
+        <v-menu offset-y transition="slide-y-transition" style="z-index: 500;">
+          <v-btn flat slot="activator">
+            <flag :iso="languagesFlags[$i18n.locale].flag" v-bind:squared="false"/>
+            <!-- {{ $i18n.locale }} -->
+          </v-btn>
+          <v-list>
+            <v-list-tile v-for="(item, i) in languagesFlags" :key="i" @click="changeLocale(i)">
+              <v-list-tile-title>
+                <flag :iso="item.flag" v-bind:squared="false"/>
+                {{item.title}}
+              </v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
       </v-toolbar-items>
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <a
           class="new-message-link"
-          v-if="unread_message && $route.hash !== '#conversations'"
+          v-if="isProfileLoaded && unread_message && $route.hash !== '#conversations'"
           @click="goToConversations"
         >
           <v-chip small color="info">
@@ -20,22 +34,43 @@
             <v-icon>mail_outline</v-icon>
           </v-chip>
         </a>
-        <v-menu v-if="isProfileLoaded" open-on-hover offset-y transition="slide-y-transition">
+        <v-menu
+          v-if="isProfileLoaded"
+          open-on-hover
+          offset-y
+          transition="slide-y-transition"
+          style="z-index: 500;"
+        >
           <v-btn icon slot="activator">
             <v-icon>account_box</v-icon>
           </v-btn>
           <v-list>
-            <v-list-tile v-for="link in links" :key="link.name" :to="link.to">
-              <v-list-tile-title>{{ link.name }}</v-list-tile-title>
+            <v-list-tile
+              v-for="link in links"
+              :key="link.name"
+              :to="{ name : 'profile', hash : link.to }"
+            >
+              <v-list-tile-title>{{ $t(`${link.name}`) | capitalize }}</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile class="v-list__tile--link" :to="{ name : 'about'}">
+              <v-list-tile-title>{{ $t('about') | capitalize }}</v-list-tile-title>
             </v-list-tile>
             <v-list-tile v-if="isAuthenticated" class="v-list__tile--link">
-              <v-list-tile-title @click="logout">Logout</v-list-tile-title>
+              <v-list-tile-title @click="logout">{{ $t('logout') | capitalize }}</v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn v-if="!isAuthenticated && !isProfileLoaded" to="/about" flat>About</v-btn>
-        <v-btn v-if="!isAuthenticated" to="/signup" flat>Sign Up</v-btn>
-        <v-btn v-if="!isAuthenticated && !authLoading" to="/login" flat>Login</v-btn>
+        <v-btn
+          v-if="!isAuthenticated && !isProfileLoaded"
+          :to="{ name: 'about' }"
+          flat
+        >{{ $t("about") }}</v-btn>
+        <v-btn v-if="!isAuthenticated" :to="{ name: 'signup' }" flat>{{ $t("signup") | capitalize }}</v-btn>
+        <v-btn
+          v-if="!isAuthenticated && !authLoading"
+          :to="{ name: 'login' }"
+          flat
+        >{{ $t("login") | capitalize }}</v-btn>
       </v-toolbar-items>
     </v-system-bar>
   </nav>
@@ -45,7 +80,6 @@
 <script>
 import { mapGetters, mapState, mapMutations } from "vuex";
 import { AUTH_LOGOUT } from "@/store/actions/auth";
-import { MESSAGES_READ } from "@/store/actions/conversations";
 
 const NAMESPACE = "conversations/";
 
@@ -54,12 +88,15 @@ export default {
   data() {
     return {
       links: [
-        { auth: true, to: "/profile#informations", name: "Profile" },
-        { auth: true, to: "/profile#activities", name: "Activities" },
-        { auth: true, to: "/profile#conversations", name: "Conversations" },
-        { auth: true, to: "/profile#pages", name: "Pages" },
-        { auth: false, to: "/about", name: "About" }
-      ]
+        { auth: true, to: "#informations", name: "profile" },
+        { auth: true, to: "#activities", name: "activities" },
+        { auth: true, to: "#conversations", name: "conversations" },
+        { auth: true, to: "#pages", name: "pages" }
+      ],
+      languagesFlags: {
+        en: { flag: "gb", title: "English" },
+        fr: { flag: "fr", title: "Français" }
+      }
     };
   },
   computed: {
@@ -75,10 +112,13 @@ export default {
     this.$root.$emit("navBarLoaded");
   },
   methods: {
-    ...mapMutations([NAMESPACE + MESSAGES_READ]),
     goToConversations() {
-      this[NAMESPACE + MESSAGES_READ]();
-      this.$router.push("/profile#conversations");
+      this.$messenger.setMessagesRead();
+      this.$router.push({ name: "profile", hash: "#conversations" });
+    },
+    changeLocale(locale) {
+      this.$i18n.locale = locale;
+      this.$router.push({ name: this.$route.name, params: { locale: locale } });
     },
     logout: function() {
       this.$store.dispatch(AUTH_LOGOUT).then(() => this.$router.push("/"));

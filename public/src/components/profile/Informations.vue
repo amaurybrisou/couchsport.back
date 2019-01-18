@@ -22,18 +22,28 @@
         </upload-button>
       </v-flex>
       <v-flex :class="{ 'sm4': $vuetify.breakpoint.smAndUp, 'xs12': $vuetify.breakpoint.xsOnly }">
-        <v-text-field flat disabled readonly label="Email" v-model="email"></v-text-field>
-        <v-text-field flat label="Username" v-model="Username"></v-text-field>
-        <v-text-field flat label="Firstname" v-model="Firstname"></v-text-field>
-        <v-text-field flat label="Lastname" v-model="Lastname"></v-text-field>
-        <v-select :items="[`` ,`Male`, `Female`]" v-model="Gender" label="Gender"></v-select>
+        <v-text-field
+          flat
+          disabled
+          readonly
+          :label="$t('fields.email') | capitalize"
+          v-model="email"
+        ></v-text-field>
+        <v-text-field flat :label="$t('fields.username') | capitalize" v-model="Username"></v-text-field>
+        <v-text-field flat :label="$t('fields.firstname') | capitalize" v-model="Firstname"></v-text-field>
+        <v-text-field flat :label="$t('fields.lastname') | capitalize" v-model="Lastname"></v-text-field>
+        <v-select
+          :items="[`` ,`Male`, `Female`]"
+          v-model="Gender"
+          :label="$t('fields.gender') | capitalize"
+        ></v-select>
       </v-flex>
       <v-flex :class="{ 'sm4': $vuetify.breakpoint.smAndUp, 'xs12': $vuetify.breakpoint.xsOnly }">
-        <v-text-field flat label="StreetName" v-model="StreetName"></v-text-field>
-        <v-text-field flat label="City" v-model="City"></v-text-field>
-        <v-text-field flat label="ZipCode" v-model="ZipCode"></v-text-field>
-        <v-text-field flat label="Country" v-model="Country"></v-text-field>
-        <v-text-field flat label="Phone" v-model="Phone"></v-text-field>
+        <v-text-field flat :label="$t('fields.streetname') | capitalize" v-model="StreetName"></v-text-field>
+        <v-text-field flat :label="$t('fields.city') | capitalize" v-model="City"></v-text-field>
+        <v-text-field flat :label="$t('fields.zipcode') | capitalize" v-model="ZipCode"></v-text-field>
+        <v-text-field flat :label="$t('fields.country') | capitalize" v-model="Country"></v-text-field>
+        <v-text-field flat :label="$t('fields.phone') | capitalize" v-model="Phone"></v-text-field>
       </v-flex>
     </v-layout>
     <v-layout row wrap>
@@ -41,7 +51,7 @@
         <v-autocomplete
           v-model="Languages"
           :items="allLanguages"
-          label="Languages"
+          :label="$t('languages') | capitalize"
           return-object
           item-text="Name"
           multiple
@@ -49,14 +59,15 @@
       </v-flex>
     </v-layout>
     <v-layout row wrap>
-      <v-btn color="success" @click="submit" block flat>Save</v-btn>
+      <v-btn color="success" @click="submit" block flat>{{ $t('save') }}</v-btn>
     </v-layout>
 
     <!-- Warn section  used to display application state (saving and success) -->
     <app-snack-bar :state="snackbar" @snackClose="snackbar = false" :text="snackbarText"></app-snack-bar>
     <v-dialog v-model="showSavingProfileDialog" hide-overlay persistent width="300">
       <v-card color="primary" dark>
-        <v-card-text>Please stand by
+        <v-card-text>
+          {{ $t('message.stand_by') }}
           <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
         </v-card-text>
       </v-card>
@@ -190,12 +201,12 @@ export default {
       this.SAVE_PROFILE()
         .then(() => {
           this.showSavingProfileDialog = false;
-          this.snackbarText = "your profile has been successfully saved";
+          this.snackbarText = this.$t("message.success_saving", ["profile"]);
           that.snackbar = true;
         })
         .catch(e => {
           this.showSavingProfileDialog = false;
-          that.snackbarText = "there was and error saving your profile";
+          that.snackbarText = this.$t("message.error_saving", ["profile"]);
           that.snackbar = true;
         });
     },
@@ -203,7 +214,7 @@ export default {
       var file = formData.get("file");
       if (file instanceof File && file.size) {
         if (file.size > 100000) {
-          this.snackbarText = "This image is too big";
+          this.snackbarText = this.$t("message.too_big", ["image"]);
           return (this.snackbar = true);
         }
         var that = this;

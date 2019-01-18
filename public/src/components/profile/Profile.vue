@@ -10,10 +10,19 @@
           centered
           show-arrows
         >
-          <v-tab to="#informations" href="#informations" class="subheader">Personal Information</v-tab>
-          <v-tab to="#activities" href="#activities" class="subheader">Activities</v-tab>
-          <v-tab to="#conversations" href="#conversations" class="subheader" @click="$store.commit('conversations/MESSAGES_READ')">Conversations</v-tab>
-          <v-tab to="#pages" href="#pages" class="subheader">My Spots</v-tab>
+          <v-tab
+            to="#informations"
+            href="#informations"
+            class="subheader"
+          >{{ $t('personal_informations') }}</v-tab>
+          <v-tab to="#activities" href="#activities" class="subheader">{{ $t('activities') }}</v-tab>
+          <v-tab
+            to="#conversations"
+            href="#conversations"
+            class="subheader"
+            @click="$messenger.setMessagesRead()"
+          >{{ $t('conversations') }}</v-tab>
+          <v-tab to="#pages" href="#pages" class="subheader">{{ $t('pages') }}</v-tab>
           <v-tabs-items v-model="activeTab">
             <v-tab-item value="informations">
               <v-card flat>
@@ -75,7 +84,7 @@ export default {
   },
   asyncComputed: {
     async allActivities() {
-      if(localStorage.Activities){
+      if (localStorage.Activities) {
         return JSON.parse(localStorage.Activities);
       }
       return await activityRepo.all().then(({ data }) => {
@@ -84,7 +93,7 @@ export default {
       });
     },
     async allLanguages() {
-      if(localStorage.Languages){
+      if (localStorage.Languages) {
         return JSON.parse(localStorage.Languages);
       }
       return await languageRepo.all().then(({ data }) => {

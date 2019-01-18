@@ -4,20 +4,25 @@
       <v-alert
         color="info"
         flat
-        value="You don't have any conversations"
-      >You don't have any conversations</v-alert>
+        :value="$t('message.empty', ['conversations']) | capitalize "
+      >{{ $t('message.empty', ['conversations']) | capitalize }}</v-alert>
     </v-flex>
     <v-layout row wrap>
       <v-flex v-if="conversations">
         <v-list>
           <v-list-group
-            v-for="(c) in conversations"
+            :class="unread[idx] ? unread_class : ''"
+            @click="$messenger.setMessagesRead(idx)"
+            v-for="(c, idx) in conversations"
             :key="`conversation-${c.ID}`"
             no-action
             prepend-icon="message"
           >
             <v-divider :key="c.ID"></v-divider>
             <v-list-tile slot="activator">
+              <v-list-tile-action>
+                <v-icon v-if="unread[idx]" color="warning">star</v-icon>
+              </v-list-tile-action>
               <!-- <v-list-tile-avatar>
                   <img v-if="c.From.Avatar" :src="c.From.Avatar" :alt="c.From.Avatar">
               </v-list-tile-avatar>-->
@@ -29,17 +34,17 @@
                 small
                 color
                 class="subheading"
-              >{{ c.To.Username || c.To.Firstname || c.To.Lastname || c.To.Email }}</v-chip>
+              >{{ c.To.Username|| c.To.Firstname|| c.To.Lastname|| c.To.Email }}</v-chip>
               <v-chip
                 v-if="c.FromID != connectedProfileID && c.From"
                 small
                 color
                 class="subheading"
-              >{{ c.From.Username || c.From.Firstname || c.From.Lastname || c.From.Email }}</v-chip>
+              >{{ c.From.Username|| c.From.Firstname|| c.From.Lastname|| c.From.Email }}</v-chip>
               <v-list-tile-sub-title
                 v-if="c.Messages"
                 class="text--primary"
-              >Last message : {{ c.Messages[c.Messages.length - 1].Date| formatDate('MM/DD/YYYY') }} at {{ c.Messages[c.Messages.length - 1].Date| formatDate("HH:mm") }}</v-list-tile-sub-title>
+              >{{ $t('p.conversations.last_message') }} : {{ c.Messages[c.Messages.length - 1].Date| formatDate('MM/DD/YYYY') }} {{ $t('at') }} {{ c.Messages[c.Messages.length - 1].Date| formatDate("HH:mm") }}</v-list-tile-sub-title>
 
               <!-- <v-list-tile-title>{{ c.To.Username || c.To.Firstname || c.To.Lastname }}</v-list-tile-title> -->
               <v-list-tile-action>
@@ -87,14 +92,16 @@
       <v-dialog v-if="conversations" id="contact-dialog" v-model="showContactDialog" width="500">
         <v-card>
           <v-toolbar color="primary">
-            <v-card-title class="title font-weight-regular">Write your reply</v-card-title>
+            <v-card-title
+              class="title font-weight-regular"
+            >{{ $t('p.conversations.write_your_reply') }}</v-card-title>
           </v-toolbar>
           <v-form v-model="messageFormValid">
             <v-card-text>
               <v-text-field
                 v-if="!email"
                 name="Email"
-                label="Your email"
+                :value="$t('email') | capitalize "
                 autocomplete="email"
                 v-model="message.Email"
                 :rules="emailRules"
@@ -102,7 +109,7 @@
               ></v-text-field>
               <v-textarea
                 name="Message"
-                label="Your Message"
+                :placeholder="$t('_message') | capitalize "
                 v-model="message.Text"
                 :rules="textRules"
                 row="1"
@@ -114,8 +121,17 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="primary" flat @click.prevent.native="showContactDialog = false">Cancel</v-btn>
-              <v-btn color="primary" flat @click.native="reply" :disabled="!messageFormValid">Send</v-btn>
+              <v-btn
+                color="primary"
+                flat
+                @click.prevent.native="showContactDialog = false"
+              >{{ $t('cancel') }}</v-btn>
+              <v-btn
+                color="primary"
+                flat
+                @click.native="reply"
+                :disabled="!messageFormValid"
+              >{{ $t('send') }}</v-btn>
             </v-card-actions>
           </v-form>
         </v-card>
@@ -132,35 +148,44 @@ import AppSnackBar from "@/components/utils/AppSnackBar";
 import { mapState, mapActions } from "vuex";
 import {
   GET_CONVERSATIONS,
-  CONVERSATION_SEND_MESSAGE,
   REMOVE_CONVERSATION
 } from "@/store/actions/conversations";
 
 const NAMESPACE = "conversations/";
-
 export default {
   name: "Conversations",
   components: { AppSnackBar },
   data() {
     return {
+      unread_class: "unread_conversation",
+
       snackbar: false,
       snackbarTimeout: 3000,
-      snackbarText: "your conversation has been successfully deleted",
+      snackbarText: this.$t("message.success_saving", ["conversation"]),
       focusedConversation: null,
       showContactDialog: false,
       messageFormValid: false,
       emailRules: [
-        v => !!v || "E-mail is required",
-        v => /.+@.+/.test(v) || "E-mail must be valid"
+        v => !!v || this.$t("message.auth.required"),
+        v => /.+@.+/.test(v) || this.$t("message.auth.invalid_email")
       ],
 
       textRules: [
-        v => !!v || "Message is required",
-        v => (v && v.length >= 5) || "Message must be more than 20 characters"
+        v => !!v || this.$t("message.auth.required", ["message"]),
+        v =>
+          (v && v.length >= 20) || this.$t("message.length_above", { len: 20 })
       ]
     };
   },
   computed: {
+    unread() {
+      var that = this;
+      return this.$store.state.profile.conversations.conversations.map(
+        (c, i) => {
+          return c.unread;
+        }
+      );
+    },
     conversations: {
       get() {
         return this.$store.state.profile.conversations.conversations;
@@ -189,7 +214,6 @@ export default {
   methods: {
     ...mapActions([
       NAMESPACE + GET_CONVERSATIONS,
-      NAMESPACE + CONVERSATION_SEND_MESSAGE,
       NAMESPACE + REMOVE_CONVERSATION
     ]),
     openMessageDialog: function(c) {
@@ -199,7 +223,8 @@ export default {
       this.focusedConversation = c;
     },
     reply: function(e) {
-      this[NAMESPACE + CONVERSATION_SEND_MESSAGE](this.message)
+      this.$messenger
+        .sendMessage(this.message)
         .then(() => {
           this.snackbarText = "Your messages has been sent";
           this.snackbar = true;
@@ -234,8 +259,8 @@ export default {
 </script>
 
 <style lang="scss">
-// .page-line:hover {
-//   background: rgba($color: #607d8b, $alpha: 0.12);
-// }
+.unread_conversation {
+  background: rgba($color: #607d8b, $alpha: 0.3);
+}
 </style>
 

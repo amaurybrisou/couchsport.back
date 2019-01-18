@@ -18,6 +18,7 @@ func (me userStore) Migrate() {
 	me.Db.Model(&models.User{}).AddForeignKey("profile_id", "profiles(id)", "CASCADE", "CASCADE")
 }
 
+//All user fetch
 func (me userStore) All(keys url.Values) ([]models.User, error) {
 	var req = me.Db
 	for i, v := range keys {
@@ -46,6 +47,7 @@ func (me userStore) All(keys url.Values) ([]models.User, error) {
 	return users, nil
 }
 
+//New user
 func (me userStore) New(user models.User) (models.User, error) {
 	user.New = true
 
@@ -62,13 +64,20 @@ func (me userStore) New(user models.User) (models.User, error) {
 		return models.User{}, err
 	}
 
+	if user.New {
+		//for conveniance Email is also stores in Profile
+		if err := me.Db.Table("profiles").Select("email").Where("id = ?", user.Profile.ID).Updates(map[string]interface{}{"email": user.Email}).Error; err != nil {
+			return user, err
+		}
+	}
+
 	return user, nil
 }
 
 //GetProfile returns the user profile
 func (me userStore) GetProfile(userID uint) (models.Profile, error) {
 	var out = models.User{}
-	if err := me.Db.Preload("Profile").Preload("Profile.Languages").Preload("Profile.Activities").Where("id = ?", userID).First(&out).Error; err != nil { //gorm.IsRecordNotFoundError(err) {
+	if err := me.Db.Preload("Profile").Preload("Profile.Languages").Preload("Profile.Activities").Where("id = ?", userID).First(&out).Error; err != nil {
 		return out.Profile, err
 	}
 	return out.Profile, nil

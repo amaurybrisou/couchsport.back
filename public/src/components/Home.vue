@@ -4,19 +4,12 @@
       <v-flex xs12 sm4>
         <v-card>
           <v-toolbar color="secondary" dense>
-            <v-toolbar-title>CoSport</v-toolbar-title>
+            <v-toolbar-title>{{ $t("cosport") }}</v-toolbar-title>
           </v-toolbar>
           <v-card-text class="text-content">
-            <h3 class="subheading">Travel, make friends, practicing your favorite sports together !</h3>
+            <h3 class="subheading">{{ $t("home.speech_title") }}</h3>
             <v-divider></v-divider>
-            <div class="body-1 mt-2">Begin the tour browsing available spots in the
-              <router-link to="/explore">
-                <span color="accent">explore</span>
-              </router-link>page or create your
-              <router-link to="/signup">
-                <span color="accent">account</span>
-              </router-link>and promote your own spot!
-            </div>
+            <div class="body-1 mt-2">{{ $t("home.speech_content") }}</div>
           </v-card-text>
           <!-- <v-flex class="text-xs-center"> -->
           <!-- <h1 class="display-3 font-weight-thin mb-3">CoSport</h1> -->

@@ -9,7 +9,7 @@
     :vertical="mode === 'vertical'"
   >
     {{ text }}
-    <v-btn color="warning" flat @click="$emit('snackClose')">Close</v-btn>
+    <v-btn color="warning" flat @click="$emit('snackClose')">{{ $t('close') }}</v-btn>
   </v-snackbar>
 </template>
 

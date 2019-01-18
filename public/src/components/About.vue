@@ -7,12 +7,10 @@
             <h1 class="display-2 font-weight-thin">CoSport</h1>
           </v-toolbar>
           <v-card-text>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim non eveniet labore! Rem cum mollitia odit ullam animi, deleniti nemo praesentium perferendis doloribus officia ratione molestiae, vel quaerat architecto unde?</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim non eveniet labore! Rem cum mollitia odit ullam animi, deleniti nemo praesentium perferendis doloribus officia ratione molestiae, vel quaerat architecto unde?</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim non eveniet labore! Rem cum mollitia odit ullam animi, deleniti nemo praesentium perferendis doloribus officia ratione molestiae, vel quaerat architecto unde?</p>
+            {{ $t("about_content") }}
             <v-layout row wrap>
               <v-spacer></v-spacer>
-              <v-btn flat to="/signin">Sign In</v-btn>
+              <v-btn flat :to="{ name: 'signup'}">{{ $t('signup') }}</v-btn>
             </v-layout>
           </v-card-text>
         </v-card>
