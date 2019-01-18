@@ -86,7 +86,9 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	go me.Store.MailStore().AccountAutoCreated(fromUser.Email, fromUser.PasswordTmp)
+	if fromUser.New {
+		go me.Store.MailStore().AccountAutoCreated(fromUser.Email, fromUser.PasswordTmp)
+	}
 
 	j, err := json.Marshal(&message)
 
