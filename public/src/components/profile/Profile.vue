@@ -26,15 +26,12 @@
           <v-tabs-items v-model="activeTab">
             <v-tab-item value="informations">
               <v-card flat>
-                <informations :allLanguages="allLanguages"></informations>
+                <informations></informations>
               </v-card>
             </v-tab-item>
             <v-tab-item lazy value="activities">
               <v-card flat>
-                <activities
-                  :activities="getProfile.Activities || []"
-                  :allActivities="allActivities"
-                ></activities>
+                <activities></activities>
               </v-card>
             </v-tab-item>
             <v-tab-item lazy value="conversations">
@@ -44,7 +41,7 @@
             </v-tab-item>
             <v-tab-item lazy value="pages">
               <v-card flat>
-                <pages :pages="getProfile.OwnedPages || []" :allActivities="allActivities"></pages>
+                <pages></pages>
               </v-card>
             </v-tab-item>
           </v-tabs-items>
@@ -59,12 +56,8 @@ import Informations from "./Informations";
 import Activities from "./Activities";
 import Pages from "./Pages";
 import Conversations from "./Conversations";
-
-import { GET_CONVERSATIONS } from "@/store/actions/conversations";
 import { mapGetters, mapActions } from "vuex";
-
-import activityRepo from "@/repositories/activity.js";
-import languageRepo from "../../repositories/language.js";
+import { GET_ACTIVITIES, GET_LANGUAGES } from "@/store/actions/profile";
 
 export default {
   name: "Profile",
@@ -82,25 +75,12 @@ export default {
   computed: {
     ...mapGetters(["isProfileLoaded", "getProfile"])
   },
-  asyncComputed: {
-    async allActivities() {
-      if (localStorage.Activities) {
-        return JSON.parse(localStorage.Activities);
-      }
-      return await activityRepo.all().then(({ data }) => {
-        localStorage.Activities = JSON.stringify(data);
-        return data;
-      });
-    },
-    async allLanguages() {
-      if (localStorage.Languages) {
-        return JSON.parse(localStorage.Languages);
-      }
-      return await languageRepo.all().then(({ data }) => {
-        localStorage.Languages = JSON.stringify(data);
-        return data;
-      });
-    }
+  methods: {
+    ...mapActions([GET_ACTIVITIES, GET_LANGUAGES])
+  },
+  mounted() {
+    this.GET_ACTIVITIES(this.$route.params.locale, this.$route.params.locale);
+    this.GET_LANGUAGES(this.$route.params.locale, this.$route.params.locale);
   }
 };
 </script>

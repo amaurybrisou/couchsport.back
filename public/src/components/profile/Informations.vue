@@ -78,14 +78,17 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { MODIFY_PROFILE, SAVE_PROFILE } from "@/store/actions/profile.js";
+import {
+  MODIFY_PROFILE,
+  SAVE_PROFILE,
+  GET_LANGUAGES
+} from "@/store/actions/profile.js";
 
 import UploadButton from "@/components/utils/UploadButton";
 import AppSnackBar from "@/components/utils/AppSnackBar";
 
 export default {
   name: "PersonalInformation",
-  props: ["allLanguages"],
   components: { UploadButton, AppSnackBar },
   data() {
     return {
@@ -96,7 +99,11 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["email", "isProfileLoaded"]),
+    ...mapGetters({
+      email: "email",
+      isProfileLoaded: "isProfileLoaded",
+      allLanguages: "languages"
+    }),
     Avatar: {
       get() {
         return this.$store.state.profile.profile.Avatar;
@@ -193,7 +200,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions([SAVE_PROFILE]),
+    ...mapActions([SAVE_PROFILE, GET_LANGUAGES]),
     ...mapMutations([MODIFY_PROFILE]),
     submit() {
       this.showSavingProfileDialog = true;

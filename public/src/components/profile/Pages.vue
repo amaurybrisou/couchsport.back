@@ -101,13 +101,12 @@ import {
   PAGE_ADD_PHOTO,
   NEW_PAGE
 } from "@/store/actions/pages";
-import { mapMutations, mapActions, mapState } from "vuex";
+import { mapMutations, mapActions, mapState, mapGetters } from "vuex";
 
 const NAMESPACE = "pages/";
 
 export default {
   name: "Pages",
-  props: ["allActivities"],
   components: { LMap, LTileLayer, LMarker, PageEditionDialog, AppSnackBar },
   data() {
     return {
@@ -129,6 +128,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({ allActivities: "activities" }),
     pages: {
       get() {
         return this.$store.state.profile.pages.pages;

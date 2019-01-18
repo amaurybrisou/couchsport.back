@@ -128,7 +128,7 @@ export default {
     kitesurfing: "kitesurfing",
     marathon: "marathon",
     paddle: "paddle",
-    pêche: "pêche",
+    pêche: "fishing",
     rafting: "rafting",
     roller: "roller",
     skateboard: "skateboard",

@@ -78,8 +78,9 @@
 
 
 <script>
-import { mapGetters, mapState, mapMutations } from "vuex";
+import { mapGetters, mapState, mapActions } from "vuex";
 import { AUTH_LOGOUT } from "@/store/actions/auth";
+import { SET_LOCALE } from "@/store/actions/profile";
 
 const NAMESPACE = "conversations/";
 
@@ -106,18 +107,21 @@ export default {
       authLoading: state => state.auth.status === "loading",
       name: state =>
         `${state.user.profile.Firstname} ${state.user.profile.Lastname}`
-    })
+    }),
   },
   mounted() {
     this.$root.$emit("navBarLoaded");
   },
   methods: {
+    ...mapActions([SET_LOCALE]),
     goToConversations() {
       this.$messenger.setMessagesRead();
       this.$router.push({ name: "profile", hash: "#conversations" });
     },
     changeLocale(locale) {
       this.$i18n.locale = locale;
+      this.SET_LOCALE(locale)
+
       this.$router.push({ name: this.$route.name, params: { locale: locale } });
     },
     logout: function() {

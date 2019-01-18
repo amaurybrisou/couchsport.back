@@ -60,7 +60,7 @@
                 <v-autocomplete
                   v-model="Activities"
                   :items="allActivities"
-                  :label="$t('activities')"
+                  :label="$t('activities') | capitalize"
                   item-text="Name"
                   return-object
                   multiple
@@ -187,7 +187,7 @@ const NAMESPACE = "pages/";
 
 export default {
   name: "profile-page-edition-dialog",
-  props: ["state", "allActivities"],
+  props: ["state"],
   components: { UploadButton, LMap, LMarker, LTileLayer, AppSnackBar },
   data() {
     return {
@@ -224,6 +224,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({ allActivities: "activities" }),
     Name: {
       get() {
         return this.$store.state.profile.pages.edited_page.Name;
@@ -306,17 +307,6 @@ export default {
     });
   },
   watch: {
-    showEditPageDialog(v) {
-      if(!v) return;
-      this.addMarker([this.Lat,this.Lng]);
-      this.mapConfig.zoom = 5;
-      this.mapConfig.center = [this.Lat,this.Lng];
-
-      var that = this;
-      setTimeout(function() {
-        that.map.invalidateSize();
-      }, 200);
-    },
     snackbar(v) {
       if (!v) return;
       var that = this;
@@ -333,6 +323,18 @@ export default {
       NAMESPACE + PAGE_ADD_IMAGE
     ]),
     ...mapActions([NAMESPACE + SAVE_PAGE, NAMESPACE + PAGE_DELETE_IMAGE]),
+    initEditPageDialog(v) {
+      if (!v) return;
+      this.showEditPageDialog = true;
+      this.addMarker([this.Lat, this.Lng]);
+      this.mapConfig.zoom = 5;
+      this.mapConfig.center = [this.Lat, this.Lng];
+
+      var that = this;
+      setTimeout(function() {
+        that.map.invalidateSize();
+      }, 200);
+    },
     submit() {
       if (this.$refs.form.validate()) {
         this.showSavingPageDialog = true;
@@ -349,12 +351,12 @@ export default {
           });
       }
     },
-    addMarker(latlng){
+    addMarker(latlng) {
       this.mapConfig.spotMarker = L.marker(latlng);
       this.mapConfig.spotMarker.addTo(this.map);
       this.mapConfig.hasSpotMarker = true;
     },
-    delMarker(){
+    delMarker() {
       this.mapConfig.spotMarker.removeFrom(this.map);
       this.mapConfig.hasSpotMarker = false;
     },
@@ -373,8 +375,8 @@ export default {
     },
     hasClickOnMap(e) {
       if (this.mapConfig.hasSpotMarker || !e.latlng) return;
-      this.addMarker(e.latlng)
-      
+      this.addMarker(e.latlng);
+
       this[NAMESPACE + MODIFY_PAGE]({
         pageID: this.ID,
         key: "Lat",

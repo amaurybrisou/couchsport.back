@@ -43,14 +43,14 @@ const actions = {
         });
     });
   },
-  [AUTH_LOGOUT]: ({ commit, dispatch }) => {
+  [AUTH_LOGOUT]: ({ commit }) => {
     return new Promise((resolve, reject) => {
       commit(AUTH_LOGOUT);
       userRepository.logout();
       resolve();
     });
   },
-  [AUTH_ERROR]: ({ commit, dispatch }) => {
+  [AUTH_ERROR]: ({ commit }) => {
     return new Promise((resolve, reject) => {
       commit(AUTH_LOGOUT);
       resolve();

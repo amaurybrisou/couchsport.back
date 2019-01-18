@@ -5,11 +5,11 @@
       <div>{{ $t('p.activities.hint') | capitalize }}</div>
     </v-layout>
     <v-divider></v-divider>
-    <v-layout v-if="allActivities" wrap align-center justify-center>
-      <v-flex xs6 md2 v-for="(item, i) in allActivities" :key="i">
+    <v-layout v-if="activities" wrap align-center justify-center>
+      <v-flex xs6 md2 v-for="(item, i) in activities" :key="i">
         <v-checkbox
           height="0"
-          :label="$t(`allActivities.${item.Name}`) | capitalize"
+          :label="item.Name | capitalize"
           :value="item"
           multiple
           v-model="selected_activities"
@@ -44,7 +44,6 @@ import { mapMutations, mapActions, mapGetters, mapState } from "vuex";
 
 export default {
   name: "Activities",
-  props: ["activities", "allActivities"],
   components: { AppSnackBar },
   data() {
     return {
@@ -55,6 +54,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["activities"]),
     selected_activities: {
       set(val) {
         this.MODIFY_PROFILE({ key: "Activities", value: val });
