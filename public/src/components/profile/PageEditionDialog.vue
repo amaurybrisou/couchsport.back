@@ -210,7 +210,7 @@ export default {
 
       map: null,
       mapConfig: {
-        zoom: 1,
+        zoom: 12,
         center: [46, -1],
         maxBounds: [[-90, -180], [90, 180]],
         noWrap: true,
@@ -302,28 +302,16 @@ export default {
     this.$nextTick(function() {
       that.map = this.$refs.map.mapObject;
       that.map.on("click", that.hasClickOnMap);
-      that.map.on("contextmenu", () => {
-        if (that.mapConfig.spotMarker) {
-          that.mapConfig.spotMarker.removeFrom(that.map);
-          that.mapConfig.hasSpotMarker = false;
-        }
-      });
+      that.map.on("contextmenu", that.delMarker);
     });
   },
   watch: {
-    Lat() {
-      if (!this.mapConfig.spotMarker && this.Lng) {
-        this.mapConfig.spotMarker = L.marker([this.Lat, this.Lng]);
-        this.mapConfig.center = [this.Lat, this.Lng];
-
-        this.mapConfig.zoom = 5;
-
-        this.mapConfig.spotMarker.addTo(this.map);
-        this.mapConfig.hasSpotMarker = true;
-      }
-    },
     showEditPageDialog(v) {
-      if (!v) return;
+      if(!v) return;
+      this.addMarker([this.Lat,this.Lng]);
+      this.mapConfig.zoom = 5;
+      this.mapConfig.center = [this.Lat,this.Lng];
+
       var that = this;
       setTimeout(function() {
         that.map.invalidateSize();
@@ -361,6 +349,15 @@ export default {
           });
       }
     },
+    addMarker(latlng){
+      this.mapConfig.spotMarker = L.marker(latlng);
+      this.mapConfig.spotMarker.addTo(this.map);
+      this.mapConfig.hasSpotMarker = true;
+    },
+    delMarker(){
+      this.mapConfig.spotMarker.removeFrom(this.map);
+      this.mapConfig.hasSpotMarker = false;
+    },
     clear() {
       this.$refs.form.reset();
     },
@@ -372,17 +369,12 @@ export default {
     },
     cancelEdit() {
       this[NAMESPACE + CANCEL_EDIT_PAGE]();
-      this.mapConfig.spotMarker.removeFrom(this.map);
-      this.mapConfig.hasSpotMarker = false;
       this.showEditPageDialog = false;
     },
     hasClickOnMap(e) {
       if (this.mapConfig.hasSpotMarker || !e.latlng) return;
-      this.mapConfig.hasSpotMarker = true;
-
-      this.mapConfig.spotMarker = L.marker(e.latlng);
-      this.mapConfig.spotMarker.addTo(this.map);
-
+      this.addMarker(e.latlng)
+      
       this[NAMESPACE + MODIFY_PAGE]({
         pageID: this.ID,
         key: "Lat",
