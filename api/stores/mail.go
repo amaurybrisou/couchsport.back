@@ -91,11 +91,11 @@ func (me *mailStore) sendMailTLS() error {
 	}
 
 	// To && From
-	if err = c.Mail(me.r.to[0]); err != nil {
+	if err = c.Mail(me.Email); err != nil {
 		log.Panic(err)
 	}
 
-	if err = c.Rcpt(me.Email); err != nil {
+	if err = c.Rcpt(me.r.to[0]); err != nil {
 		log.Panic(err)
 	}
 
