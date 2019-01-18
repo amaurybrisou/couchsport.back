@@ -13,6 +13,7 @@ type request struct {
 	from    string
 	to      []string
 	subject string
+	mime    string
 	body    string
 }
 
@@ -23,13 +24,15 @@ type mailStore struct {
 }
 
 const (
-	mime = "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+	mime = "MIME-version: 1.0;\r\nContent-Type: text/html; charset=UTF-8\r\n"
 )
 
 func (me *mailStore) newRequest(to []string, subject string) {
 	r := &request{
+		from:    me.Email,
 		to:      to,
 		subject: subject,
+		mime:    mime,
 	}
 	me.r = r
 }
@@ -61,7 +64,7 @@ func (me *mailStore) sendMail() error {
 }
 
 func (me *mailStore) sendMailTLS() error {
-	body := "To: " + me.r.to[0] + "\r\nSubject: " + me.r.subject + "\r\n" + mime + "\r\n" + me.r.body
+	message := "From: " + me.r.from + "\r\nTo: " + me.r.to[0] + "\r\nSubject: " + me.r.subject + "\r\n" + mime + "\r\n" + me.r.body
 	smtpServer := fmt.Sprintf("%s:%d", me.Server, me.Port)
 
 	auth := smtp.PlainAuth("", me.Email, me.Password, me.Server)
@@ -77,45 +80,47 @@ func (me *mailStore) sendMailTLS() error {
 	// from the very beginning (no starttls)
 	conn, err := tls.Dial("tcp", smtpServer, tlsconfig)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 	}
 
 	c, err := smtp.NewClient(conn, me.Server)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 	}
 
 	// Auth
 	if err = c.Auth(auth); err != nil {
-		log.Panic(err)
+		log.Error(err)
 	}
 
 	// To && From
-	if err = c.Mail(me.Email); err != nil {
-		log.Panic(err)
+	if err = c.Mail(me.r.from); err != nil {
+		log.Error(err)
 	}
 
 	if err = c.Rcpt(me.r.to[0]); err != nil {
-		log.Panic(err)
+		log.Error(err)
 	}
 
 	// Data
 	w, err := c.Data()
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 	}
 
-	_, err = w.Write([]byte(body))
+	_, err = w.Write([]byte(message))
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 	}
 
 	err = w.Close()
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 	}
 
 	c.Quit()
+
+	log.Printf("email sent to %s", me.r.to[0])
 
 	me.r = nil
 
