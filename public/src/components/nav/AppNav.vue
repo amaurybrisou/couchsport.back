@@ -3,7 +3,7 @@
     <v-system-bar color="primary" height="30vh">
       <!-- <v-toolbar-side-icon></v-toolbar-side-icon> -->
       <v-toolbar-items>
-        <v-btn to="/" flat>
+        <v-btn :to="{name: 'home'}" flat>
           <v-icon>home</v-icon>
         </v-btn>
         <v-btn :to="{ name : 'explore' }" flat>{{ $t("explore") }}</v-btn>

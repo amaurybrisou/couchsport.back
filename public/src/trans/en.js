@@ -79,7 +79,7 @@ export default {
     ped: {
       name: "name",
       description: "description",
-      long_desc_ph: "describe this place with mre details",
+      long_desc_ph: "describe this place with more details",
       couch_number: "Number of couch available",
       map_help:
         "Left click to the determine the spot location, right click to remove it",

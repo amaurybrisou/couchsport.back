@@ -59,7 +59,7 @@ func (user *User) AfterCreate(scope *gorm.Scope) error {
 	scope.SetColumn("Password", "")
 	scope.SetColumn("New", true)
 	if user.ID == 1 {
-		scope.DB().Model(user).Update("type", "ADMIN")
+		scope.DB().Model(&user).Update("type", "ADMIN")
 	}
 	return nil
 }

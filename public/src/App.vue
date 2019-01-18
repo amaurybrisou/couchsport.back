@@ -2,7 +2,7 @@
   <div id="app">
     <v-app>
       <v-carousel
-        v-if="[`/${$i18n.locale}`, `/${$i18n.locale}/about`, `/${$i18n.locale}/signup`, `/${$i18n.locale}/login`].indexOf($route.path) >= 0"
+        v-if="[`/${$i18n.locale}/`, `/${$i18n.locale}/about`, `/${$i18n.locale}/signup`, `/${$i18n.locale}/login`].indexOf($route.path) >= 0"
         class="background-carousel"
         height="100vh"
         hide-delimiters
