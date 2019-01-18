@@ -72,6 +72,7 @@ func (me *mailStore) send(templateName string, items interface{}) error {
 
 func (me *mailStore) AccountAutoCreated(email, password string) {
 	me.newRequest([]string{email}, "Your account has been created")
+	log.Printf("sending 'AccountAutoCreated' email to %s", email)
 	if err := me.send("api/templates/mail/account_created.html", map[string]string{"email": email, "password": password}); err != nil {
 		log.Error(err)
 	}
