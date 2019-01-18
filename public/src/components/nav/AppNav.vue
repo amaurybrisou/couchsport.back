@@ -125,7 +125,7 @@ export default {
       this.$router.push({ name: this.$route.name, params: { locale: locale } });
     },
     logout: function() {
-      this.$store.dispatch(AUTH_LOGOUT).then(() => this.$router.push("/"));
+      this.$store.dispatch(AUTH_LOGOUT).then(() => this.$router.push({ name: "home"}));
     }
   }
 };

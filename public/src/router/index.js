@@ -44,7 +44,7 @@ let router = new Router({
       },
       children: [
         {
-          path: "",
+          path: "/",
           name: "home",
           component: Home
         },
