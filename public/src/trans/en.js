@@ -59,7 +59,7 @@ export default {
       invalid_email: "",
       required: "{0} is required",
       invalid: "{0} is invalid",
-      password_hint: "password must contains {len} characters",
+      password_hint: "password must contains {0} characters (at least one digit, on upper case and one lower case character)",
       signup_success_welcome: "welcome"
     }
   },

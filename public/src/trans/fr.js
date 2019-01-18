@@ -61,7 +61,7 @@ export default {
       invalid_email: "",
       required: "un {0} est requis",
       invalid: "{0} est invalide",
-      password_hint: "le mot de passe doit être d'au moins {len} caractères",
+      password_hint: "le mot de passe doit être d'au moins {0} caractères (une minuscule, une majuscule et un chiffre)",
       signup_success_welcome: "bienvenue"
     }
   },

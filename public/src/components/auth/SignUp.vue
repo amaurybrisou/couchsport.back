@@ -72,8 +72,8 @@ export default {
       passwordRules: [
         v => !!v || this.$t("message.auth.password_required"),
         v =>
-          /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(v) ||
-          this.$t("message.auth.password_hint")
+          /^(?=.*\d)(?=.*[_!?,]?)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z_?,!]{8,}$/.test(v) ||
+          this.$t("message.auth.password_hint", [8])
       ]
     };
   },
@@ -109,7 +109,7 @@ export default {
       const errors = [];
       if (!this.$v.user.password.$dirty) return errors;
       !this.$v.user.passwor.maxLength &&
-        errors.push(this.$t("message.auth.password_hint"));
+        errors.push(this.$t("message.auth.password_hint", [8]));
       !this.$v.user.password.required &&
         errors.push(this.$t("message.auth.required", ["password"]));
       return errors;

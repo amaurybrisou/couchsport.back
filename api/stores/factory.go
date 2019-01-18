@@ -10,6 +10,7 @@ import (
 type StoreFactory struct {
 	Db                *gorm.DB
 	wsStore           *hub
+	mailStore         *mailStore
 	activityStore     *activityStore
 	languageStore     *languageStore
 	imageStore        *imageStore
@@ -33,10 +34,18 @@ func NewStoreFactory(Db *gorm.DB, c config.Config) *StoreFactory {
 		FilePrefix:    c.FilePrefix,
 	}
 
+	mailStore := mailStore{
+		Server:   c.Mail.Server,
+		Port:     c.Mail.Port,
+		Password: c.Mail.Password,
+		Email:    c.Mail.Email,
+	}
+
 	profileStore := profileStore{Db: Db, FileStore: fileStore}
 
 	return &StoreFactory{
 		wsStore:           hub,
+		mailStore:         &mailStore,
 		activityStore:     &activityStore{Db: Db},
 		languageStore:     &languageStore{Db: Db},
 		imageStore:        &imageStore{Db: Db},
@@ -69,6 +78,11 @@ func (me StoreFactory) Init(populate bool) {
 	me.activityStore.Migrate() //activity needs page & profile
 	me.imageStore.Migrate()    //image needs page
 
+}
+
+//MailStore returns the app mail client
+func (me StoreFactory) MailStore() *mailStore {
+	return me.mailStore
 }
 
 //WsStore returns the app wesocket hub

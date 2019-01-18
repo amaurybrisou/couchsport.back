@@ -26,7 +26,7 @@ import Vue from "vue";
 import { AUTH_LOGOUT } from "../actions/auth";
 import { lang } from "moment";
 
-const state = { status: "", profile: { locale: "fr" }, activities: [] };
+const state = { status: "", profile: { locale: "fr" }, activities: [], languages: [] };
 
 const getters = {
   getProfile: state => state.profile,

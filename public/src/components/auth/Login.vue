@@ -79,8 +79,8 @@ export default {
       passwordRules: [
         v => !!v || this.$t("message.auth.required", ["password"]),
         v =>
-          /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/.test(v) ||
-          this.$t("message.auth.password_hint")
+          /^(?=.*\d)(?=.*[_!?,]?)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z_?,!]{8,}$/.test(v) ||
+          this.$t("message.auth.password_hint", [8])
       ]
     };
   },

@@ -17,6 +17,10 @@ type Config struct {
 	Logger                                                                   struct {
 		Name, Mode, FilePath string
 	}
+	Mail struct {
+		Email, Password, Server string
+		Port                    int
+	}
 }
 
 //Load loads the configuration according to env parameter. i.e config.dev.json

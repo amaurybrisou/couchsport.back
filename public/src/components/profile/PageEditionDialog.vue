@@ -210,7 +210,7 @@ export default {
 
       map: null,
       mapConfig: {
-        zoom: 12,
+        zoom: 1,
         center: [46, -1],
         maxBounds: [[-90, -180], [90, 180]],
         noWrap: true,
@@ -313,6 +313,20 @@ export default {
       setTimeout(function() {
         that.snackbar = false;
       }, that.snackbarTimeout);
+    },
+    showEditPageDialog(v) {
+      if (!v) return;
+      if(this.state === "edit"){
+        this.showEditPageDialog = true;
+        this.addMarker([this.Lat, this.Lng]);
+        this.mapConfig.zoom = 5;
+        this.mapConfig.center = [this.Lat, this.Lng];
+      }
+
+      var that = this;
+      setTimeout(function() {
+        that.map.invalidateSize();
+      }, 200);
     }
   },
   methods: {
@@ -323,18 +337,6 @@ export default {
       NAMESPACE + PAGE_ADD_IMAGE
     ]),
     ...mapActions([NAMESPACE + SAVE_PAGE, NAMESPACE + PAGE_DELETE_IMAGE]),
-    initEditPageDialog(v) {
-      if (!v) return;
-      this.showEditPageDialog = true;
-      this.addMarker([this.Lat, this.Lng]);
-      this.mapConfig.zoom = 5;
-      this.mapConfig.center = [this.Lat, this.Lng];
-
-      var that = this;
-      setTimeout(function() {
-        that.map.invalidateSize();
-      }, 200);
-    },
     submit() {
       if (this.$refs.form.validate()) {
         this.showSavingPageDialog = true;

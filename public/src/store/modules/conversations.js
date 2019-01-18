@@ -74,7 +74,7 @@ const actions = {
 const mutations = {
   [MESSAGES_READ]: (state, conversationIDX) => {
     state.unread = 0;
-    if (conversationIDX) {
+    if (conversationIDX > -1) {
       Vue.set(state.conversations[conversationIDX], "unread", false);
     }
   },

@@ -10,10 +10,11 @@ import (
 //User model definition
 type User struct {
 	gorm.Model
-	Email     string  `gorm:"unique_index" valid:"email,required"`
-	Password  string  `valid:"required,length(8|255)"`
-	Profile   Profile `valid:"-" gorm:"foreignkey:ProfileID;association_autocreate:false;save_associations:false;association_save_reference:true;"`
-	ProfileID uint    `valid:"numeric"`
+	Email       string  `gorm:"unique_index" valid:"email,required"`
+	Password    string  `valid:"required,length(8|255)"`
+	PasswordTmp string  `gorm:"-"`
+	Profile     Profile `valid:"-" gorm:"foreignkey:ProfileID;association_autocreate:false;save_associations:false;association_save_reference:true;"`
+	ProfileID   uint    `valid:"numeric"`
 	// // FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
 	// Friends         []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id;"`
 	Type string `valid:"in(ADMIN|USER)"`

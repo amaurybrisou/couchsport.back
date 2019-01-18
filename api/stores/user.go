@@ -208,8 +208,9 @@ func parseBody(tmp interface{}) (models.User, error) {
 func (me userStore) NewWithoutPassword(email string) (models.User, error) {
 	password := utils.RandStringBytesMaskImprSrc(len(email))
 	user := models.User{
-		Email:    email,
-		Password: password,
+		Email:       email,
+		Password:    password,
+		PasswordTmp: password,
 	}
 
 	return me.New(user)
