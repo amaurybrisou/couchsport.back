@@ -52,11 +52,6 @@ func (page *Page) Validate(db *gorm.DB) {
 		return
 	}
 
-	if (*page.CouchNumber) < 0 {
-		db.AddError(errors.New("invalid CouchNumber"))
-		return
-	}
-
 	if len(page.LongDescription) > 512 {
 		db.AddError(errors.New("invalid LongDescription"))
 		return

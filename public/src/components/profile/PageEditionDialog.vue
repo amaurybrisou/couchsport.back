@@ -372,6 +372,8 @@ export default {
     },
     cancelEdit() {
       this[NAMESPACE + CANCEL_EDIT_PAGE]();
+      this.mapConfig.spotMarker.removeFrom(this.map);
+      this.mapConfig.hasSpotMarker = false;
       this.showEditPageDialog = false;
     },
     hasClickOnMap(e) {
