@@ -159,6 +159,8 @@ func (me pageStore) downloadImages(directory string, images []models.Image) ([]m
 					return []models.Image{}, err
 				}
 
+				i.File = utils.RandStringBytesMaskImprSrc(len(i.File))
+
 				filename, err := me.FileStore.Save(directory, i.File, img)
 				if err != nil {
 					return []models.Image{}, err
