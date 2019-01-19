@@ -71,7 +71,7 @@ export default {
 
     invalid_form: "le formulaire est invalide",
 
-    too_big: "{0} trop volumineuse (1}",
+    too_big: "{0} trop volumineuse {1}",
     stand_by: "veuillez patienter",
     empty: "vous n'avez aucun message pour le moment",
     
