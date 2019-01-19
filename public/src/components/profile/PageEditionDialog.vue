@@ -233,7 +233,7 @@ export default {
           v =>
             !!v || this.$t("message.required", ["e", this.$t("description")]),
           v =>
-            /^[a-zA-Z !?.]{0,35}$/i.test(v) ||
+            /^[a-zA-Z !?.]{0,75}$/i.test(v) ||
             this.$t("message.invalid", [
               this.$t("la") + " " + this.$t("description")
             ])
