@@ -171,7 +171,14 @@ export default {
   data() {
     return {
       contactName: "",
-      page: {},
+      backgroundImage: "",
+      page: null,
+      message: {
+        FromID: this.FromID,
+        ToID: null,
+        Email: this.email,
+        Text: ""
+      },
 
       messageFormValid: false,
       emailRules: [
@@ -191,6 +198,7 @@ export default {
       showImageDialog: false,
       showContactDialog: false,
 
+      map: null,
       mapConfig: {
         zoom: 11,
         center: [46, -1],
@@ -210,25 +218,12 @@ export default {
       email: state => state.auth.email,
       FromID: state => state.profile.profile.ID
     }),
-    message() {
-      return {
-        FromID: this.FromID,
-        ToID: null,
-        Email: this.email,
-        Text: ""
-      };
-    },
     imagesUrl() {
       return this.page.Images.map(e => e.URL);
     },
-    backgroundImage() {
-      return this.page && this.page.Images && this.page.Images.length > 0
-        ? this.page.Images[0].URL
-        : "";
-    },
-    map: function() {
-      return this.$refs.map.mapObject;
-    }
+  },
+  mounted() {
+    this.map = this.$refs.map.mapObject;
   },
   watch: {
     snackbar(v) {
@@ -239,8 +234,9 @@ export default {
       }, that.snackbarTimeout);
     }
   },
-  mounted: async function() {
-    if (Number(this.$route.params.page_id) < 1) return this.$router.push("/");
+  created: async function() {
+    if (Number(this.$route.params.page_id) < 1) return this.$router.push({name : 'home'});
+
     this.page = await this["pages/" + GET_PAGE]({
       id: this.$route.params.page_id,
       profile: true
@@ -253,9 +249,15 @@ export default {
         page.Owner.Lastname ||
         page.Owner.email;
 
+      this.backgroundImage = (page.Images && page.Images.length > 0) ? page.Images[0].URL : "";
+
       this.map.setView([page.Lat, page.Lng]);
       L.marker([page.Lat, page.Lng]).addTo(this.map);
       return page;
+    })
+    .catch((err) => { 
+      console.log(err)
+      this.$router.push({name: 'home'})
     });
   },
   methods: {
