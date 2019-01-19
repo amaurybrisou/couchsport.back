@@ -30,7 +30,7 @@ func (me profileStore) All() ([]models.Profile, error) {
 //Update the profile
 func (me profileStore) Update(userID uint, profile models.Profile) (models.Profile, error) {
 	if profile.AvatarFile != "" {
-		profile.AvatarFile = utils.RandStringBytesMaskImprSrc(len(profile.AvatarFile))
+
 		filename, err := me.saveAvatar(userID, profile.AvatarFile, profile.Avatar)
 		if err != nil {
 			return models.Profile{}, err
@@ -75,6 +75,11 @@ func (me profileStore) saveAvatar(profileID uint, filename, b64 string) (string,
 	img, err := utils.ImageToTypedImage(mime, buf)
 	if err != nil {
 		return "", err
+	}
+
+	filename, err = utils.Sanitize(filename)
+	if err != nil {
+		filename = utils.RandStringBytesMaskImprSrc(len(filename)) + "." + mime
 	}
 
 	directory := "user-" + strconv.FormatUint(uint64(profileID), 10)

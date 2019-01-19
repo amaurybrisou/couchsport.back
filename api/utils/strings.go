@@ -2,6 +2,7 @@ package utils
 
 import (
 	"math/rand"
+	"regexp"
 	"time"
 )
 
@@ -31,4 +32,13 @@ func RandStringBytesMaskImprSrc(n int) string {
 	}
 
 	return string(b)
+}
+
+//Sanitize a string without removing dots: [^a-zA-Z0-9.]+
+func Sanitize(filename string) (string, error) {
+	reg, err := regexp.Compile("[^a-zA-Z0-9.]+")
+	if err != nil {
+		return filename, err
+	}
+	return reg.ReplaceAllString(filename, ""), nil
 }
