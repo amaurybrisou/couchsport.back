@@ -3,15 +3,19 @@ export default {
   about: "a propos",
   login: "connexion",
   logout: "déconnexion",
-  close: "ferme",
+  close: "fermer",
   signup: "participer",
   profile: "profile",
   personal_informations: "informations personnelles",
   activities: "activités",
+  activity: "activité",
+  location: "marqueur",
   conversations: "conversations",
   languages: "langues",
   pages: "mes lieux",
   page: "page",
+  private: "privé{0}",
+  public: "publique",
   edit_page: "edition",
   edit: "editer",
   cosport: "couchsport",
@@ -24,11 +28,17 @@ export default {
   description: "description",
   your: "votre",
   to: "à",
+  the_m: "le",
+  the_f: "la",
+  name: "nom",
+  la: "la",
   _message: "message",
   cancel: "annuler",
   send: "envoyer",
   modifications: "les modifications",
   contact: "contacter",
+  image_link: "le lien de l'image",
+  image: "image",
 
   about_content:
     "begin the tour browsing available spots in the explore page or \
@@ -45,6 +55,10 @@ export default {
 
     success_saving: "votre {0} est sauvegardée",
     success_deleting: "votre {0} est supprimée",
+    success_sending: "votre {0} a été envoyé",
+    success_sending_check_email: "votre {0} a été envoyé, vérifiez vos emails",
+
+    error_sending: "une erreur est survenue lors l'envoi de votre {0}",
 
     error_saving: "une erreur est survenue lors de la sauvegarde de votre {0}",
     error_deleting:
@@ -53,17 +67,19 @@ export default {
       "une erreur est survenue lors de la mise à jour de votre {0}",
     length_below: "le {0} doit contenir moins de {1} caractères",
     length_above: "le {0} doit contenir au moins {1} caractères",
+    length_between: "le {0} doit contenir entre {1} et {2} caractères",
 
-    too_big: "{0} trop volumineuse",
+    invalid_form: "le formulaire est invalide",
+
+    too_big: "{0} trop volumineuse ($1}",
     stand_by: "veuillez patienter",
     empty: "vous n'avez aucun message pour le moment",
-    auth: {
-      invalid_email: "",
-      required: "un {0} est requis",
-      invalid: "{0} est invalide",
-      password_hint: "le mot de passe doit être d'au moins {0} caractères (une minuscule, une majuscule et un chiffre)",
-      signup_success_welcome: "bienvenue"
-    }
+    
+    required: "un{0} {1} est requis{0}",
+    invalid: "{0} est invalide",
+    password_hint: "le mot de passe doit être d'au moins {0} caractères (une minuscule, une majuscule et un chiffre)",
+    signup_success_welcome: "bienvenue"
+  
   },
   p: {
     explore: {
@@ -79,20 +95,20 @@ export default {
       write_your_reply: "votre réponse"
     },
     ped: {
-      name: "nom",
-      description: "description",
       long_desc_ph: "décrivez ce lieu en détail",
       couch_number: "combien de personnes pouvez-vous héberger",
       map_help:
         "clique gauche pour placer le marqueur, clique droit pour l'enlever",
-      upload_image_hint: "ajouter des photos"
+      upload_image_hint: "ajouter des photos",
+      invalid_image_alt: "le titre de l'image est invalide",
+      image_alt_ph: "titre de l'image",
+      wow: "Vraiment ?!"
     },
     pd: {
       no_guests: "n'accepte pas d'invités",
       guests: "accepte les invités",
       avail_couch: "places",
       max_images: "trop d'images",
-      too_big: "cette image est trop volumineuse"
     }
   },
   fields: {
@@ -145,6 +161,7 @@ export default {
     tiràlarc: "tir à l'arc",
     ulm: "ulm",
     wakeboard: "wakeboard",
-    yoga: "yoga"
+    yoga: "yoga",
+    windsurf: "planche à voile"
   }
 };

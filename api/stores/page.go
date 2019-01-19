@@ -92,12 +92,13 @@ func (me pageStore) Update(userID uint, page models.Page) (models.Page, error) {
 		if err != nil {
 			return models.Page{}, err
 		}
-		page.Images = images
+
+		me.Db.Model(&page).Association("Images").Replace(images)
 	}
 
 	me.Db.Unscoped().Table("page_activities").Where("activity_id NOT IN (?)", me.getActivitiesIDS(page.Activities)).Where("page_id = ?", page.ID).Delete(&models.Image{})
 
-	if err := me.Db.Set("gorm:save_associations", true).Model(&page).Update(&page).Error; err != nil {
+	if err := me.Db.Set("gorm:update_associations", true).Model(&models.Page{}).Updates(&page).Error; err != nil {
 		return models.Page{}, err
 	}
 
@@ -165,6 +166,7 @@ func (me pageStore) downloadImages(directory string, images []models.Image) ([]m
 
 				i.File = ""
 				i.URL = filename
+
 				tmpImages = append(tmpImages, i)
 			} else {
 				tmpImages = append(tmpImages, i)

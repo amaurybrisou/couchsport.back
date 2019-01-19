@@ -11,7 +11,7 @@ type Page struct {
 	gorm.Model
 	Name, Description string  `valid:"text"`
 	LongDescription   string  `gorm:"size:512;" valid:"text"`
-	Images            []Image `gorm:"save_associations:true;foreignkey:OwnerID"`
+	Images            []Image `gorm:"association_autoupdate:true;foreignkey:OwnerID"`
 	Lat               float64 `valid:"latitude"`
 	Lng               float64 `valid:"longitude"`
 	CouchNumber       *int    `valid:"numeric"`

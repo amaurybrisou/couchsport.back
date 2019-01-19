@@ -30,7 +30,7 @@ func (me imageHandler) Delete(userID uint, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	owns, err := me.Store.UserStore().OwnImage(userID, image.ID)
+	owns, err := me.Store.UserStore().OwnImage(userID, image.OwnerID, image.ID)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusInternalServerError)

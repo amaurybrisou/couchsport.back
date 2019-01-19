@@ -5,7 +5,6 @@ import (
 	"github.com/goland-amaurybrisou/couchsport/api/models"
 	"github.com/goland-amaurybrisou/couchsport/api/utils"
 	"github.com/jinzhu/gorm"
-
 	"net/url"
 )
 
@@ -101,23 +100,24 @@ func (me userStore) GetByEmail(email string, create bool) (models.User, error) {
 	return outUser, nil
 }
 
-//OwnImage tells you wheter the userID owns the imageID
-func (me userStore) OwnImage(userID, imageID uint) (bool, error) {
+//OwnImage tells you wheter the userID owns PageID whose owns the imageID as well
+func (me userStore) OwnImage(userID, pageID, imageID uint) (bool, error) {
 	if userID < 1 {
 		return false, fmt.Errorf("userID cannot be below 1")
 	}
 
-	user, err := me.GetByID(userID)
+	profileID, err := me.GetProfileID(userID)
 	if err != nil {
 		return false, err
 	}
 
-	var count uint
-	if err := me.Db.Model(models.Image{}).Where("owner_id = ?", user.ProfileID).Where("id = ?", imageID).Count(&count).Error; err != nil {
+	var count struct{ Count int }
+	err = me.Db.Table("images").Select("COUNT(*) AS count").Joins("INNER JOIN pages ON pages.id = images.owner_id").Where("images.id = ? AND pages.id = ? AND pages.owner_id = ?", imageID, pageID, profileID).Find(&count).Error
+	if err != nil {
 		return false, err
 	}
 
-	if count < 1 {
+	if count.Count < 1 {
 		return false, fmt.Errorf("user %v doesn't own this image %v", userID, imageID)
 	}
 

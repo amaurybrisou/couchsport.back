@@ -189,19 +189,17 @@ export default {
       }
     },
     publishPage(id, state) {
-      var that = this;
       if (id != null && (state == false || state == true)) {
         this[NAMESPACE + PUBLISH_PAGE]({ ID: id, Public: state })
           .then(() => {
-            that.snackbarText = state
-              ? this.$t("message.state", ["page", "public"])
-              : this.$t("message.state", ["page", "private"]);
-            that.snackbar = true;
+            this.snackbarText = state
+              ? this.$t("message.state", [this.$t("page"), this.$t("public")])
+              : this.$t("message.state", [this.$t("page"), this.$t("private", ["e"])]);
+            this.snackbar = true;
           })
           .catch(() => {
-            that.pages[id].Public = true;
-            that.snackbarText = this.$t("message.error_updating", ["page"]);
-            that.snackbar = true;
+            this.snackbarText = this.$t("message.error_updating", ["page"]);
+            this.snackbar = true;
           });
       }
     }

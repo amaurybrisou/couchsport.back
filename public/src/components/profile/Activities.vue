@@ -19,7 +19,7 @@
     <v-layout row wrap>
       <v-btn
         color="success"
-        :disabled="activities && activities.length == 0"
+        :disabled="!selected_activities || selected_activities.length == 0"
         @click="submit"
         block
         flat

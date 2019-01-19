@@ -80,7 +80,7 @@ const actions = {
 
     return pagesRepo[what](state.edited_page)
       .then(({ data }) => {
-        what === "edit" && commit(PAGE_SAVED);
+        what === "edit" && commit(PAGE_SAVED, data);
         what === "new" && commit(NEW_PAGE_SAVED, data);
         commit(CANCEL_EDIT_PAGE);
       })
@@ -180,7 +180,14 @@ const mutations = {
   [SAVE_PAGE]: state => {
     state.status = "saving_page";
   },
-  [PAGE_SAVED]: state => {
+  [PAGE_SAVED]: (state, {Images, ID}) => {
+    for(var i = 0; i < state.pages.length; i++){
+      let p = state.pages[i];
+      if(p.ID === ID){
+        Vue.set(state.pages[i], "Images", Images);
+        break;
+      }
+    }
     state.status = "page_saved";
   },
 

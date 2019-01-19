@@ -64,16 +64,16 @@ export default {
         password: ""
       },
       emailRules: [
-        v => !!v || this.$t("message.auth.email_required"),
+        v => !!v || this.$t("message.required", ["", this.$t("email")]),
         v =>
           /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
-          this.$t("message.auth.invalid_email")
+          this.$t("message.invalid", [this.$t("email")])
       ],
       passwordRules: [
-        v => !!v || this.$t("message.auth.password_required"),
+        v => !!v || this.$t("message.required", ["", this.$t("password")]),
         v =>
           /^(?=.*\d)(?=.*[_!?,]?)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z_?,!]{8,}$/.test(v) ||
-          this.$t("message.auth.password_hint", [8])
+          this.$t("message.invalid", [this.$t("password")], [8])
       ]
     };
   },
@@ -86,7 +86,7 @@ export default {
         .then(({ data }) => {
           that.$router.push({
             name: "login",
-            params: { welcome: this.$t("message.auth.signup_success_welcome") }
+            params: { welcome: this.$t("message.signup_success_welcome") }
           });
         })
         .catch(({ response: { data } }) => {
@@ -100,18 +100,18 @@ export default {
       const errors = [];
       if (!this.$v.user.email.$dirty) return errors;
       !this.$v.user.email.email &&
-        errors.push(this.$t("message.auth.invalid", ["email"]));
+        errors.push(this.$t("message.invalid", [this.$t("email")]));
       !this.$v.user.email.required &&
-        errors.push(this.$t("message.auth.required", ["email"]));
+        errors.push(this.$t("message.required", ["", this.$t('email')]));
       return errors;
     },
     passwordErrors() {
       const errors = [];
       if (!this.$v.user.password.$dirty) return errors;
       !this.$v.user.passwor.maxLength &&
-        errors.push(this.$t("message.auth.password_hint", [8]));
+        errors.push(this.$t("message.password_hint", [8]));
       !this.$v.user.password.required &&
-        errors.push(this.$t("message.auth.required", ["password"]));
+        errors.push(this.$t("message.required", ["", this.$t('password')]));
       return errors;
     }
   }

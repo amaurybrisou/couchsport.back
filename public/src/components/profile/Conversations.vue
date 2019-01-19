@@ -166,12 +166,12 @@ export default {
       showContactDialog: false,
       messageFormValid: false,
       emailRules: [
-        v => !!v || this.$t("message.auth.required"),
-        v => /.+@.+/.test(v) || this.$t("message.auth.invalid_email")
+        v => !!v || this.$t("message.required", ["", this.$t("_message")]),
+        v => /.+@.+/.test(v) || this.$t("message.invalid", [this.$t("email")])
       ],
 
       textRules: [
-        v => !!v || this.$t("message.auth.required", ["message"]),
+        v => !!v || this.$t("message.required", ["", this.$t('_message')]),
         v =>
           (v && v.length >= 20) || this.$t("message.length_above", { len: 20 })
       ]

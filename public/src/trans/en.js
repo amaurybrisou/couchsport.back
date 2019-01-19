@@ -142,6 +142,7 @@ export default {
     tiràlarc: "tir à l'arc",
     ulm: "ulm",
     wakeboard: "wakeboard",
-    yoga: "yoga"
+    yoga: "yoga",
+    windsurf: "windsurf",
   }
 };

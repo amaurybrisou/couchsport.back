@@ -130,8 +130,8 @@
                 :rules="textRules"
                 row="1"
                 maxlength="128"
-                hide-details
                 no-resize
+                @keyup.ctrl.enter="sendMessage"
               ></v-textarea>
             </v-card-text>
             <v-card-actions>
@@ -175,13 +175,13 @@ export default {
 
       messageFormValid: false,
       emailRules: [
-        v => !!v || "E-mail is required",
-        v => /.+@.+/.test(v) || "E-mail must be valid"
+        v => !!v || this.$t("message.required", ["", this.$t('email')]),
+        v => /.+@.+/.test(v) || this.$t("message.invalid", [this.$t("email")])
       ],
 
       textRules: [
-        v => !!v || "Message is required",
-        v => (v && v.length >= 20) || "Message must be more than 20 characters"
+        v => !!v || this.$t("message.required", ["", this.$t('_message')]),
+        v => (v && v.length >= 20) || this.$t("message.length_above", [20])
       ],
 
       snackbar: false,
@@ -266,12 +266,12 @@ export default {
       this.$messenger
         .sendMessage(this.message)
         .then(() => {
-          that.snackbarText = "Your messages has been sent";
+          that.snackbarText = this.$t("message.success_sending_check_email");
           that.snackbar = true;
           that.showContactDialog = false;
         })
         .catch(() => {
-          that.snackbarText = "An error occured while sending your message";
+          that.snackbarText = this.$t("message.error_sending",  ["message"]);
           that.snackbar = true;
           that.showContactDialog = false;
         });

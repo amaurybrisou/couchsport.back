@@ -18,7 +18,7 @@
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items></v-toolbar-items>
-        <v-btn dark flat @click.native="submit">
+        <v-btn dark flat @click.native="validate">
           <slot name="submitText">{{ $t('save') }}</slot>
         </v-btn>
         <v-btn icon @click.native.prevent="cancelEdit()" dark>
@@ -26,48 +26,52 @@
         </v-btn>
       </v-toolbar>
       <template>
-        <v-container
-          fluid
-          :class="{ 'sm4 px-5 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
-        >
-          <v-layout row wrap>
-            <v-flex
-              :class="{ 'sm6 pr-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
-            >
-              <v-form v-model="valid" ref="form" lazy-validation>
+        <v-form v-model="rules.valid" @keypress.enter="validate" ref="form" lazy-validation>
+          <v-container
+            fluid
+            :class="{ 'sm4 px-5 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+          >
+            <v-layout row wrap>
+              <v-flex
+                :class="{ 'sm6 pr-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+              >
                 <v-text-field
-                  :label="$t('p.ped.name')"
+                  :label="$t('name') | capitalize"
                   v-model="Name"
-                  :rules="nameRules"
+                  :rules="rules['Name']"
+                  autofocus
+                  @keypress.enter="validate"
                   required
-                  hide-details
                 ></v-text-field>
                 <v-text-field
-                  :label="$t('p.ped.description')"
+                  :label="$t('description') | capitalize"
                   v-model="Description"
+                  :rules="rules['Description']"
+                  @keypress.enter="validate"
                   required
-                  hide-details
                 ></v-text-field>
                 <v-textarea
                   name="LongDescription"
                   v-model="LongDescription"
+                  :rules="rules['LongDescription']"
+                  @keypress.ctrl.enter="validate"
                   maxlength="512"
-                  :placeholder="$t('p.ped.long_desc_ph')"
+                  :placeholder="$t('p.ped.long_desc_ph') | capitalize"
                   row="1"
-                  hide-details
                   no-resize
                 ></v-textarea>
                 <v-autocomplete
                   v-model="Activities"
                   :items="allActivities"
                   :label="$t('activities') | capitalize"
+                  :rules="rules['Activities']"
                   item-text="Name"
                   return-object
                   multiple
                 ></v-autocomplete>
                 <v-slider
                   v-model="CouchNumber"
-                  :rules="couchNumberRules"
+                  :rules="rules['CouchNumber']"
                   color="primary"
                   :label="$t('p.ped.couch_number')"
                   :hint="$t('p.ped.couch_number')"
@@ -75,93 +79,95 @@
                   max="15"
                   thumb-label
                 ></v-slider>
-              </v-form>
-            </v-flex>
+              </v-flex>
 
-            <v-flex
-              :class="{ 'sm6 pl-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
-            >
-              <v-card pa-5>
-                <div>
-                  <v-subheader color="warning">
-                    <v-icon color="warning">help</v-icon>
-                    {{ $t('p.ped.map_help') }}
-                  </v-subheader>
-                </div>
-                <l-map
-                  :zoom="mapConfig.zoom"
-                  :center="mapConfig.center"
-                  :maxBounds="mapConfig.maxBounds"
-                  :nowWrap="mapConfig.nowWrap"
-                  ref="map"
-                  style="height:40vh;width:100%;"
-                >
-                  <l-tile-layer :url="mapConfig.url" :attribution="mapConfig.attribution"></l-tile-layer>
-                </l-map>
-              </v-card>
-            </v-flex>
-            <v-flex v-if="Images" xs12 mt-1>
-              <upload-button
-                :label="$t('p.ped.upload_image_hint')"
-                :multiple="false"
-                title="Browser"
-                :disabled="Images.length > 5"
-                @formData="addImage"
-              ></upload-button>
-              <v-layout v-if="Images.length > 0" row wrap>
-                <v-flex
-                  :class="{ 'sm2 px-2': $vuetify.breakpoint.smAndUp, 'xs6 px-1 py-2': $vuetify.breakpoint.xsOnly }"
-                  v-for="(i, idx) in Images"
-                  :key="idx"
-                >
-                  <v-card class="rounded">
-                    <v-img
-                      :src="i.URL"
-                      :lazy-src="i.URL"
-                      :alt="i.Alt"
-                      aspect-ratio="1"
-                      class="grey lighten-2"
-                    >
-                      <v-layout slot="placeholder" fill-height align-center justify-center ma-0>
-                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-                      </v-layout>
-                      <input
-                        placeholder="Image title"
-                        class="image-alt-in"
-                        label="Title"
-                        :value="i.Alt"
-                        @input="setImageAlt(idx, $event)"
+              <v-flex
+                :class="{ 'sm6 pl-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+              >
+                <v-card pa-5>
+                  <div>
+                    <v-subheader color="warning">
+                      <v-icon color="warning">help</v-icon>
+                      {{ $t('p.ped.map_help') }}
+                    </v-subheader>
+                  </div>
+                  <l-map
+                    :zoom="mapConfig.zoom"
+                    :center="mapConfig.center"
+                    :maxBounds="mapConfig.maxBounds"
+                    :nowWrap="mapConfig.nowWrap"
+                    ref="map"
+                    style="height:40vh;width:100%;"
+                  >
+                    <l-tile-layer :url="mapConfig.url" :attribution="mapConfig.attribution"></l-tile-layer>
+                  </l-map>
+                  <div v-if="rules.invalidLocation">
+                    <v-alert
+                      color="error"
+                      :value="$t('message.invalid', [$t('the_m') + ' ' + $t('location')])"
+                    >{{ $t('message.invalid', [$t('the_m') + ' ' +$t('location')]) }}</v-alert>
+                  </div>
+                </v-card>
+              </v-flex>
+              <v-flex v-if="Images" xs12 mt-1>
+                <upload-button
+                  :label="$t('p.ped.upload_image_hint') | capitalize"
+                  :multiple="false"
+                  :accept="rules.imageFormatsAllowed"
+                  title="Browser"
+                  :disabled="Images.length > 5"
+                  @formData="addImage"
+                ></upload-button>
+                <v-layout v-if="Images.length > 0" row wrap>
+                  <v-flex
+                    :class="{ 'sm2 px-2': $vuetify.breakpoint.smAndUp, 'xs6 px-1 py-2': $vuetify.breakpoint.xsOnly }"
+                    v-for="(i, idx) in Images"
+                    :key="idx"
+                  >
+                    <v-card class="rounded">
+                      <v-img
+                        :src="i.URL"
+                        :lazy-src="i.URL"
+                        :alt="i.Alt"
+                        aspect-ratio="1"
+                        class="grey lighten-2"
                       >
-                      <v-btn
-                        @click="deleteImage(idx)"
-                        type="button"
-                        class="right pa-0 ma-1"
-                        icon
-                        light
-                        small
-                        color="success"
-                      >
-                        <v-icon>clear</v-icon>
-                        <span slot="loader" class="custom-loader">
-                          <v-icon light>cached</v-icon>
-                        </span>
-                      </v-btn>
-                    </v-img>
-                  </v-card>
-                </v-flex>
-              </v-layout>
-            </v-flex>
-          </v-layout>
-          <app-snack-bar :state="snackbar" :text="snackbarText" @snackClose="snackbar = false"></app-snack-bar>
-        </v-container>
-        <v-dialog lazy v-model="showSavingPageDialog" hide-overlay persistent width="300">
-          <v-card color="primary" dark>
-            <v-card-text>
-              {{ $t('message.stand_by') }}
-              <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
+                        <v-layout slot="placeholder" fill-height align-center justify-center ma-0>
+                          <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                        </v-layout>
+                        <v-text-field
+                          :placeholder="$t('p.ped.image_alt_ph')"
+                          :value="i.Alt"
+                          height="5"
+                          solo
+                          single-line
+                          append-icon="clear"
+                          hide-details
+                          color="grey"
+                          background-color="rgba(255,255,255,0.7)"
+                          :rules="rules['Alt']"
+                          @change="setImageAlt(idx, $event)"
+                          @click:append="deleteImage(idx)"
+                          @keypress.enter="validate"
+                          @mouseenter:append="alert('ok')"
+                        ></v-text-field>
+                      </v-img>
+                    </v-card>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
+            </v-layout>
+            <app-snack-bar :state="snackbar" :text="snackbarText" @snackClose="snackbar = false"></app-snack-bar>
+          </v-container>
+          <v-dialog lazy v-model="showSavingPageDialog" hide-overlay persistent width="300">
+            <v-card color="primary" dark>
+              <v-card-text>
+                {{ $t('message.stand_by') | capitalize }}
+                <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+              </v-card-text>
+            </v-card>
+          </v-dialog>
+        </v-form>
       </template>
     </v-card>
   </v-dialog>
@@ -197,14 +203,6 @@ export default {
 
       isEditing: this.state === "edit",
 
-      valid: true,
-      nameRules: [
-        v => !!v || this.$t("message.auth.required", ["name"]),
-        v => (v && v.length <= 50) || this.$t("message.length_below", [50])
-      ],
-
-      couchNumberRules: [val => val < 15 || `Really ?!`],
-
       showEditPageDialog: false,
       showSavingPageDialog: false,
 
@@ -220,6 +218,44 @@ export default {
         showMarkers: true,
         hasSpotMarker: false,
         spotMarker: null
+      },
+
+      errors: [],
+      rules: {
+        valid: true,
+        invalidLocation: false,
+        imageFormatsAllowed: "image/jpeg, image:jpg, image/png, image/gif",
+        Name: [
+          v => !!v || this.$t("message.required", ["", this.$t("name")]),
+          v => (v && v.length <= 50) || this.$t("message.length_below", [50])
+        ],
+        Description: [
+          v =>
+            !!v || this.$t("message.required", ["e", this.$t("description")]),
+          v =>
+            /^[a-zA-Z !?.]{0,35}$/i.test(v) ||
+            this.$t("message.invalid", [
+              this.$t("la") + " " + this.$t("description")
+            ])
+        ],
+        LongDescription: [
+          v =>
+            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,512}$/i.test(
+              v
+            ) || this.$t("message.invalid", ["description"])
+        ],
+        CouchNumber: [v => v < 15 || this.$t("p.ped.wow")],
+        Activities: [
+          v => !!v || this.$t("message.required", ["e", this.$t("activity")]),
+          v =>
+            v.length > 0 ||
+            this.$t("message.required", ["e", this.$t("activity")])
+        ],
+        Alt: [
+          v =>
+            /^[a-zA-Z0-9!? ]{0,15}$/.test(v) ||
+            this.$t("p.ped.invalid_image_alt")
+        ]
       }
     };
   },
@@ -316,7 +352,7 @@ export default {
     },
     showEditPageDialog(v) {
       if (!v) return;
-      if(this.state === "edit"){
+      if (this.state === "edit" && !!this.Lat && !!this.Lng) {
         this.showEditPageDialog = true;
         this.addMarker([this.Lat, this.Lng]);
         this.mapConfig.zoom = 5;
@@ -337,38 +373,53 @@ export default {
       NAMESPACE + PAGE_ADD_IMAGE
     ]),
     ...mapActions([NAMESPACE + SAVE_PAGE, NAMESPACE + PAGE_DELETE_IMAGE]),
-    submit() {
-      if (this.$refs.form.validate()) {
-        this.showSavingPageDialog = true;
-        var that = this;
-        this[NAMESPACE + SAVE_PAGE](this.state)
-          .then(() => {
-            this.showSavingPageDialog = false;
-            this.showEditPageDialog = false;
-            that.$emit("page_saved", true);
-          })
-          .catch(e => {
-            this.showSavingPageDialog = false;
-            that.$emit("page_saved_error", false);
-          });
+    validate() {
+      this.rules.invalidLocation = false;
+      if (!this.$refs.form.validate()) {
+        return;
       }
+      if (!this.Lat || this.Lat < -90 || this.Lat > 90)
+        return (this.rules.invalidLocation = true);
+      if (!this.Lng || this.Lng < -180 || this.Lng > 180)
+        return (this.rules.invalidLocation = true);
+
+      this.submit();
+    },
+    submit() {
+      this.showSavingPageDialog = true;
+      var that = this;
+      this[NAMESPACE + SAVE_PAGE](this.state)
+        .then(() => {
+          this.showSavingPageDialog = false;
+          this.showEditPageDialog = false;
+          that.$emit("page_saved", true);
+        })
+        .catch(e => {
+          this.showSavingPageDialog = false;
+          that.$emit("page_saved_error", false);
+        });
     },
     addMarker(latlng) {
       this.mapConfig.spotMarker = L.marker(latlng);
       this.mapConfig.spotMarker.addTo(this.map);
       this.mapConfig.hasSpotMarker = true;
+      this[NAMESPACE + MODIFY_PAGE]({ key: "Lat", value: latlng[0] });
+      this[NAMESPACE + MODIFY_PAGE]({ key: "Lng", value: latlng[1] });
     },
     delMarker() {
       this.mapConfig.spotMarker.removeFrom(this.map);
       this.mapConfig.hasSpotMarker = false;
+      this[NAMESPACE + MODIFY_PAGE]({ key: "Lat", value: null });
+      this[NAMESPACE + MODIFY_PAGE]({ key: "Lng", value: null });
     },
     clear() {
       this.$refs.form.reset();
     },
-    setImageAlt(idx, $event) {
+    setImageAlt(idx, value) {
+      console.log(arguments);
       this[NAMESPACE + MODIFY_IMAGE_ALT]({
         idx: idx,
-        value: $event.target.value
+        value: value
       });
     },
     cancelEdit() {
@@ -399,7 +450,7 @@ export default {
       var file = formData.get("file");
       if (file instanceof File) {
         if (file.size > 500000) {
-          this.snackbarText = this.$t("message.too_big", ["image"]);
+          this.snackbarText = this.$t("message.too_big", ["image", "500ko"]);
           return (this.snackbar = true);
         }
 
@@ -426,9 +477,15 @@ export default {
       }
     },
     deleteImage(idx) {
-      this[NAMESPACE + PAGE_DELETE_IMAGE](idx);
-      this.snackbarText = this.$t("message.success_deleting", ["image"]);
-      this.snackbar = true;
+      this[NAMESPACE + PAGE_DELETE_IMAGE](idx)
+        .then(() => {
+          this.snackbarText = this.$t("message.success_deleting", ["image"]);
+          this.snackbar = true;
+        })
+        .catch(() => {
+          this.snackbarText = this.$t("message.error_deleting", ["image"]);
+          this.snackbar = true;
+        });
     }
   }
 };
