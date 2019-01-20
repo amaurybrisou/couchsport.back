@@ -59,16 +59,16 @@ let router = new Router({
           component: SignUp
         },
         {
-          path: "pages/:page_id",
-          name: "page-details",
-          component: PageDetails
-        },
-        {
           path: "login",
           name: "login",
           component: Login,
           props: true,
           beforeEnter: ifNotAuthenticated
+        },
+        {
+          path: "pages/:page_id",
+          name: "page-details",
+          component: PageDetails
         },
         {
           path: "about",
@@ -80,28 +80,6 @@ let router = new Router({
           name: "profile",
           component: Profile,
           beforeEnter: ifAuthenticated
-          // children: [
-          //   {
-          //     path: "informations",
-          //     name: "informations",
-          //     beforeEnter: ifAuthenticated
-          //   },
-          //   {
-          //     path: "activities",
-          //     name: "activities",
-          //     beforeEnter: ifAuthenticated
-          //   },
-          //   {
-          //     path: "conversations",
-          //     name: "conversations",
-          //     beforeEnter: ifAuthenticated
-          //   },
-          //   {
-          //     path: "pages",
-          //     name: "pages",
-          //     beforeEnter: ifAuthenticated
-          //   }
-          // ]
         }
       ]
     }
