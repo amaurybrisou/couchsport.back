@@ -268,12 +268,12 @@ export default {
       this.$messenger
         .sendMessage(this.message)
         .then(() => {
-          that.snackbarText = this.$t("message.success_sending_check_email");
+          that.snackbarText = this.$t("message.success_sending_check_email", [this.$t("message")]);
           that.snackbar = true;
           that.showContactDialog = false;
         })
         .catch(() => {
-          that.snackbarText = this.$t("message.error_sending",  ["message"]);
+          that.snackbarText = this.$t("message.error_sending",  [this.$t("message")]);
           that.snackbar = true;
           that.showContactDialog = false;
         });
