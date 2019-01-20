@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
+	"sync"
 )
 
 type query struct {
@@ -26,7 +27,7 @@ type hub struct {
 	clients map[uint]*client
 
 	close chan bool
-
+	wg    sync.WaitGroup
 	// Inbound messages from the clients.
 	broadcast chan []byte
 
@@ -72,20 +73,12 @@ func (me *hub) run() {
 					delete(me.clients, client.ID)
 				}
 			}
-		case ok := <-me.close:
-			if ok {
-				for _, client := range me.clients {
-					close(client.send)
-					delete(me.clients, client.ID)
-				}
-			}
-			me.close <- true
-			break
 		}
 	}
 }
 
 func (me *hub) Register(profileID uint, conn *websocket.Conn) {
+	log.Printf("ws hub: registering new client profileID = %d With IP: %v", profileID, conn.RemoteAddr())
 	client := &client{ID: profileID, hub: me, conn: conn, send: make(chan []byte, 256)}
 	me.register <- client
 
@@ -162,9 +155,11 @@ func (me *hub) emit(q query) error {
 	return nil
 }
 
-func (me *hub) Close() {
-	me.close <- true
-	log.Println("closing websocket hub")
-	<-me.close
+func (me *hub) Close(signalDone chan bool) {
+	log.Printf("Pool length : %d", len(me.clients))
+	for i := 0; i < len(me.clients)*2; i++ {
+		me.close <- true
+	}
+	signalDone <- true
 	log.Println("websocket hub closed gracefully")
 }

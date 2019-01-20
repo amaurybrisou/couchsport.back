@@ -41,6 +41,7 @@ const mutations = {
     state.socket.isConnected = true;
   },
   [SOCKET_ONCLOSE]: state => {
+    console.log('ws server closed the connection');
     state.socket.isConnected = false;
   },
   [SOCKET_ONERROR]: state => {

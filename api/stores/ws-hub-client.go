@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -32,6 +33,7 @@ const (
 
 // client is a middleman between the websocket connection and the hub.
 type client struct {
+	WG *sync.WaitGroup
 	// profile ID to related WS client to their profile
 	ID uint
 

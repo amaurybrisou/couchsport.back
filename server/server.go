@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const prefix = "/api"
+
 type Instance struct {
 	Db         *gorm.DB
 	C          *config.Config
@@ -19,6 +21,7 @@ type Instance struct {
 
 var s *Instance
 
+//NewInstance creates the app server object
 func NewInstance(c *config.Config) *Instance {
 	if s != nil {
 		return s
@@ -40,23 +43,21 @@ func NewInstance(c *config.Config) *Instance {
 }
 
 //Start the current Instance
-func (s *Instance) Start(signalDone chan struct{}) {
-
-	defer s.Db.Close()
-
+func (s *Instance) Start() {
 	go func() {
 		log.Printf("Listenning on  %s:%s", s.C.Listen, strconv.Itoa(s.C.Port))
 		if err := s.HTTPServer.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatal(err)
 		}
 	}()
-
-	<-signalDone
-
 }
 
 //Shutdown http server
 func (s *Instance) Shutdown() {
+	if s.Db != nil {
+		s.Db.Close()
+	}
+
 	if s.HTTPServer != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		err := s.HTTPServer.Shutdown(ctx)
@@ -69,8 +70,6 @@ func (s *Instance) Shutdown() {
 		}
 	}
 }
-
-const prefix = "/api"
 
 func (s *Instance) RegisterHandler(path string, handler http.HandlerFunc) {
 	log.Infof("registering handler at path in %s environment %s, cors is enabled in dev", prefix+path, s.C.Env)

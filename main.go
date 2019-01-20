@@ -93,13 +93,13 @@ func main() {
 	srv.ServePublic(c.PublicPath)
 
 	signalChan := make(chan os.Signal, 1)
-	signalDone := make(chan struct{})
+	signalDone := make(chan bool)
 	signal.Notify(signalChan, os.Interrupt)
 	go func() {
 		<-signalChan
 		log.Info("received os.Interrupt signal, stopping services")
-		storeFactory.WsStore().Close()
-
+		storeFactory.WsStore().Close(signalDone)
+		<-signalDone
 		if err := srv.HTTPServer.Shutdown(nil); err != nil {
 			log.Panic(err)
 		}
@@ -108,6 +108,7 @@ func main() {
 		close(signalDone)
 	}()
 
-	srv.Start(signalDone)
+	srv.Start()
 
+	<-signalDone
 }

@@ -29,6 +29,7 @@ type wsHandler struct {
 // }
 
 //EntryPoint Ws handler
+//params id is the profileID
 func (me *wsHandler) EntryPoint(w http.ResponseWriter, r *http.Request) {
 	stringID := r.URL.Query().Get("id")
 	if stringID == "" {
