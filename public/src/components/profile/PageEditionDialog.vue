@@ -68,13 +68,25 @@
                   item-text="Name"
                   return-object
                   multiple
-                ></v-autocomplete>
+                >
+                  <template slot="selection" slot-scope="data">
+                    <v-chip
+                      :selected="data.selected"
+                      close
+                      color="secondary"
+                      @input="removeActivity(data.item)"
+                    >
+                      <v-subheader
+                        class="body-2"
+                      >{{ $t('allActivities.'+`${data.item.Name}`) | capitalize }}</v-subheader>
+                    </v-chip>
+                  </template>
+                </v-autocomplete>
                 <v-slider
                   v-model="CouchNumber"
                   :rules="rules['CouchNumber']"
                   color="primary"
                   :label="$t('p.ped.couch_number')"
-                  :hint="$t('p.ped.couch_number')"
                   min="0"
                   max="15"
                   thumb-label
@@ -186,7 +198,8 @@ import {
   MODIFY_IMAGE_ALT,
   PAGE_DELETE_IMAGE,
   SAVE_PAGE,
-  CANCEL_EDIT_PAGE
+  CANCEL_EDIT_PAGE,
+  REMOVE_ACTIVITY
 } from "@/store/actions/pages";
 import { mapMutations, mapActions, mapGetters, mapState } from "vuex";
 
@@ -222,6 +235,7 @@ export default {
         spotMarker: null
       },
 
+      maxActivitiesAllowed: 3,
       errors: [],
       rules: {
         valid: true,
@@ -235,7 +249,9 @@ export default {
           v =>
             !!v || this.$t("message.required", ["e", this.$t("description")]),
           v =>
-            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,75}$/i.test(v) ||
+            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,75}$/i.test(
+              v
+            ) ||
             this.$t("message.invalid", [
               this.$t("la") + " " + this.$t("description")
             ])
@@ -251,7 +267,13 @@ export default {
           v => !!v || this.$t("message.required", ["e", this.$t("activity")]),
           v =>
             v.length > 0 ||
-            this.$t("message.required", ["e", this.$t("activity")])
+            this.$t("message.required", ["e", this.$t("activity")]),
+          v =>
+            v.length <= this.maxActivitiesAllowed ||
+            this.$t("message.too_much", [
+              this.maxActivitiesAllowed,
+              this.$t("activities")
+            ])
         ],
         Alt: [
           v =>
@@ -372,7 +394,8 @@ export default {
       NAMESPACE + MODIFY_IMAGE_ALT,
       NAMESPACE + MODIFY_PAGE,
       NAMESPACE + CANCEL_EDIT_PAGE,
-      NAMESPACE + PAGE_ADD_IMAGE
+      NAMESPACE + PAGE_ADD_IMAGE,
+      NAMESPACE + REMOVE_ACTIVITY
     ]),
     ...mapActions([NAMESPACE + SAVE_PAGE, NAMESPACE + PAGE_DELETE_IMAGE]),
     validate() {
@@ -385,8 +408,10 @@ export default {
       if (!this.Lng || this.Lng < -180 || this.Lng > 180)
         return (this.rules.invalidLocation = true);
 
-      if (this.Images.length === 0){
-        return this.imagesErrors = [this.$t("message.required", ["e", this.$t("image")])]
+      if (this.Images.length === 0) {
+        return (this.imagesErrors = [
+          this.$t("message.required", ["e", this.$t("image")])
+        ]);
       }
 
       this.submit();
@@ -403,8 +428,11 @@ export default {
         .catch(e => {
           this.showSavingPageDialog = false;
           this.delMarker();
-          this.$emit("page_saved", false)
+          this.$emit("page_saved", false);
         });
+    },
+    removeActivity(activity) {
+      this[NAMESPACE + REMOVE_ACTIVITY](activity);
     },
     addMarker(latlng) {
       this.mapConfig.spotMarker = L.marker(latlng);
@@ -458,7 +486,10 @@ export default {
       var file = formData.get("file");
       if (file instanceof File) {
         if (file.size > 500000) {
-          this.snackbarText = this.$t("message.too_big", [this.$t("image"), "500ko"]);
+          this.snackbarText = this.$t("message.too_big", [
+            this.$t("image"),
+            "500ko"
+          ]);
           return (this.snackbar = true);
         }
 
@@ -488,11 +519,15 @@ export default {
     deleteImage(idx) {
       this[NAMESPACE + PAGE_DELETE_IMAGE](idx)
         .then(() => {
-          this.snackbarText = this.$t("message.success_deleting", [this.$t("image")]);
+          this.snackbarText = this.$t("message.success_deleting", [
+            this.$t("image")
+          ]);
           this.snackbar = true;
         })
         .catch(() => {
-          this.snackbarText = this.$t("message.error_deleting", [this.$t("image")]);
+          this.snackbarText = this.$t("message.error_deleting", [
+            this.$t("image")
+          ]);
           this.snackbar = true;
         });
     }

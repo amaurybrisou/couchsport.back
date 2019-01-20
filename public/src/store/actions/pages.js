@@ -27,5 +27,6 @@ export const CANCEL_EDIT_PAGE = "CANCEL_EDIT_PAGE";
 
 export const MODIFY_PAGE = "MODIFY_PAGE";
 export const PAGE_MODIFIED = "PAGE_MODIFIED";
+export const REMOVE_ACTIVITY = "REMOVE_ACTIVITY";
 
 export const PAGE_ERROR = "PAGE_ERROR";

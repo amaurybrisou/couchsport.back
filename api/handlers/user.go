@@ -82,7 +82,7 @@ func (me userHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	user, err = me.Store.UserStore().New(user)
 	if err != nil {
 		log.Error(err)
-		http.Error(w, fmt.Errorf("could not create user %s", err).Error(), http.StatusForbidden)
+		http.Error(w, fmt.Errorf("could not create user, %s", err).Error(), http.StatusForbidden)
 		return
 	}
 
@@ -90,7 +90,7 @@ func (me userHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Error(err)
-		http.Error(w, fmt.Errorf("could not create user %s", err).Error(), http.StatusInternalServerError)
+		http.Error(w, fmt.Errorf("could not create user, %s", err).Error(), http.StatusInternalServerError)
 		return
 	}
 

@@ -17,7 +17,8 @@ import {
   PAGE_DELETED,
   EDIT_PAGE,
   CANCEL_EDIT_PAGE,
-  MODIFY_PAGE,  
+  MODIFY_PAGE,
+  REMOVE_ACTIVITY,
   PAGE_ERROR
 } from "../actions/pages";
 
@@ -200,10 +201,15 @@ const mutations = {
     state.status = "edit_page_canceled";
   },
 
-  [MODIFY_PAGE]: (state, { key, value }) => {
+  [MODIFY_PAGE]: (state, { key, value}) => {
     state.status = "modifying_page";
     Vue.set(state.edited_page, key, value)    
     state.status = "page_modified";
+  },
+  [REMOVE_ACTIVITY]: (state, activity) => {
+    state.status = "removing_activity";
+    state.edited_page.Activities = state.edited_page.Activities.filter(a => activity.ID !== a.ID);
+    state.status = "activity_removed";
   },
   [PAGE_ADD_IMAGE]: (state, image) => {
     state.edited_page.Images.push(image);

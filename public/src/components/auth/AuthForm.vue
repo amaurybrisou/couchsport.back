@@ -9,12 +9,12 @@
           <v-alert v-for="(err, i) in errors" :key="i" :value="err" type="error">{{err}}</v-alert>
         </div>
         <div v-if="welcome" color="info">
-          <v-alert type="info" :value="welcome">{{ welcome }}</v-alert>
+          <v-alert type="info" :value="welcome">{{ welcome  | capitalize }}</v-alert>
         </div>
 
         <v-form @keypress.enter.native="submit" ref="form" v-model="valid">
           <v-text-field
-            :label="$t('email')"
+            :label="$t('email')  | capitalize"
             type="text"
             v-model="user.email"
             name="email"
@@ -22,7 +22,7 @@
             autocomplete="email"
           ></v-text-field>
           <v-text-field
-            :label="$t('password')"
+            :label="$t('password') | capitalize"
             :type="'password'"
             v-model="user.password"
             name="password"

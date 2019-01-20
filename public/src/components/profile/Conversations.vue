@@ -4,7 +4,7 @@
       <v-alert
         color="info"
         flat
-        :value="$t('message.empty', ['conversations']) | capitalize "
+        :value="$t('message.empty', ['conversations']) | capitalize"
       >{{ $t('message.empty', ['conversations']) | capitalize }}</v-alert>
     </v-flex>
     <v-layout row wrap>
@@ -23,12 +23,6 @@
               <v-list-tile-action>
                 <v-icon v-if="unread[idx]" color="warning">star</v-icon>
               </v-list-tile-action>
-              <!-- <v-list-tile-avatar>
-                  <img v-if="c.From.Avatar" :src="c.From.Avatar" :alt="c.From.Avatar">
-              </v-list-tile-avatar>-->
-              <!-- <v-list-tile-avatar>
-                <img v-if="c.To.Avatar" :src="c.To.Avatar" :alt="c.To.Avatar">
-              </v-list-tile-avatar>-->
               <v-chip
                 v-if="c.FromID == connectedProfileID && c.To"
                 small
@@ -44,7 +38,7 @@
               <v-list-tile-sub-title
                 v-if="c.Messages"
                 class="text--primary"
-              >{{ $t('p.conversations.last_message') }} : {{ c.Messages[c.Messages.length - 1].Date| formatDate('MM/DD/YYYY') }} {{ $t('at') }} {{ c.Messages[c.Messages.length - 1].Date| formatDate("HH:mm") }}</v-list-tile-sub-title>
+              >{{ $t('p.conversations.last_message') | capitalize }} : {{ c.Messages[c.Messages.length - 1].Date| formatDate('MM/DD/YYYY') }} {{ $t('at') }} {{ c.Messages[c.Messages.length - 1].Date| formatDate("HH:mm") }}</v-list-tile-sub-title>
 
               <!-- <v-list-tile-title>{{ c.To.Username || c.To.Firstname || c.To.Lastname }}</v-list-tile-title> -->
               <v-list-tile-action>
@@ -171,7 +165,7 @@ export default {
       ],
 
       textRules: [
-        v => !!v || this.$t("message.required", ["", this.$t('_message')]),
+        v => !!v || this.$t("message.required", ["", this.$t("_message")]),
         v =>
           (v && v.length >= 20) || this.$t("message.length_above", { len: 20 })
       ]

@@ -28,7 +28,7 @@
     <app-snack-bar :state="snackbar" @snackClose="snackbar = false" :text="snackbarText"></app-snack-bar>
     <v-dialog v-model="showSavingProfileDialog" hide-overlay persistent width="300">
       <v-card color="primary" dark>
-        <v-card-text>Please stand by
+        <v-card-text>{{ $t('message.stand_by') | capitalize }}
           <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
         </v-card-text>
       </v-card>
@@ -49,7 +49,7 @@ export default {
     return {
       snackbar: false,
       snackbarTimeout: 3000,
-      snackbarText: this.$t("message.success_saving", ["profile"]),
+      snackbarText: this.$t("message.success_saving", [this.$t("profile")]),
       showSavingProfileDialog: false
     };
   },
@@ -82,11 +82,12 @@ export default {
       this.SAVE_PROFILE()
         .then(() => {
           that.showSavingProfileDialog = false;
-          that.snackbarText = this.$t("message.success_saving", ["profile"]);
+          that.snackbarText = this.$t("message.success_saving", [this.$t("profile")]);
           that.snackbar = true;
         })
         .catch(e => {
-          that.snackbarText = this.$t("message.error_saving", ["profile"]);
+          that.snackbarText = this.$t("message.error_saving", [this.$t("profile")]);
+          that.showSavingProfileDialog = false;
           that.snackbar = true;
         });
     }

@@ -2,7 +2,7 @@
   <v-container fluid fill-height>
     <v-layout justify-center align-center>
       <v-flex xs12 sm8 md4>
-        <auth-form :title="$t('signup')" @submit="submit"  :buttonMessage="$t('signup')" :errors="errors"></auth-form>
+        <auth-form :title="$t('signup') | capitalize" @submit="submit"  :buttonMessage="$t('signup') | capitalize" :errors="errors"></auth-form>
       </v-flex>
     </v-layout>
   </v-container>

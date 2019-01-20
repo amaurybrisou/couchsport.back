@@ -8,6 +8,7 @@ export default {
   profile: "profile",
   personal_informations: "personal informations",
   activities: "activities",
+  activity: "activity",
   conversations: "conversations",
   languages: "languages",
   pages: "my spots",
@@ -17,14 +18,19 @@ export default {
   cosport: "couchsport",
   email: "email",
   password: "password",
+  image: "image",
   save: "save",
   help: "help",
   new: "new",
   at: "at",
   description: "description",
+  name: "name",
   your: "your",
   to: "to",
   _message: "message",
+  the_m: "the",
+  the_f: "the",
+  location: "location",
   cancel: "cancel",
   send: "send",
   modifications: "modifications",
@@ -43,8 +49,8 @@ export default {
     state: "your {0} is now {1}",
     exist: "This {0} already exists in this page",
 
-    success_saving: "your {0} is saved",
-    success_deleting: "your {0} is deleted",
+    success_saving: "your {0} has been saved",
+    success_deleting: "your {0} has been deleted",
 
     error_saving: "an error occured while saving your {0}",
     error_deleting: "an error occured while deleting your {0}",
@@ -53,15 +59,15 @@ export default {
     length_above: "the {0} length must be above {1}",
 
     too_big: "{0} is too big",
+    too_much: "only {0} {1} allowed",
     stand_by: "Please stand by",
     empty: "You don't have messages for now",
-    auth: {
-      invalid_email: "",
-      required: "{0} is required",
-      invalid: "{0} is invalid",
-      password_hint: "password must contains {0} characters (at least one digit, on upper case and one lower case character)",
-      signup_success_welcome: "welcome"
-    }
+    invalid_email: "",
+    required: "{1} is required",
+    invalid: "{0} is invalid",
+    password_hint:
+      "password must contains {0} characters (at least one digit, on upper case and one lower case character)",
+    signup_success_welcome: "welcome"
   },
   p: {
     explore: {
@@ -83,7 +89,9 @@ export default {
       couch_number: "Number of couch available",
       map_help:
         "Left click to the determine the spot location, right click to remove it",
-      upload_image_hint: "Add photos"
+      upload_image_hint: "Add photos",
+      image_alt_ph: "image title",
+      wow: "Really ?!"
     },
     pd: {
       no_guests: "does not accept guests",
@@ -143,6 +151,6 @@ export default {
     ulm: "ulm",
     wakeboard: "wakeboard",
     yoga: "yoga",
-    windsurf: "windsurf",
+    windsurf: "windsurf"
   }
 };
