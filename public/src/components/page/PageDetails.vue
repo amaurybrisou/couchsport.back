@@ -268,7 +268,7 @@ export default {
       this.$messenger
         .sendMessage(this.message)
         .then(() => {
-          that.snackbarText = this.$t("message.success_sending_check_email", [this.$t("message")]);
+          that.snackbarText = this.$t("message.success_sending", [this.$t("message")]);
           that.snackbar = true;
           that.showContactDialog = false;
         })

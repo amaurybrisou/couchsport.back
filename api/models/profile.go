@@ -17,6 +17,7 @@ type Profile struct {
 	Avatar                                       string `valid:"requri"`
 	AvatarFile                                   string `gorm:"-" valid:"-"`
 	StreetNumber                                 uint   `valid:"numeric"`
+	New                                          bool   `gorm:"-"`
 	// User                                                                             User
 	// OwnerID                                                                          uint        `gorm:"association_autoupdate:false;association_autocreate:false"`
 	OwnedPages    []Page         `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false"`
@@ -24,6 +25,12 @@ type Profile struct {
 
 	Activities []*Activity `gorm:"many2many:profile_activities;association_autoupdate:false;association_autocreate:false"`
 	Languages  []*Language `gorm:"many2many:profile_languages;association_autoupdate:false;association_autocreate:false"`
+}
+
+//AfterCreate sets New to true
+func (p *Profile) AfterCreate(scope *gorm.Scope) error {
+	scope.SetColumn("New", true)
+	return nil
 }
 
 //Validate model
