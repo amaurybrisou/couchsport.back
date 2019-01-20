@@ -57,7 +57,7 @@
                   @keypress.ctrl.enter="validate"
                   maxlength="512"
                   :placeholder="$t('p.ped.long_desc_ph') | capitalize"
-                  row="1"
+                  rows="3"
                   no-resize
                 ></v-textarea>
                 <v-autocomplete
@@ -116,6 +116,7 @@
                   :accept="rules.imageFormatsAllowed"
                   title="Browser"
                   :disabled="Images.length > 5"
+                  :errors="imagesErrors"
                   @formData="addImage"
                 ></upload-button>
                 <v-layout v-if="Images.length > 0" row wrap>
@@ -206,6 +207,7 @@ export default {
       showEditPageDialog: false,
       showSavingPageDialog: false,
 
+      imagesErrors: [],
       map: null,
       mapConfig: {
         zoom: 1,
@@ -383,6 +385,10 @@ export default {
       if (!this.Lng || this.Lng < -180 || this.Lng > 180)
         return (this.rules.invalidLocation = true);
 
+      if (this.Images.length === 0){
+        return this.imagesErrors = [this.$t("message.required", ["e", this.$t("image")])]
+      }
+
       this.submit();
     },
     submit() {
@@ -426,6 +432,7 @@ export default {
     cancelEdit() {
       this[NAMESPACE + CANCEL_EDIT_PAGE]();
       this.showEditPageDialog = false;
+      this.imagesErrors = [];
     },
     hasClickOnMap(e) {
       if (this.mapConfig.hasSpotMarker || !e.latlng) return;
@@ -472,6 +479,7 @@ export default {
             URL: e.target.result,
             File: file.name
           });
+          that.imagesErrors = [];
         };
 
         reader.readAsDataURL(file);

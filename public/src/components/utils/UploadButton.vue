@@ -9,6 +9,8 @@
           :label="label"
           :required="required"
           :disabled="disabled"
+          :error-messages="errors"
+          :error="errors.length > 0"
           ref="fileTextField"
         ></v-text-field>
       </slot>
@@ -50,6 +52,10 @@ export default {
     multiple: {
       type: Boolean, // not yet possible because of data
       default: false
+    },
+    errors: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
