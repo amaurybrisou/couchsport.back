@@ -70,8 +70,6 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	//TODO send Email "account_created" with set password
-
 	conversation, err := me.Store.ConversationStore().GetByReferents(fromProfile, toProfile)
 	if err != nil {
 		log.Println(err)
@@ -85,6 +83,8 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
+
+	message.From = fromProfile
 
 	if fromUser.New {
 		go me.Store.MailStore().AccountAutoCreated(fromUser.Email, fromUser.PasswordTmp)
