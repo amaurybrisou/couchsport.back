@@ -9,7 +9,7 @@
       <v-flex xs6 md2 v-for="(item, i) in activities" :key="i">
         <v-checkbox
           height="0"
-          :label="item.Name | capitalize"
+          :label="$t(`allActivities.${item.Name}`) | capitalize"
           :value="item"
           multiple
           v-model="selected_activities"

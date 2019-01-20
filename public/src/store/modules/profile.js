@@ -7,8 +7,7 @@ import {
   SET_ACTIVITIES,
   GET_ACTIVITIES,
   GET_LANGUAGES,
-  SET_LANGUAGES,
-  SET_LOCALE
+  SET_LANGUAGES
 } from "../actions/profile";
 
 import { SOCKET_CONNECT } from "../actions/ws";
@@ -26,7 +25,7 @@ import Vue from "vue";
 import { AUTH_LOGOUT } from "../actions/auth";
 import { lang } from "moment";
 
-const state = { status: "", profile: { locale: "fr" }, activities: [], languages: [] };
+const state = { status: "", profile: { locale: "fr" }};
 
 const getters = {
   getProfile: state => state.profile,
@@ -69,75 +68,33 @@ const actions = {
         throw resp;
       });
   },
-  [SET_LOCALE]: ({ dispatch }, locale) => {
-    dispatch(SET_ACTIVITIES, locale);
+  [GET_ACTIVITIES]: ({ dispatch }) => {
+    if(localStorage.activities) {
+      return state.activities = JSON.parse(localStorage.activities);
+    }
+    return dispatch(SET_ACTIVITIES);
   },
-  [GET_ACTIVITIES]: ({ dispatch }, locale) => {
-    return dispatch(SET_ACTIVITIES, locale);
-  },
-  [SET_ACTIVITIES]: ({ commit }, locale) => {
-    return new Promise((resolve, reject) => {
-      if (!localStorage.saved_activities) {
-        if (locale !== state.profile.locale) {
-          commit(MODIFY_PROFILE, { key: "locale", value: locale });
-        }
-        return activityRepo
+  [SET_ACTIVITIES]: ({ commit }) => {
+    return activityRepo
           .all()
           .then(({ data }) => {
             commit(SET_ACTIVITIES, data);
-            return resolve(state.activities);
+            return data;
           })
-          .catch(res => {
-            return reject(res);
-          });
-      } else {
-        if (
-          locale === state.profile.locale &&
-          localStorage.activities &&
-          state.activities.length > 0
-        ) {
-          return resolve(state.activities);
-        }
-
-        commit(MODIFY_PROFILE, { key: "locale", value: locale });
-        var data = JSON.parse(localStorage.getItem("saved_activities"));
-        commit(SET_ACTIVITIES, data);
-        return resolve(state.activities);
-      }
-      reject();
-    });
   },
-  [GET_LANGUAGES]: ({ commit }, locale) => {
-    return new Promise((resolve, reject) => {
-      if (!localStorage.saved_languages) {
-        if (locale !== state.profile.locale) {
-          commit(MODIFY_PROFILE, { key: "locale", value: locale });
-        }
-        return languageRepo
+  [GET_LANGUAGES]: ({ dispatch }) => {
+    if(localStorage.languages) {
+      return state.languages = JSON.parse(localStorage.languages);
+    }
+    return dispatch(SET_LANGUAGES);
+  },
+  [SET_LANGUAGES]: ({ commit }) => {
+    return languageRepo
           .all()
           .then(({ data }) => {
             commit(SET_LANGUAGES, data);
-            return resolve(state.languages);
+            return data;
           })
-          .catch(res => {
-            return reject(res);
-          });
-      } else {
-        if (
-          locale === state.profile.locale &&
-          localStorage.languages &&
-          state.languages.length > 0
-        ) {
-          return resolve(state.languages);
-        }
-
-        commit(MODIFY_PROFILE, { key: "locale", value: locale });
-        let data = JSON.parse(localStorage.getItem("saved_languages"));
-        commit(SET_LANGUAGES, data);
-        return resolve(state.languages);
-      }
-      reject();
-    });
   }
 };
 
@@ -146,12 +103,7 @@ const mutations = {
     state.status = "loading_languages";
   },
   [SET_LANGUAGES]: (state, languages) => {
-    //KEEP THIS SNIPPET IF FUTURE TRANSLATIONS ARE NEEDED
-    localStorage.setItem("saved_languages", JSON.stringify(languages));
-    // state.languages = languages.map(function(e){
-    //   e.Name = i18n.t(`allActivities.${e["Name"]}`)
-    //   return e;
-    // })
+    
     state.languages = languages;
     localStorage.removeItem("languages");
     localStorage.setItem("languages", JSON.stringify(state.languages));
@@ -161,11 +113,8 @@ const mutations = {
     state.status = "loading_activities";
   },
   [SET_ACTIVITIES]: (state, activities) => {
-    localStorage.setItem("saved_activities", JSON.stringify(activities));
-    state.activities = activities.map(function(e) {
-      e.Name = i18n.t(`allActivities.${e["Name"]}`);
-      return e;
-    });
+    
+    state.activities = activities;
     localStorage.removeItem("activities");
     localStorage.setItem("activities", JSON.stringify(state.activities));
     state.status = "activities_loaded";

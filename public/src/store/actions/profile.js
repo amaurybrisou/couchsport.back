@@ -8,4 +8,3 @@ export const GET_ACTIVITIES = "GET_ACTIVITIES";
 export const SET_ACTIVITIES = "SET_ACTIVITIES";
 export const GET_LANGUAGES = "GET_LANGUAGES";
 export const SET_LANGUAGES = "SET_LANGUAGES";
-export const SET_LOCALE = "SET_LOCALE";
