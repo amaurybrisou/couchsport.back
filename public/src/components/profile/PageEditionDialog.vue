@@ -387,16 +387,17 @@ export default {
     },
     submit() {
       this.showSavingPageDialog = true;
-      var that = this;
       this[NAMESPACE + SAVE_PAGE](this.state)
         .then(() => {
           this.showSavingPageDialog = false;
           this.showEditPageDialog = false;
-          that.$emit("page_saved", true);
+          this.$emit("page_saved", true);
+          this.delMarker();
         })
         .catch(e => {
           this.showSavingPageDialog = false;
-          that.$emit("page_saved_error", false);
+          this.delMarker();
+          this.$emit("page_saved", false)
         });
     },
     addMarker(latlng) {
@@ -450,7 +451,7 @@ export default {
       var file = formData.get("file");
       if (file instanceof File) {
         if (file.size > 500000) {
-          this.snackbarText = this.$t("message.too_big", ["image", "500ko"]);
+          this.snackbarText = this.$t("message.too_big", [this.$t("image"), "500ko"]);
           return (this.snackbar = true);
         }
 
@@ -479,11 +480,11 @@ export default {
     deleteImage(idx) {
       this[NAMESPACE + PAGE_DELETE_IMAGE](idx)
         .then(() => {
-          this.snackbarText = this.$t("message.success_deleting", ["image"]);
+          this.snackbarText = this.$t("message.success_deleting", [this.$t("image")]);
           this.snackbar = true;
         })
         .catch(() => {
-          this.snackbarText = this.$t("message.error_deleting", ["image"]);
+          this.snackbarText = this.$t("message.error_deleting", [this.$t("image")]);
           this.snackbar = true;
         });
     }

@@ -5,7 +5,6 @@ export const GET_PAGES = "GET_PAGES";
 export const GOT_PAGES = "GOT_PAGES";
 
 export const PAGE_ADD_IMAGE = "PAGE_ADD_IMAGE";
-export const PAGE_IMAGE_ADDED = "PAGE_IMAGE_ADDED";
 export const MODIFY_IMAGE_ALT = "MODIFY_IMAGE_ALT";
 
 export const PAGE_DELETE_IMAGE = "PAGE_DELETE_IMAGE";

@@ -72,7 +72,6 @@
         <page-edition-dialog
           @page_saved="onPageSaved"
           :state="'new'"
-          :page="new_page"
           :allActivities="allActivities"
         >
           <template slot="open-btn">
@@ -113,18 +112,6 @@ export default {
       snackbar: false,
       snackbarTimeout: 3000,
       snackbarText: "your page has been successfully created",
-      new_page: {
-        ID: null,
-        Name: "",
-        Description: "",
-        Public: true,
-        LongDescription: "",
-        Images: [],
-        Lat: null,
-        Lng: null,
-        CouchNumber: 0,
-        Activities: []
-      }
     };
   },
   computed: {
@@ -137,7 +124,7 @@ export default {
     isPublic: {
       get() {
         return this.$store.state.profile.pages.pages.map((p, i) => {
-          return p.Public ? "true" : "false";
+          return p.Public ? true : false;
         });
       }
     }
@@ -164,10 +151,10 @@ export default {
     ...mapMutations([NAMESPACE + EDIT_PAGE]),
     onPageSaved(state) {
       if (state) {
-        this.snackbarText = this.$t("message.success_saving", ["page"]);
+        this.snackbarText = this.$t("message.success_saving", [this.$t("page")]);
         this.snackbar = true;
       } else {
-        this.snackbarText = this.$t("message.error_saving", ["page"]);
+        this.snackbarText = this.$t("message.error_saving", [this.$t("page")]);
         this.snackbar = true;
       }
     },
@@ -179,11 +166,12 @@ export default {
         var that = this;
         this[NAMESPACE + DELETE_PAGE]({ ID: id })
           .then(function() {
-            that.snackbarText = this.$t("message.success_deleting", ["page"]);
+            that.snackbarText = that.$t("message.success_deleting", [that.$t("page")]);
             that.snackbar = true;
           })
-          .catch(() => {
-            that.snackbarText = this.$t("message.error_deleting", ["page"]);
+          .catch((err) => {
+            console.log(err)
+            that.snackbarText = that.$t("message.error_deleting", [that.$t("page")]);
             that.snackbar = true;
           });
       }
@@ -198,7 +186,7 @@ export default {
             this.snackbar = true;
           })
           .catch(() => {
-            this.snackbarText = this.$t("message.error_updating", ["page"]);
+            this.snackbarText = this.$t("message.error_updating", [this.$t("page")]);
             this.snackbar = true;
           });
       }

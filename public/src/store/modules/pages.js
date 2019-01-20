@@ -6,7 +6,6 @@ import {
   SAVE_PAGE,
   PAGE_SAVED,
   PAGE_ADD_IMAGE,
-  PAGE_IMAGE_ADDED,
   MODIFY_IMAGE_ALT,
   PAGE_DELETE_IMAGE,
   PAGE_IMAGE_DELETED,
@@ -18,8 +17,7 @@ import {
   PAGE_DELETED,
   EDIT_PAGE,
   CANCEL_EDIT_PAGE,
-  MODIFY_PAGE,
-  PAGE_MODIFIED,
+  MODIFY_PAGE,  
   PAGE_ERROR
 } from "../actions/pages";
 
@@ -109,22 +107,6 @@ const actions = {
         throw resp;
       });
   },
-  //   [PAGE_ADD_IMAGE]: ({ commit, dispatch }, { pageID, image }) => {
-  //     commit(PAGE_ADD_IMAGE);
-  //     return imagesRepo
-  //       .upload(image)
-  //       .then((image) => {
-  //         commit(PAGE_IMAGE_ADDED, {pageID, image});
-  //       })
-  //       .catch(resp => {
-  //         if (resp.response.statusCode == 401) {
-  //           commit(PAGE_ERROR);
-  //           // if resp is unauthorized, logout, to
-  //           dispatch(AUTH_LOGOUT);
-  //         }
-  //         throw resp;
-  //       });
-  //   },
   [PAGE_DELETE_IMAGE]: ({ commit, dispatch }, imageIDX) => {
     commit(PAGE_DELETE_IMAGE);
     if (!state.edited_page.Images[imageIDX].ID)
@@ -219,33 +201,19 @@ const mutations = {
   },
 
   [MODIFY_PAGE]: (state, { key, value }) => {
-    state.edited_page[key] = value;
     state.status = "modifying_page";
-  },
-  [PAGE_MODIFIED]: (state, pages) => {
+    Vue.set(state.edited_page, key, value)    
     state.status = "page_modified";
   },
-
   [PAGE_ADD_IMAGE]: (state, image) => {
     state.edited_page.Images.push(image);
     // state.status = "page_adding_photo";
   },
-  //   [PAGE_IMAGE_ADDED]: (state, { pageID, image }) => {
-  //     for (var i = 0; i < state.pages.length; i++) {
-  //       let p = state.pages[i];
-  //       if (p.ID === pageID) {
-  //         state.pages.Images.push(image);
-  //         break;
-  //       }
-  //     }
-  //     state.status = "page_photo_added";
-  //   },
-
   [PAGE_DELETE_IMAGE]: state => {
     state.status = "page_deleting_image";
   },
   [MODIFY_IMAGE_ALT]: (state, { idx, value }) => {
-    state.edited_page.Images[idx].Alt = value;
+    Vue.set(state.edited_page.Images[idx], Alt, value)
   },
   [PAGE_IMAGE_DELETED]: (state, imageIDX) => {
     state.edited_page.Images = state.edited_page.Images.filter((i, j) =>
@@ -269,7 +237,7 @@ const mutations = {
     for (var i = 0; i < state.pages.length; i++) {
       let p = state.pages[i];
       if (p.ID === ID) {
-        state.pages[i].Public = Public;
+        Vue.set(state.pages[i], 'Public', Public);        
         break;
       }
     }
