@@ -1,70 +1,41 @@
 package stores
 
 import (
-	"bytes"
 	"crypto/tls"
 	"fmt"
+	"github.com/goland-amaurybrisou/couchsport/api/models"
 	log "github.com/sirupsen/logrus"
-	"html/template"
 	"net/smtp"
 )
-
-type request struct {
-	from    string
-	to      []string
-	subject string
-	mime    string
-	body    string
-}
 
 type mailStore struct {
 	Email, Password, Server string
 	Port                    int
-	r                       *request
-}
-
-const (
-	mime = "MIME-version: 1.0;\r\nContent-Type: text/html; charset=UTF-8\r\n"
-)
-
-func (me *mailStore) newRequest(to []string, subject string) {
-	r := &request{
-		from:    me.Email,
-		to:      to,
-		subject: subject,
-		mime:    mime,
-	}
-	me.r = r
-}
-
-func (me mailStore) parseTemplate(fileName string, data interface{}) error {
-	t, err := template.ParseFiles(fileName)
-	if err != nil {
-		return err
-	}
-	buffer := new(bytes.Buffer)
-	if err = t.Execute(buffer, data); err != nil {
-		return err
-	}
-	me.r.body = buffer.String()
-	return nil
+	mail                    *models.Mail
 }
 
 func (me *mailStore) sendMail() error {
-	body := "To: " + me.r.to[0] + "\r\nSubject: " + me.r.subject + "\r\n" + mime + "\r\n" + me.r.body
-	SMTP := fmt.Sprintf("%s:%d", me.Server, me.Port)
-
-	if err := smtp.SendMail(SMTP, smtp.PlainAuth("", me.Email, me.Password, me.Server), me.Email, me.r.to, []byte(body)); err != nil {
+	body, err := me.mail.GetBody()
+	if err != nil {
 		return err
 	}
 
-	me.r = nil
+	smtpServer := fmt.Sprintf("%s:%d", me.Server, me.Port)
+
+	if err := smtp.SendMail(smtpServer, smtp.PlainAuth("", me.Email, me.Password, me.Server), me.Email, me.mail.To, []byte(body)); err != nil {
+		return err
+	}
+
+	me.mail = nil
 
 	return nil
 }
 
 func (me *mailStore) sendMailTLS() error {
-	message := "From: " + me.r.from + "\r\nTo: " + me.r.to[0] + "\r\nSubject: " + me.r.subject + "\r\n" + mime + "\r\n" + me.r.body
+	body, err := me.mail.GetBody()
+	if err != nil {
+		return err
+	}
 	smtpServer := fmt.Sprintf("%s:%d", me.Server, me.Port)
 
 	auth := smtp.PlainAuth("", me.Email, me.Password, me.Server)
@@ -94,11 +65,11 @@ func (me *mailStore) sendMailTLS() error {
 	}
 
 	// To && From
-	if err = c.Mail(me.r.from); err != nil {
+	if err = c.Mail(me.mail.From); err != nil {
 		log.Error(err)
 	}
 
-	if err = c.Rcpt(me.r.to[0]); err != nil {
+	if err = c.Rcpt(me.mail.To[0]); err != nil {
 		log.Error(err)
 	}
 
@@ -108,7 +79,7 @@ func (me *mailStore) sendMailTLS() error {
 		log.Error(err)
 	}
 
-	_, err = w.Write([]byte(message))
+	_, err = w.Write([]byte(body))
 	if err != nil {
 		log.Error(err)
 	}
@@ -120,29 +91,37 @@ func (me *mailStore) sendMailTLS() error {
 
 	c.Quit()
 
-	log.Printf("email sent to %s", me.r.to[0])
+	log.Printf("email sent to %s", me.mail.To[0])
 
-	me.r = nil
+	me.mail = nil
 
 	return nil
 }
 
-func (me *mailStore) send(templateName string, items interface{}) error {
-	err := me.parseTemplate(templateName, items)
-	if err != nil {
-		return err
-	}
-	if err := me.sendMailTLS(); err != nil {
-		return err
+func (me *mailStore) send(tls bool) error {
+
+	if tls {
+		if err := me.sendMailTLS(); err != nil {
+			return err
+		}
+	} else {
+		if err := me.sendMail(); err != nil {
+			return err
+		}
 	}
 
-	return err
+	return nil
 }
 
 func (me *mailStore) AccountAutoCreated(email, password string) {
-	me.newRequest([]string{email}, "Your account has been created")
+	me.mail = models.NewMail(
+		me.Email,
+		[]string{email},
+		"Your account has been created", "api/templates/mail/account_created.html",
+		map[string]string{"email": email, "password": password},
+	)
 	log.Printf("sending 'AccountAutoCreated' email to %s", email)
-	if err := me.send("api/templates/mail/account_created.html", map[string]string{"email": email, "password": password}); err != nil {
+	if err := me.send(true); err != nil {
 		log.Error(err)
 	}
 }
