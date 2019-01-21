@@ -41,13 +41,13 @@ export default {
   image: "image",
 
   about_content:
-    "begin the tour browsing available spots in the explore page or \
-    create your acount and promote your own spot!",
+    `begin the tour browsing available spots in the explore page or 
+    create your acount and promote your own spot!`,
   home: {
     speech_title: "voyagez, rencontrez et partagez des activitiés communes !",
     speech_content:
-      "begin the tour browsing available spots in the explore page or \
-      create your acount and promote your own spot!"
+      `begin the tour browsing available spots in the explore page or 
+      create your acount and promote your own spot!`
   },
   message: {
     state: "votre {0} est maintenant {1}",

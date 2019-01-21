@@ -203,7 +203,7 @@ const mutations = {
 
   [MODIFY_PAGE]: (state, { key, value}) => {
     state.status = "modifying_page";
-    Vue.set(state.edited_page, key, value)    
+    Vue.set(state.edited_page, key, value);    
     state.status = "page_modified";
   },
   [REMOVE_ACTIVITY]: (state, activity) => {
@@ -219,7 +219,7 @@ const mutations = {
     state.status = "page_deleting_image";
   },
   [MODIFY_IMAGE_ALT]: (state, { idx, value }) => {
-    Vue.set(state.edited_page.Images[idx], Alt, value)
+    Vue.set(state.edited_page.Images[idx], Alt, value);
   },
   [PAGE_IMAGE_DELETED]: (state, imageIDX) => {
     state.edited_page.Images = state.edited_page.Images.filter((i, j) =>

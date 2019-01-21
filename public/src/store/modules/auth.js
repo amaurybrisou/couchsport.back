@@ -64,8 +64,9 @@ const mutations = {
   },
   [AUTH_SUCCESS]: (state, resp) => {
     state.status = "success";
-    axios.defaults.headers.common["Authorization"] = resp.data.Token;
-    (state.email = resp.data.Email), (state.hasLoadedOnce = true);
+    axios.defaults.headers.common.Authorization = resp.data.Token;
+    state.email = resp.data.Email;
+    state.hasLoadedOnce = true;
   },
   [AUTH_ERROR]: state => {
     state.status = "error";
@@ -73,7 +74,7 @@ const mutations = {
   },
   [AUTH_LOGOUT]: state => {
     localStorage.removeItem("user-email");
-    delete axios.defaults.headers.common["Authorization"];
+    delete axios.defaults.headers.common.Authorization;
     state.email = null;
   }
 };

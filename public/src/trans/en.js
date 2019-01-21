@@ -36,14 +36,14 @@ export default {
   modifications: "modifications",
   contact: "contact",
   about_content:
-    "begin the tour browsing available spots in the explore page or \
-    create your acount and promote your own spot!",
+    `begin the tour browsing available spots in the explore page or 
+    create your acount and promote your own spot!`,
   home: {
     speech_title:
       "Travel, make friends, practicing your favorite sports together !",
     speech_content:
-      "begin the tour browsing available spots in the explore page or \
-      create your acount and promote your own spot!"
+      `begin the tour browsing available spots in the explore page or 
+      create your acount and promote your own spot!`
   },
   message: {
     state: "your {0} is now {1}",
