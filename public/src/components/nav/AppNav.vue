@@ -60,17 +60,39 @@
             </v-list-tile>
           </v-list>
         </v-menu>
-        <v-btn
-          v-if="!isAuthenticated && !isProfileLoaded"
-          :to="{ name: 'about' }"
-          flat
-        >{{ $t("about") }}</v-btn>
-        <v-btn v-if="!isAuthenticated" :to="{ name: 'signup' }" flat>{{ $t("signup") | capitalize }}</v-btn>
-        <v-btn
-          v-if="!isAuthenticated && !authLoading"
-          :to="{ name: 'login' }"
-          flat
-        >{{ $t("login") | capitalize }}</v-btn>
+        <span v-if="$vuetify.breakpoint.mdAndUp" style="height: 100%;">
+          <v-btn
+            v-if="!isAuthenticated && !isProfileLoaded"
+            :to="{ name: 'about' }"
+            flat
+          >{{ $t("about") }}</v-btn>
+          <v-btn
+            v-if="!isAuthenticated"
+            :to="{ name: 'signup' }"
+            flat
+          >{{ $t("signup") | capitalize }}</v-btn>
+          <v-btn
+            v-if="!isAuthenticated && !authLoading"
+            :to="{ name: 'login' }"
+            flat
+          >{{ $t("login") | capitalize }}</v-btn>
+        </span>
+        <v-menu v-else open-on-hover offset-y transition="slide-y-transition" style="z-index: 500;">
+          <v-btn icon slot="activator">
+            <v-icon>account_box</v-icon>
+          </v-btn>
+          <v-list>
+            <v-list-tile class="v-list__tile--link" :to="{ name : 'about'}">
+              <v-list-tile-title>{{ $t('about') | capitalize }}</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile v-if="!isAuthenticated" :to="{ name: 'login'}" class="v-list__tile--link">
+              <v-list-tile-title>{{ $t('login') | capitalize }}</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile v-if="!isAuthenticated" :to="{ name: 'signup'}" class="v-list__tile--link">
+              <v-list-tile-title>{{ $t('signup') | capitalize }}</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
       </v-toolbar-items>
     </v-system-bar>
   </nav>

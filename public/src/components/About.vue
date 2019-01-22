@@ -1,7 +1,7 @@
 <template>
   <v-container fill-height>
-    <v-layout row justify-center align-center>
-      <v-flex xs6>
+    <v-layout justify-center align-center>
+      <v-flex xs8 sm5 md6>
         <v-card>
           <v-toolbar color="secondary">
             <h1 class="display-2 font-weight-thin">CoSport</h1>

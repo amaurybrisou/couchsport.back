@@ -36,7 +36,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn @click="submit" :disabled="!valid">{{ buttonMessage }}</v-btn>
-        <v-btn @click="$emit('hideChangePasswordDialog')">{{ $t('cancel') }}</v-btn>
+        <v-btn v-show="email" @click="$emit('hideChangePasswordDialog')">{{ $t('cancel') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-form>
@@ -50,15 +50,15 @@ import { mapActions } from "vuex";
 export default {
   name: "AuthForm",
   methods: {
-    submit(){
-      this.$emit('submit', this.user);
+    submit() {
+      this.$emit("submit", this.user);
     }
   },
   props: {
     welcome: { type: String, default: null, required: false },
     title: { type: String, default: "login" },
     buttonMessage: { type: String, default: "login" },
-    errors: {type: Array, default: ()  => [], required: false},
+    errors: { type: Array, default: () => [], required: false }
   },
   data() {
     return {
@@ -79,10 +79,12 @@ export default {
     };
   },
   computed: {
-    user(){
-      return { email: this.email, password: ""}
+    user() {
+      return { email: this.email, password: "" };
     },
-    email(){ return this.$store.state.auth.email || ""},
+    email() {
+      return this.$store.state.auth.email || "";
+    },
     emailErrors() {
       const errors = [];
       if (!this.$v.user.email.$dirty) return errors;
