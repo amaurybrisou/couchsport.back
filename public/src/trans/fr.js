@@ -68,6 +68,7 @@ export default {
     length_below: "le {0} doit contenir moins de {1} caractères",
     length_above: "le {0} doit contenir au moins {1} caractères",
     length_between: "le {0} doit contenir entre {1} et {2} caractères",
+    valid_chars_hint: "seuls ces caractères sont autorisés: {0}",
 
     invalid_form: "le formulaire est invalide",
 

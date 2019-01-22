@@ -17,6 +17,7 @@
                 <v-layout slot="placeholder" fill-height align-center justify-center ma-0>
                   <!-- <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular> -->
                   <v-icon large>person</v-icon>
+                  <v-subheader color="warning">{{ $t('message.required', ["e", $t('image')]) }}</v-subheader>
                 </v-layout>
               </v-img>
             </v-card>
@@ -34,21 +35,21 @@
           <v-text-field
             flat
             autofocus
-            :rules="rules['username']"
+            :rules="rules['Username']"
             :label="$t('fields.username') | capitalize"
             @keypress.enter.native="submit"
             v-model="Username"
           ></v-text-field>
           <v-text-field
             flat
-            :rules="rules['firstname']"
+            :rules="rules['Firstname']"
             :label="$t('fields.firstname') | capitalize"
             @keypress.enter.native="submit"
             v-model="Firstname"
           ></v-text-field>
           <v-text-field
             flat
-            :rules="rules['lastname']"
+            :rules="rules['Lastname']"
             :label="$t('fields.lastname') | capitalize"
             @keypress.enter.native="submit"
             v-model="Lastname"
@@ -66,28 +67,32 @@
             :label="$t('fields.streetname') | capitalize"
             @keypress.enter.native="submit"
             v-model="StreetName"
+            :rules="rules['StreetName']"
           ></v-text-field>
           <v-text-field
             flat
             :label="$t('fields.city') | capitalize"
             @keypress.enter.native="submit"
             v-model="City"
+            :rules="rules['City']"
           ></v-text-field>
           <v-text-field
             flat
             :label="$t('fields.zipcode') | capitalize"
             @keypress.enter.native="submit"
             v-model="ZipCode"
+            :rules="rules['ZipCode']"
           ></v-text-field>
           <v-text-field
             flat
             :label="$t('fields.country') | capitalize"
             @keypress.enter.native="submit"
             v-model="Country"
+            :rules="rules['Country']"
           ></v-text-field>
           <v-text-field
             flat
-            :rules="rules['phone']"
+            :rules="rules['Phone']"
             :label="$t('fields.phone') | capitalize"
             @keypress.enter.native="submit"
             v-model="Phone"
@@ -114,13 +119,7 @@
           >{{ $t('change_password') }}</v-btn>
         </v-flex>
         <v-flex xs12 mb-2>
-          <v-btn
-            block
-            flat
-            color="success"
-            :disabled="!rules.valid"
-            @click="submit"
-          >{{ $t('save') }}</v-btn>
+          <v-btn block flat color="success" @click="submit">{{ $t('save') }}</v-btn>
         </v-flex>
       </v-layout>
     </v-form>
@@ -178,24 +177,33 @@ export default {
       rules: {
         valid: false,
         imageFormatsAllowed: "image/jpeg, image:jpg, image/png, image/gif",
-        username: [
+        Username: [
           v =>
             /^[àéèïîôoa-zA-Z0-9]{6,15}$/.test(v) ||
+            this.$t("message.valid_chars_hint", ["àéèïîôoa-zA-Z0-9"]),
+          v =>
+            (v.length <= 6 && v.length < 15) ||
             this.$t("message.length_between", [
               this.$t("fields.username"),
               6,
               15
             ])
         ],
-        firstname: [
+        Firstname: [
           v =>
-            /^[àéèïîôo a-zA-Z]{0,35}$/.test(v) ||
-            this.$t("message.length_below", [this.$t("fields.firstname"), 35])
+            v.length < 35 ||
+            this.$t("message.length_below", [this.$t("fields.firstname"), 35]),
+          v =>
+            /^[àéèêïîôo a-zA-Z]{0,35}$/.test(v) ||
+            this.$t("message.valid_chars_hint", ["àéèêïîôo a-zA-Z"])
         ],
-        lastname: [
+        Lastname: [
           v =>
-            /^[àéèïîaôö a-zA-Z]{0,35}$/.test(v) ||
-            this.$t("message.length_below", [this.$t("fields.lastname"), 35])
+            v.length < 35 ||
+            this.$t("message.length_below", [this.$t("fields.lastname"), 35]),
+          v =>
+            /^[àéèêïîôo a-zA-Z]{0,35}$/.test(v) ||
+            this.$t("message.valid_chars_hint", ["àéèêïîôo a-zA-Z"])
         ],
         Avatar: [
           v => !!v || this.$t("message.required", ["e", this.$t("image")]),
@@ -205,6 +213,51 @@ export default {
               v
             ) ||
             this.$t("message.invalid", [this.$t("image_link")])
+        ],
+        ZipCode: [
+          v =>
+            v.length < 35 ||
+            this.$t("message.length_below", [this.$t("fields.zipcode"), 35]),
+          v =>
+            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+              v
+            ) || this.$t("message.invalid", [this.$t("fields.zipcode")])
+        ],
+        StreetName: [
+          v =>
+            v.length < 50 ||
+            this.$t("message.length_below", [this.$t("fields.streetname"), 50]),
+          v =>
+            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+              v
+            ) || this.$t("message.invalid", [this.$t("fields.streetname")])
+        ],
+        City: [
+          v =>
+            v.length < 35 ||
+            this.$t("message.length_below", [this.$t("fields.city"), 35]),
+          v =>
+            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+              v
+            ) || this.$t("message.invalid", [this.$t("fields.city")])
+        ],
+        Country: [
+          v =>
+            v.length < 35 ||
+            this.$t("message.length_below", [this.$t("fields.country"), 35]),
+          v =>
+            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+              v
+            ) || this.$t("message.invalid", [this.$t("fields.country")])
+        ],
+        Phone: [
+          v =>
+            v.length < 35 ||
+            this.$t("message.length_below", [this.$t("fields.phone"), 35]),
+          v =>
+            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+              v
+            ) || this.$t("message.invalid", [this.$t("fields.phone")])
         ]
       }
     };

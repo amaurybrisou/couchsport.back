@@ -60,6 +60,10 @@ export default {
     error_updating: "an error occured while updating your {0}",
     length_below: "the {0} length must be below {1}",
     length_above: "the {0} length must be above {1}",
+    length_between: "the {0} length must contains between {1} and {2} characters",
+    valid_chars_hint: "only these characters are allowed: {0}",
+
+    invalid_form: "this form is invalid",
 
     too_big: "{0} is too big",
     too_much: "only {0} {1} allowed",

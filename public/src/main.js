@@ -60,6 +60,12 @@ Vue.use(
 
 import Filters from "./plugins/filter";
 Vue.use(Filters);
+
+Vue.use({install: function(Vue){
+  Vue.mixin({
+    text_regex: "0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-"
+  })
+}})
 import AppMessenger from "./plugins/messenger";
 
 import {

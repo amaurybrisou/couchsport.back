@@ -253,7 +253,7 @@ export default {
               v
             ) ||
             this.$t("message.invalid", [
-              this.$t("la") + " " + this.$t("description")
+              this.$t("the_f") + " " + this.$t("description")
             ])
         ],
         LongDescription: [
@@ -278,7 +278,8 @@ export default {
         Alt: [
           v =>
             /^[a-zA-Z0-9!? ]{0,15}$/.test(v) ||
-            this.$t("p.ped.invalid_image_alt")
+            this.$t("message.valid_chars_hint", ["a-zA-Z0-9!? "]),
+          v => v.length < 15 || this.$t("p.ped.invalid_image_alt")
         ]
       }
     };
