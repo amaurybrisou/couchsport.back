@@ -99,7 +99,7 @@ func (me userHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(json))
 }
 
-func (me userHandler) ChangePassword(userId uint, w http.ResponseWriter, r *http.Request) {
+func (me userHandler) ChangePassword(userID uint, w http.ResponseWriter, r *http.Request) {
 	r.Close = true
 	locale := r.Header.Get("Accept-Language")
 
@@ -114,7 +114,7 @@ func (me userHandler) ChangePassword(userId uint, w http.ResponseWriter, r *http
 		return
 	}
 
-	user, err = me.Store.UserStore().ChangePassword(user)
+	user, err = me.Store.UserStore().ChangePassword(userID, user)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("invalid_request", locale, nil)).Error(), http.StatusBadRequest)

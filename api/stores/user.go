@@ -73,9 +73,9 @@ func (me userStore) New(user models.User) (models.User, error) {
 	return user, nil
 }
 
-func (me userStore) ChangePassword(user models.User) (models.User, error) {
+func (me userStore) ChangePassword(userID uint, user models.User) (models.User, error) {
 	user.ChangePassword = true
-	if err := me.Db.Model(&user).Update("Password", user.Password).Error; err != nil {
+	if err := me.Db.Model(&user).Where("id = ?", userID).Update("Password", user.Password).Error; err != nil {
 		return user, err
 	}
 	return user, nil
