@@ -99,6 +99,39 @@ func (me userHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(json))
 }
 
+func (me userHandler) ChangePassword(userId uint, w http.ResponseWriter, r *http.Request) {
+	r.Close = true
+	locale := r.Header.Get("Accept-Language")
+
+	if r.Body != nil {
+		defer r.Body.Close()
+	}
+
+	user, err := me.parseBody(r.Body)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("invalid_request", locale, nil)).Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err = me.Store.UserStore().ChangePassword(user)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("invalid_request", locale, nil)).Error(), http.StatusBadRequest)
+		return
+	}
+
+	json, err := json.Marshal(user)
+
+	if err != nil {
+		log.Error(err)
+		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("internal_error", locale, nil)).Error(), http.StatusInternalServerError)
+	}
+
+	fmt.Fprintf(w, string(json))
+
+}
+
 //Login authenticate the user
 func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	r.Close = true
@@ -172,10 +205,11 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (me userHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		locale := r.Header.Get("Accept-Language")
+
 		session, err := me.Store.SessionStore().GetSession(r)
 		if err != nil {
 			log.Error(err)
-			http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("internal_error", locale, nil)).Error(), http.StatusInternalServerError)
+			http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("please_login", locale, nil)).Error(), http.StatusInternalServerError)
 			return
 		}
 

@@ -54,8 +54,7 @@ export default {
         { src: "/static/img/bg1.jpg" },
         { src: "/static/img/bg2.jpg" },
         { src: "/static/img/bg3.jpg" }
-      ],
-      navBarLoaded: false
+      ]
     };
   },
   created: function() {

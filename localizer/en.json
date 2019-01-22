@@ -3,6 +3,7 @@
   "internal_error": "internal error",
   "session_expired": "your session has expired",
   "invalid_request": "invalid request",
+  "please_login": "you are not logged in",
   
   "user.could_not_create": "the user could not be created : {{.Error}}",
   "user.could_not_get_profile": "an error occured while fetching your profile",

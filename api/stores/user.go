@@ -73,6 +73,14 @@ func (me userStore) New(user models.User) (models.User, error) {
 	return user, nil
 }
 
+func (me userStore) ChangePassword(user models.User) (models.User, error) {
+	user.ChangePassword = true
+	if err := me.Db.Model(&user).Update("Password", user.Password).Error; err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
 //GetProfile returns the user profile
 func (me userStore) GetProfile(userID uint) (models.Profile, error) {
 	var out = models.User{}

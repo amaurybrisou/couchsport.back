@@ -110,7 +110,6 @@ export default {
     })
   },
   mounted() {
-    this.$root.$emit("navBarLoaded");
     this.MODIFY_PROFILE({ key: "locale", value: this.$i18n.locale });
   },
   methods: {

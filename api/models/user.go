@@ -17,8 +17,8 @@ type User struct {
 	ProfileID   uint    `valid:"numeric"`
 	// // FollowingPages  []*Page `gorm:"many2many:user_page_follower;"`
 	// Friends         []*User `gorm:"many2many:friendships;association_jointable_foreignkey:friend_id;"`
-	Type string `valid:"in(ADMIN|USER)"`
-	New  bool   `gorm:"-" valid:"-"`
+	Type                string `valid:"in(ADMIN|USER)"`
+	New, ChangePassword bool   `gorm:"-" valid:"-"`
 }
 
 //Validate model
@@ -33,7 +33,7 @@ func (user User) Validate(db *gorm.DB) {
 		return
 	}
 
-	if user.ProfileID == 0 && !user.New {
+	if user.ProfileID == 0 && !user.New && !user.ChangePassword {
 		db.AddError(errors.New("profileID invalid"))
 		return
 	}
@@ -60,6 +60,14 @@ func (user *User) AfterCreate(scope *gorm.Scope) error {
 	scope.SetColumn("New", true)
 	if user.ID == 1 {
 		scope.DB().Model(&user).Update("type", "ADMIN")
+	}
+	return nil
+}
+
+//BeforeUpdate set new password if ChangePassword field is true
+func (user *User) BeforeUpdate(scope *gorm.Scope) error {
+	if user.ChangePassword {
+		scope.SetColumn("Password", hashAndSalt([]byte(user.Password)))
 	}
 	return nil
 }

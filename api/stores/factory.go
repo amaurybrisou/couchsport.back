@@ -12,12 +12,12 @@ type StoreFactory struct {
 	Db                *gorm.DB
 	localizer         *localizer.Localizer
 	wsStore           *hub
+	sessionStore      *sessionStore
 	mailStore         mailStore
 	activityStore     activityStore
 	languageStore     languageStore
 	imageStore        imageStore
 	userStore         userStore
-	sessionStore      sessionStore
 	fileStore         fileStore
 	profileStore      profileStore
 	pageStore         pageStore
@@ -54,7 +54,7 @@ func NewStoreFactory(Db *gorm.DB, localizer *localizer.Localizer, c config.Confi
 		languageStore:     languageStore{Db: Db},
 		imageStore:        imageStore{Db: Db},
 		userStore:         userStore{Db: Db},
-		sessionStore:      sessionStore{Db: Db},
+		sessionStore:      &sessionStore{Db: Db},
 		fileStore:         fileStore,
 		profileStore:      profileStore,
 		pageStore:         pageStore{Db: Db, FileStore: fileStore, ProfileStore: profileStore},
@@ -121,7 +121,7 @@ func (me StoreFactory) ProfileStore() *profileStore {
 
 //SessionStore returns the app sessionStore
 func (me StoreFactory) SessionStore() *sessionStore {
-	return &me.sessionStore
+	return me.sessionStore
 }
 
 //LanguageStore returns the app languageStore
