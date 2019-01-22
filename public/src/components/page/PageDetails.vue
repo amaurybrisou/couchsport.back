@@ -229,10 +229,10 @@ export default {
       let m = this.$t("talk") + " ";
       for (var i in l) {
         m += l[i].Name;
-        if (i < l.length - 1) {
+        if (i < l.length - 2) {
           m += ", ";
         }
-        if (i < l.length - 2) {
+        if (i < l.length - 1) {
           m += " and ";
         }
       }
