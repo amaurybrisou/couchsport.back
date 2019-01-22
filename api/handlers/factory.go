@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/goland-amaurybrisou/couchsport/api/stores"
+	"github.com/goland-amaurybrisou/couchsport/localizer"
 	"github.com/gorilla/websocket"
 )
 
@@ -15,11 +16,14 @@ type HandlerFactory struct {
 	profileHandler      profileHandler
 	userHandler         userHandler
 	conversationHandler conversationHandler
+	localizer           *localizer.Localizer
 }
 
 //NewHandlerFactory generates the handlerFactory holding every handler in the application
-func NewHandlerFactory(storeFactory *stores.StoreFactory, wsUpgrader *websocket.Upgrader) *HandlerFactory {
+func NewHandlerFactory(storeFactory *stores.StoreFactory, localizer *localizer.Localizer, wsUpgrader *websocket.Upgrader) *HandlerFactory {
+
 	return &HandlerFactory{
+		localizer:           localizer,
 		wsHandler:           wsHandler{WsUpgrader: wsUpgrader, Stores: storeFactory},
 		activityHandler:     activityHandler{Stores: storeFactory},
 		imageHandler:        imageHandler{Store: storeFactory},
@@ -29,6 +33,11 @@ func NewHandlerFactory(storeFactory *stores.StoreFactory, wsUpgrader *websocket.
 		userHandler:         userHandler{Store: storeFactory},
 		conversationHandler: conversationHandler{Store: storeFactory},
 	}
+}
+
+//Localizer returns the applicatioin Localizer
+func (me HandlerFactory) Localizer() *localizer.Localizer {
+	return me.localizer
 }
 
 //WsHandler returns the applicatioin Upgrader

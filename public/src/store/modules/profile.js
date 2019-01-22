@@ -19,7 +19,7 @@ import profileRepo from "../../repositories/profile";
 import activityRepo from "@/repositories/activity.js";
 import languageRepo from "../../repositories/language.js";
 
-import { i18n } from "@/trans";
+import axios from '@/repositories/repository.js';
 
 import Vue from "vue";
 import { AUTH_LOGOUT } from "../actions/auth";
@@ -130,6 +130,9 @@ const mutations = {
     state.status = "error";
   },
   [MODIFY_PROFILE]: (state, { key, value }) => {
+    if(key === "locale"){
+      axios.defaults.headers.common['Accept-Language'] = value;
+    }
     Vue.set(state.profile, key, value);
   },
   [SAVE_PROFILE]: state => {

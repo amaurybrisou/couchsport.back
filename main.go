@@ -6,6 +6,7 @@ import (
 	"github.com/goland-amaurybrisou/couchsport/api/stores"
 	"github.com/goland-amaurybrisou/couchsport/api/validators"
 	"github.com/goland-amaurybrisou/couchsport/config"
+	"github.com/goland-amaurybrisou/couchsport/localizer"
 	"github.com/goland-amaurybrisou/couchsport/server"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
@@ -22,9 +23,11 @@ func main() {
 	c := config.Load(*env)
 	c.Populate = *populate
 
+	localizer := localizer.NewLocalizer(c.Localizer.LanguageFiles)
+
 	srv := server.NewInstance(c)
 
-	storeFactory := stores.NewStoreFactory(srv.Db, *c)
+	storeFactory := stores.NewStoreFactory(srv.Db, localizer, *c)
 	storeFactory.Init(c.Populate)
 
 	var upgrader = websocket.Upgrader{
@@ -37,7 +40,7 @@ func main() {
 		upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	}
 
-	handlerFactory := handlers.NewHandlerFactory(storeFactory, &upgrader)
+	handlerFactory := handlers.NewHandlerFactory(storeFactory, localizer, &upgrader)
 
 	validators.Init()
 

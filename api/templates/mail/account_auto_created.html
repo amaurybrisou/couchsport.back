@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Account Created</title>
+    <title>{{ T "account_auto_created.title" }}</title>
     <style type="text/css">
       body{
         margin: 0 auto;
@@ -62,16 +62,15 @@
     <table bgcolor="#FFFFFF" width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr class="header">
         <td style="padding: 40px;">
-          Welcome !
+          {{  T "account_auto_created.welcome" }}
         </td>
       </tr>
       <tr class="content">
         <td style="padding:10px;">
           <p>
-            Hi <b>{{ .email }}</b>, <br/>
-            It appears that you have sent a message to one of our members. Please note below your automatically generated password.<br/>
-            <b>{{ .password }}
-
+            {{ T "hello" }} <b>{{ .email }}</b>, <br/>
+            {{ T "account_auto_created.content" }}<br/>
+            <b>{{ .password }}</b>
           </p>
         </td>
       </tr>

@@ -17,6 +17,7 @@ type conversationHandler struct {
 
 func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Request) {
 	r.Close = true
+	locale := r.Header.Get("Accept-Language")
 
 	if r.Body != nil {
 		defer r.Body.Close()
@@ -87,7 +88,7 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 	message.From = fromProfile
 
 	if fromUser.New {
-		go me.Store.MailStore().AccountAutoCreated(fromUser.Email, fromUser.PasswordTmp)
+		go me.Store.MailStore().AccountAutoCreated(fromUser.Email, fromUser.PasswordTmp, locale)
 	}
 
 	j, err := json.Marshal(&message)

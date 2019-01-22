@@ -21,6 +21,9 @@ type Config struct {
 		Email, Password, Server string
 		Port                    int
 	}
+	Localizer struct {
+		LanguageFiles []string
+	}
 }
 
 //Load loads the configuration according to env parameter. i.e config.dev.json

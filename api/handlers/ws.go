@@ -33,21 +33,21 @@ type wsHandler struct {
 func (me *wsHandler) EntryPoint(w http.ResponseWriter, r *http.Request) {
 	stringID := r.URL.Query().Get("id")
 	if stringID == "" {
-		log.Println("ws: invalid id")
+		log.Error("ws: invalid id")
 		http.Error(w, fmt.Errorf("ws: invalid id %s", stringID).Error(), http.StatusBadRequest)
 		return
 	}
 
 	id, err := strconv.Atoi(stringID)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
 	conn, err := me.WsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return
 	}
 

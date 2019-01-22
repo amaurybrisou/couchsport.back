@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/goland-amaurybrisou/couchsport/api/models"
+	"github.com/goland-amaurybrisou/couchsport/localizer"
 	log "github.com/sirupsen/logrus"
 	"net/smtp"
 )
@@ -11,31 +12,21 @@ import (
 type mailStore struct {
 	Email, Password, Server string
 	Port                    int
-	mail                    *models.Mail
+	Localizer               *localizer.Localizer
 }
 
-func (me *mailStore) sendMail() error {
-	body, err := me.mail.GetBody()
-	if err != nil {
-		return err
-	}
-
+func (me *mailStore) sendMail(mail models.Mail) error {
 	smtpServer := fmt.Sprintf("%s:%d", me.Server, me.Port)
 
-	if err := smtp.SendMail(smtpServer, smtp.PlainAuth("", me.Email, me.Password, me.Server), me.Email, me.mail.To, []byte(body)); err != nil {
+	if err := smtp.SendMail(smtpServer, smtp.PlainAuth("", me.Email, me.Password, me.Server), me.Email, mail.To, []byte(mail.Body)); err != nil {
 		return err
 	}
-
-	me.mail = nil
 
 	return nil
 }
 
-func (me *mailStore) sendMailTLS() error {
-	body, err := me.mail.GetBody()
-	if err != nil {
-		return err
-	}
+func (me *mailStore) sendMailTLS(mail models.Mail) error {
+
 	smtpServer := fmt.Sprintf("%s:%d", me.Server, me.Port)
 
 	auth := smtp.PlainAuth("", me.Email, me.Password, me.Server)
@@ -65,11 +56,11 @@ func (me *mailStore) sendMailTLS() error {
 	}
 
 	// To && From
-	if err = c.Mail(me.mail.From); err != nil {
+	if err = c.Mail(mail.From); err != nil {
 		log.Error(err)
 	}
 
-	if err = c.Rcpt(me.mail.To[0]); err != nil {
+	if err = c.Rcpt(mail.To[0]); err != nil {
 		log.Error(err)
 	}
 
@@ -79,7 +70,7 @@ func (me *mailStore) sendMailTLS() error {
 		log.Error(err)
 	}
 
-	_, err = w.Write([]byte(body))
+	_, err = w.Write([]byte(mail.Body))
 	if err != nil {
 		log.Error(err)
 	}
@@ -91,21 +82,19 @@ func (me *mailStore) sendMailTLS() error {
 
 	c.Quit()
 
-	log.Printf("email sent to %s", me.mail.To[0])
-
-	me.mail = nil
+	log.Printf("email sent to %s", mail.To[0])
 
 	return nil
 }
 
-func (me *mailStore) send(tls bool) error {
+func (me *mailStore) send(mail models.Mail, tls bool) error {
 
 	if tls {
-		if err := me.sendMailTLS(); err != nil {
+		if err := me.sendMailTLS(mail); err != nil {
 			return err
 		}
 	} else {
-		if err := me.sendMail(); err != nil {
+		if err := me.sendMail(mail); err != nil {
 			return err
 		}
 	}
@@ -113,15 +102,29 @@ func (me *mailStore) send(tls bool) error {
 	return nil
 }
 
-func (me *mailStore) AccountAutoCreated(email, password string) {
-	me.mail = models.NewMail(
+//AccountAutoCreated send the password
+func (me *mailStore) AccountAutoCreated(email, password, locale string) {
+	log.Printf("sending 'AccountAutoCreated' email to %s", email)
+
+	template := "api/templates/mail/account_auto_created.html"
+	fileName := "account_auto_created.html"
+
+	mail := models.NewMail(
 		me.Email,
 		[]string{email},
-		"Your account has been created", "api/templates/mail/account_created.html",
-		map[string]string{"email": email, "password": password},
+		me.Localizer.Translate("account_auto_created.title", locale, nil),
 	)
-	log.Printf("sending 'AccountAutoCreated' email to %s", email)
-	if err := me.send(true); err != nil {
+
+	body, err := me.Localizer.ParseTemplateI18n(fileName, template, locale, map[string]string{"email": email, "password": password})
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	headers := mail.GetHeaders()
+	mail.Body = headers + body
+
+	if err := me.send(*mail, true); err != nil {
 		log.Error(err)
 	}
 }
