@@ -25,6 +25,8 @@ export default {
   help: "aide",
   new: "nouvelle",
   at: "à",
+  and: "et",
+  talk: "parle",
   description: "description",
   your: "votre",
   to: "à",
@@ -41,13 +43,11 @@ export default {
   image: "image",
   contact: "contact",
   change_password: "modifier le mot de passe",
-  about_content:
-    `begin the tour browsing available spots in the explore page or 
+  about_content: `begin the tour browsing available spots in the explore page or 
     create your acount and promote your own spot!`,
   home: {
     speech_title: "voyagez, rencontrez et partagez des activitiés communes !",
-    speech_content:
-      `begin the tour browsing available spots in the explore page or 
+    speech_content: `begin the tour browsing available spots in the explore page or 
       create your acount and promote your own spot!`
   },
   message: {
@@ -63,10 +63,8 @@ export default {
     error_sending: "une erreur est survenue lors l'envoi de votre {0}",
 
     error_saving: "une erreur est survenue lors de la sauvegarde de votre {0}",
-    error_deleting:
-      "une erreur est survenue lors de la suppression de votre {0}",
-    error_updating:
-      "une erreur est survenue lors de la mise à jour de votre {0}",
+    error_deleting: "une erreur est survenue lors de la suppression de votre {0}",
+    error_updating: "une erreur est survenue lors de la mise à jour de votre {0}",
     length_below: "le {0} doit contenir moins de {1} caractères",
     length_above: "le {0} doit contenir au moins {1} caractères",
     length_between: "le {0} doit contenir entre {1} et {2} caractères",
@@ -77,12 +75,12 @@ export default {
     too_much: "vous ne pouvez ajouter que {0} {1}",
     stand_by: "veuillez patienter",
     empty: "vous n'avez aucun message pour le moment",
-    
+
     required: "un{0} {1} est requis{0}",
     invalid: "{0} est invalide",
     password_hint: "le mot de passe doit être d'au moins {0} caractères (une minuscule, une majuscule et un chiffre)",
     signup_success_welcome: "bienvenue"
-  
+
   },
   p: {
     explore: {
@@ -100,8 +98,7 @@ export default {
     ped: {
       long_desc_ph: "décrivez ce lieu en détail",
       couch_number: "combien de personnes pouvez-vous héberger",
-      map_help:
-        "clique gauche pour placer le marqueur, clique droit pour l'enlever",
+      map_help: "clique gauche pour placer le marqueur, clique droit pour l'enlever",
       upload_image_hint: "ajouter des photos",
       invalid_image_alt: "le titre de l'image est invalide",
       image_alt_ph: "titre de l'image",
@@ -112,6 +109,7 @@ export default {
       guests: "accepte les invités",
       avail_couch: "places",
       max_images: "trop d'images",
+      talk: "langues parlées"
     }
   },
   fields: {

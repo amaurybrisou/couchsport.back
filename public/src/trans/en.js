@@ -23,6 +23,8 @@ export default {
   help: "help",
   new: "new",
   at: "at",
+  and: "and",
+  talk: "talk",
   description: "description",
   name: "name",
   your: "your",
@@ -36,14 +38,11 @@ export default {
   modifications: "modifications",
   contact: "contact",
   change_password: "change your password",
-  about_content:
-    `begin the tour browsing available spots in the explore page or 
+  about_content: `begin the tour browsing available spots in the explore page or 
     create your acount and promote your own spot!`,
   home: {
-    speech_title:
-      "Travel, make friends, practicing your favorite sports together !",
-    speech_content:
-      `begin the tour browsing available spots in the explore page or 
+    speech_title: "Travel, make friends, practicing your favorite sports together !",
+    speech_content: `begin the tour browsing available spots in the explore page or 
       create your acount and promote your own spot!`
   },
   message: {
@@ -69,8 +68,7 @@ export default {
     invalid_email: "",
     required: "{1} is required",
     invalid: "{0} is invalid",
-    password_hint:
-      "password must contains {0} characters (at least one digit, on upper case and one lower case character)",
+    password_hint: "password must contains {0} characters (at least one digit, on upper case and one lower case character)",
     signup_success_welcome: "welcome"
   },
   p: {
@@ -91,8 +89,7 @@ export default {
       description: "description",
       long_desc_ph: "describe this place with more details",
       couch_number: "Number of couch available",
-      map_help:
-        "Left click to the determine the spot location, right click to remove it",
+      map_help: "Left click to the determine the spot location, right click to remove it",
       upload_image_hint: "Add photos",
       image_alt_ph: "image title",
       wow: "Really ?!"
@@ -101,7 +98,8 @@ export default {
       no_guests: "does not accept guests",
       guests: "accept guests",
       avail_couch: "couch",
-      max_images: "Maximum number of images allowed"
+      max_images: "Maximum number of images allowed",
+      talk: "talks"
     }
   },
   fields: {

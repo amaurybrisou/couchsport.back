@@ -10,6 +10,12 @@
           <v-card-title class="title font-weight-bold pb-0">
             <div class="font-weight-bold">{{ page.Name}}</div>
             <v-spacer></v-spacer>
+
+            <v-tooltip bottom>
+              <v-icon slot="activator" color="secondary">language</v-icon>
+              <span>{{ talkedLanguages }}</span>
+            </v-tooltip>
+            <v-spacer></v-spacer>
             <v-tooltip bottom v-if="page.CouchNumber > 0">
               <div slot="activator">
                 <v-chip
@@ -182,12 +188,12 @@ export default {
 
       messageFormValid: false,
       emailRules: [
-        v => !!v || this.$t("message.required", ["", this.$t('email')]),
+        v => !!v || this.$t("message.required", ["", this.$t("email")]),
         v => /.+@.+/.test(v) || this.$t("message.invalid", [this.$t("email")])
       ],
 
       textRules: [
-        v => !!v || this.$t("message.required", ["", this.$t('_message')]),
+        v => !!v || this.$t("message.required", ["", this.$t("_message")]),
         v => (v && v.length >= 20) || this.$t("message.length_above", [20])
       ],
 
@@ -218,9 +224,23 @@ export default {
       email: state => state.auth.email,
       FromID: state => state.profile.profile.ID
     }),
+    talkedLanguages() {
+      const l = this.page.Owner.Languages;
+      let m = this.$t("talk") + " ";
+      for (var i in l) {
+        m += l[i].Name;
+        if (i < l.length - 1) {
+          m += ", ";
+        }
+        if (i < l.length - 2) {
+          m += " and ";
+        }
+      }
+      return m;
+    },
     imagesUrl() {
       return this.page.Images.map(e => e.URL);
-    },
+    }
   },
   mounted() {
     this.map = this.$refs.map.mapObject;
@@ -235,30 +255,33 @@ export default {
     }
   },
   created: async function() {
-    if (Number(this.$route.params.page_id) < 1) return this.$router.push({name : 'home'});
+    if (Number(this.$route.params.page_id) < 1)
+      return this.$router.push({ name: "home" });
 
     this.page = await this["pages/" + GET_PAGE]({
       id: this.$route.params.page_id,
       profile: true
-    }).then(data => {
-      var page = data[0];
-      this.message.ToID = page.OwnerID;
-      this.contactName =
-        page.Owner.Username ||
-        page.Owner.Firstname ||
-        page.Owner.Lastname ||
-        page.Owner.email;
-
-      this.backgroundImage = (page.Images && page.Images.length > 0) ? page.Images[0].URL : "";
-
-      this.map.setView([page.Lat, page.Lng]);
-      L.marker([page.Lat, page.Lng]).addTo(this.map);
-      return page;
     })
-    .catch((err) => { 
-      console.log(err)
-      this.$router.push({name: 'home'})
-    });
+      .then(data => {
+        var page = data[0];
+        this.message.ToID = page.OwnerID;
+        this.contactName =
+          page.Owner.Username ||
+          page.Owner.Firstname ||
+          page.Owner.Lastname ||
+          page.Owner.email;
+
+        this.backgroundImage =
+          page.Images && page.Images.length > 0 ? page.Images[0].URL : "";
+
+        this.map.setView([page.Lat, page.Lng]);
+        L.marker([page.Lat, page.Lng]).addTo(this.map);
+        return page;
+      })
+      .catch(err => {
+        console.log(err);
+        this.$router.push({ name: "home" });
+      });
   },
   methods: {
     ...mapActions(["pages/" + GET_PAGE]),
@@ -268,12 +291,16 @@ export default {
       this.$messenger
         .sendMessage(this.message)
         .then(() => {
-          that.snackbarText = this.$t("message.success_sending", [this.$t("_message")]);
+          that.snackbarText = this.$t("message.success_sending", [
+            this.$t("_message")
+          ]);
           that.snackbar = true;
           that.showContactDialog = false;
         })
         .catch(() => {
-          that.snackbarText = this.$t("message.error_sending",  [this.$t("_message")]);
+          that.snackbarText = this.$t("message.error_sending", [
+            this.$t("_message")
+          ]);
           that.snackbar = true;
           that.showContactDialog = false;
         });
@@ -297,6 +324,10 @@ export default {
 
 .rounded {
   border-radius: 5px;
+}
+
+.round {
+  border-radius: 50%;
 }
 
 .transparent {

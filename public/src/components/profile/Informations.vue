@@ -101,7 +101,7 @@
             :items="allLanguages"
             :label="$t('languages') | capitalize"
             return-object
-            item-text="Name"
+            item-text="NativeName"
             multiple
           ></v-autocomplete>
         </v-flex>

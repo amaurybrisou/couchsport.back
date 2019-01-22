@@ -10,7 +10,9 @@ import {
   SET_LANGUAGES
 } from "../actions/profile";
 
-import { SOCKET_CONNECT } from "../actions/ws";
+import {
+  SOCKET_CONNECT
+} from "../actions/ws";
 
 import pages from "./pages";
 import conversations from "./conversations";
@@ -22,10 +24,19 @@ import languageRepo from "../../repositories/language.js";
 import axios from '@/repositories/repository.js';
 
 import Vue from "vue";
-import { AUTH_LOGOUT } from "../actions/auth";
-import { lang } from "moment";
+import {
+  AUTH_LOGOUT
+} from "../actions/auth";
+import {
+  lang
+} from "moment";
 
-const state = { status: "", profile: { locale: "fr" }};
+const state = {
+  status: "",
+  profile: {
+    locale: "fr"
+  }
+};
 
 const getters = {
   getProfile: state => state.profile,
@@ -36,11 +47,16 @@ const getters = {
 };
 
 const actions = {
-  [PROFILE_REQUEST]: ({ commit, dispatch }) => {
+  [PROFILE_REQUEST]: ({
+    commit,
+    dispatch
+  }) => {
     commit(PROFILE_REQUEST);
     profileRepo
       .get()
-      .then(({ data }) => {
+      .then(({
+        data
+      }) => {
         dispatch(SOCKET_CONNECT, data.ID);
         commit(PROFILE_SUCCESS, data);
       })
@@ -52,11 +68,16 @@ const actions = {
         }
       });
   },
-  [SAVE_PROFILE]: ({ commit, dispatch }) => {
+  [SAVE_PROFILE]: ({
+    commit,
+    dispatch
+  }) => {
     commit(SAVE_PROFILE);
     return profileRepo
       .update(state.profile)
-      .then(({ data }) => {
+      .then(({
+        data
+      }) => {
         commit(PROFILE_SUCCESS, data);
       })
       .catch(resp => {
@@ -68,33 +89,45 @@ const actions = {
         throw resp;
       });
   },
-  [GET_ACTIVITIES]: ({ dispatch }) => {
-    if(localStorage.activities) {
+  [GET_ACTIVITIES]: ({
+    dispatch
+  }) => {
+    if (localStorage.activities) {
       return state.activities = JSON.parse(localStorage.activities);
     }
     return dispatch(SET_ACTIVITIES);
   },
-  [SET_ACTIVITIES]: ({ commit }) => {
+  [SET_ACTIVITIES]: ({
+    commit
+  }) => {
     return activityRepo
-          .all()
-          .then(({ data }) => {
-            commit(SET_ACTIVITIES, data);
-            return data;
-          })
+      .all()
+      .then(({
+        data
+      }) => {
+        commit(SET_ACTIVITIES, data);
+        return data;
+      })
   },
-  [GET_LANGUAGES]: ({ dispatch }) => {
-    if(localStorage.languages) {
+  [GET_LANGUAGES]: ({
+    dispatch
+  }) => {
+    if (localStorage.languages) {
       return state.languages = JSON.parse(localStorage.languages);
     }
     return dispatch(SET_LANGUAGES);
   },
-  [SET_LANGUAGES]: ({ commit }) => {
+  [SET_LANGUAGES]: ({
+    commit
+  }) => {
     return languageRepo
-          .all()
-          .then(({ data }) => {
-            commit(SET_LANGUAGES, data);
-            return data;
-          })
+      .all()
+      .then(({
+        data
+      }) => {
+        commit(SET_LANGUAGES, data);
+        return data;
+      })
   }
 };
 
@@ -103,8 +136,7 @@ const mutations = {
     state.status = "loading_languages";
   },
   [SET_LANGUAGES]: (state, languages) => {
-    
-    state.languages = languages;
+    Vue.set(state, 'languages', languages);
     localStorage.removeItem("languages");
     localStorage.setItem("languages", JSON.stringify(state.languages));
     state.status = "languages_loaded";
@@ -113,8 +145,7 @@ const mutations = {
     state.status = "loading_activities";
   },
   [SET_ACTIVITIES]: (state, activities) => {
-    
-    state.activities = activities;
+    Vue.set(state, 'activities', activities);
     localStorage.removeItem("activities");
     localStorage.setItem("activities", JSON.stringify(state.activities));
     state.status = "activities_loaded";
@@ -129,8 +160,11 @@ const mutations = {
   [PROFILE_ERROR]: state => {
     state.status = "error";
   },
-  [MODIFY_PROFILE]: (state, { key, value }) => {
-    if(key === "locale"){
+  [MODIFY_PROFILE]: (state, {
+    key,
+    value
+  }) => {
+    if (key === "locale") {
       axios.defaults.headers.common['Accept-Language'] = value;
     }
     Vue.set(state.profile, key, value);

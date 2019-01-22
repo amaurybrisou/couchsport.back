@@ -43,9 +43,6 @@ const mutations = {
 };
 
 import { i18n } from "./trans";
-import FlagIcon from "vue-flag-icon";
-
-Vue.use(FlagIcon);
 
 import VueNativeSock from "vue-native-websocket";
 Vue.use(

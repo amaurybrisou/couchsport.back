@@ -209,7 +209,7 @@ func (me userHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r *
 		session, err := me.Store.SessionStore().GetSession(r)
 		if err != nil {
 			log.Error(err)
-			http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("please_login", locale, nil)).Error(), http.StatusInternalServerError)
+			http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("please_login", locale, nil)).Error(), http.StatusUnauthorized)
 			return
 		}
 

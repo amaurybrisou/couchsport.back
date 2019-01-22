@@ -36,7 +36,7 @@ func (me pageStore) All(keys url.Values) ([]models.Page, error) {
 		case "followers":
 			req = req.Preload("Followers")
 		case "profile":
-			req = req.Preload("Owner")
+			req = req.Preload("Owner").Preload("Owner.Languages")
 		case "id":
 			req = req.Where("ID= ?", v)
 		case "owner_id":

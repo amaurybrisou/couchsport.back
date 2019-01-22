@@ -8,16 +8,13 @@
         </v-btn>
         <v-btn :to="{ name : 'explore' }" flat>{{ $t("explore") }}</v-btn>
         <v-menu offset-y transition="slide-y-transition" style="z-index: 500;">
-          <v-btn flat slot="activator">
-            <flag :iso="languagesFlags[$i18n.locale].flag" v-bind:squared="false"/>
-            <!-- {{ $i18n.locale }} -->
+          <v-btn flat slot="activator" class="body-1 font-weight-regular">
+            <v-icon class="mr-1">language</v-icon>
+            {{ $i18n.locale.toUpperCase() }}
           </v-btn>
           <v-list>
-            <v-list-tile v-for="(item, i) in languagesFlags" :key="i" @click="changeLocale(i)">
-              <v-list-tile-title>
-                <flag :iso="item.flag" v-bind:squared="false"/>
-                {{item.title}}
-              </v-list-tile-title>
+            <v-list-tile v-for="(item, i) in languages" :key="i" @click="changeLocale(i)">
+              <v-list-tile-title>{{item.title}}</v-list-tile-title>
             </v-list-tile>
           </v-list>
         </v-menu>
@@ -116,9 +113,9 @@ export default {
         { auth: true, to: "#conversations", name: "conversations" },
         { auth: true, to: "#pages", name: "pages" }
       ],
-      languagesFlags: {
-        en: { flag: "gb", title: "English" },
-        fr: { flag: "fr", title: "Français" }
+      languages: {
+        en: { title: "English" },
+        fr: { title: "Français" }
       }
     };
   },
