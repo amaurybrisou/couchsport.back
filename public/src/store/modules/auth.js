@@ -47,7 +47,6 @@ const actions = {
   },
   [AUTH_CHANGE_PASSWORD]: ({ commit }, user) => {
     commit(AUTH_CHANGE_PASSWORD);
-    console.log(user);
     return userRepository
       .changePassword(user)
       .then(resp => {
