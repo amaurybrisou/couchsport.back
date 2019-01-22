@@ -133,6 +133,8 @@
         @submit="changePassword"
         @hideChangePasswordDialog="showChangePasswordDialog = false"
         :buttonMessage="$t('change_password') | capitalize"
+        :flat="true"
+        :color="`warning`"
       ></auth-form>
     </v-dialog>
     <v-dialog v-model="showSavingProfileDialog" hide-overlay persistent width="300">

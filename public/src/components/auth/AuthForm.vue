@@ -1,7 +1,7 @@
 <template>
   <v-form @submit="submit">
     <v-card>
-      <v-toolbar dark color="secondary">
+      <v-toolbar dark :color="color">
         <v-toolbar-title>{{ title }}</v-toolbar-title>
       </v-toolbar>
       <v-card-text>
@@ -35,8 +35,8 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn @click="submit" :disabled="!valid">{{ buttonMessage }}</v-btn>
-        <v-btn v-show="email" @click="$emit('hideChangePasswordDialog')">{{ $t('cancel') }}</v-btn>
+        <v-btn :color="color" :flat="flat" @click="submit" :disabled="!valid">{{ buttonMessage }}</v-btn>
+        <v-btn :color="color" :flat="flat" v-show="email" @click="$emit('hideChangePasswordDialog')">{{ $t('cancel') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-form>
@@ -58,7 +58,9 @@ export default {
     welcome: { type: String, default: null, required: false },
     title: { type: String, default: "login" },
     buttonMessage: { type: String, default: "login" },
-    errors: { type: Array, default: () => [], required: false }
+    errors: { type: Array, default: () => [], required: false },
+    flat: {type: Boolean, default: false },
+    color: {type: String, default: "secondary"}
   },
   data() {
     return {
