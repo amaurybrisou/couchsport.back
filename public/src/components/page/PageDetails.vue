@@ -232,8 +232,8 @@ export default {
         if (i < l.length - 2) {
           m += ", ";
         }
-        if (i < l.length - 1) {
-          m += " and ";
+        if (i == l.length - 2) {
+          m += ' ' + this.$t("and")+ ' ';
         }
       }
       return m;

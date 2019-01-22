@@ -165,7 +165,7 @@ func (me languageStore) Migrate() {
 		models.Language{Name: "Slovene", NativeName: "slovenščina"},
 		models.Language{Name: "Somali", NativeName: "Soomaaliga, af Soomaali"},
 		models.Language{Name: "Southern Sotho", NativeName: "Sesotho"},
-		models.Language{Name: "Npanish; Castilian", NativeName: "español, castellano"},
+		models.Language{Name: "Spanish; Castilian", NativeName: "español, castellano"},
 		models.Language{Name: "Sundanese", NativeName: "Basa Sunda"},
 		models.Language{Name: "Swahili", NativeName: "Kiswahili"},
 		models.Language{Name: "Swati", NativeName: "SiSwati"},
