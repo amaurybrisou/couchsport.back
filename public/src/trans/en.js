@@ -35,6 +35,7 @@ export default {
   send: "send",
   modifications: "modifications",
   contact: "contact",
+  change_password: "change your password",
   about_content:
     `begin the tour browsing available spots in the explore page or 
     create your acount and promote your own spot!`,
@@ -51,6 +52,9 @@ export default {
 
     success_saving: "your {0} has been saved",
     success_deleting: "your {0} has been deleted",
+    success_updating: "your {0} has been updated",
+    success_sending: "your {0} has been sent",
+    success_sending_check_email: "your {0} has been sent, check your emails",
 
     error_saving: "an error occured while saving your {0}",
     error_deleting: "an error occured while deleting your {0}",

@@ -92,7 +92,7 @@ func main() {
 	srv.RegisterHandler("/logout", handlerFactory.UserHandler().IsLogged(
 		handlerFactory.UserHandler().Logout),
 	)
-	srv.RegisterHandler("/profile/change-password", handlerFactory.UserHandler().IsLogged(
+	srv.RegisterHandler("/users/change-password", handlerFactory.UserHandler().IsLogged(
 		handlerFactory.UserHandler().ChangePassword),
 	)
 

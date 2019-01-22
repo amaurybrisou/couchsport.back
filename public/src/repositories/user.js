@@ -9,5 +9,8 @@ export default {
   },
   logout() {
     return repo.get("/logout");
+  },
+  changePassword(payload){
+    return repo.post("/users/change-password", payload);
   }
 };

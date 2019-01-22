@@ -9,11 +9,12 @@
           <v-alert v-for="(err, i) in errors" :key="i" :value="err" type="error">{{err}}</v-alert>
         </div>
         <div v-if="welcome" color="info">
-          <v-alert type="info" :value="welcome">{{ welcome  | capitalize }}</v-alert>
+          <v-alert type="info" :value="welcome">{{ welcome | capitalize }}</v-alert>
         </div>
 
         <v-form @keypress.enter.native="submit" ref="form" v-model="valid">
           <v-text-field
+            v-show="!email"
             :label="$t('email')  | capitalize"
             type="text"
             v-model="user.email"
@@ -35,6 +36,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn @click="submit" :disabled="!valid">{{ buttonMessage }}</v-btn>
+        <v-btn @click="$emit('hideChangePasswordDialog')">{{ $t('cancel') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-form>
@@ -56,15 +58,11 @@ export default {
     welcome: { type: String, default: null, required: false },
     title: { type: String, default: "login" },
     buttonMessage: { type: String, default: "login" },
-    errors: {type: Array, default: [], required: true},
+    errors: {type: Array, default: ()  => [], required: false},
   },
   data() {
     return {
       valid: false,
-      user: {
-        email: "",
-        password: ""
-      },
       emailRules: [
         v => !!v || this.$t("message.required", ["", this.$t("email")]),
         v =>
@@ -81,6 +79,10 @@ export default {
     };
   },
   computed: {
+    user(){
+      return { email: this.email, password: ""}
+    },
+    email(){ return this.$store.state.auth.email || ""},
     emailErrors() {
       const errors = [];
       if (!this.$v.user.email.$dirty) return errors;

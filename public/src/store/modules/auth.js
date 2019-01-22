@@ -3,7 +3,9 @@ import {
   AUTH_REQUEST,
   AUTH_ERROR,
   AUTH_SUCCESS,
-  AUTH_LOGOUT
+  AUTH_LOGOUT,
+  AUTH_CHANGE_PASSWORD,
+  AUTH_CHANGE_PASSWORD_SUCCESS
 } from "../actions/auth";
 import { PROFILE_REQUEST } from "../actions/profile";
 import userRepository from "../../repositories/user";
@@ -43,6 +45,21 @@ const actions = {
         });
     });
   },
+  [AUTH_CHANGE_PASSWORD]: ({ commit }, user) => {
+    commit(AUTH_CHANGE_PASSWORD);
+    console.log(user);
+    return userRepository
+      .changePassword(user)
+      .then(resp => {
+        commit(AUTH_CHANGE_PASSWORD_SUCCESS);
+        return resp;
+      })
+      .catch(({ response: { data } }) => {
+        commit(AUTH_ERROR);
+        return data
+      });
+  
+  },
   [AUTH_LOGOUT]: ({ commit }) => {
     return new Promise((resolve, reject) => {
       commit(AUTH_LOGOUT);
@@ -67,6 +84,12 @@ const mutations = {
     axios.defaults.headers.common.Authorization = resp.data.Token;
     state.email = resp.data.Email;
     state.hasLoadedOnce = true;
+  },
+  [AUTH_CHANGE_PASSWORD]: state => {
+    state.status = "changing-password";
+  },
+  [AUTH_CHANGE_PASSWORD_SUCCESS]: (state) => {
+    state.status = "password-changed";
   },
   [AUTH_ERROR]: state => {
     state.status = "error";

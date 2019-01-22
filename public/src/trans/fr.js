@@ -39,7 +39,8 @@ export default {
   contact: "contacter",
   image_link: "le lien de l'image",
   image: "image",
-
+  contact: "contact",
+  change_password: "modifier le mot de passe",
   about_content:
     `begin the tour browsing available spots in the explore page or 
     create your acount and promote your own spot!`,
@@ -55,6 +56,7 @@ export default {
 
     success_saving: "votre {0} est sauvegardée",
     success_deleting: "votre {0} est supprimée",
+    success_updating: "votre {0} est mis à jour",
     success_sending: "votre {0} a été envoyé",
     success_sending_check_email: "votre {0} a été envoyé, vérifiez vos emails",
 
