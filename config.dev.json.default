@@ -11,4 +11,16 @@
     "PublicPath": "public/dist/",
     "ImageBasePath": "uploads/",
     "FilePrefix": "isupload.",
+    "Mail": {
+        "Server": "<smtp-server>",
+        "Password": "<password>",
+        "Port": 465,
+        "Email": "<from-email-for-auth>"
+    },
+    "Localizer": {
+        "LanguageFiles": [
+            "./localizer/en.json",
+            "./localizer/fr.json"
+        ]
+    }
 }
