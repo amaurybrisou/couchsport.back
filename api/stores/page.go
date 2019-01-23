@@ -93,7 +93,8 @@ func (me pageStore) Update(userID uint, page models.Page) (models.Page, error) {
 			return models.Page{}, err
 		}
 
-		me.Db.Model(&page).Association("Images").Replace(images)
+		page.Images = images
+		// me.Db.Model(&page).Association("Images").Replace(images)
 	}
 
 	me.Db.Unscoped().Table("page_activities").Where("activity_id NOT IN (?)", me.getActivitiesIDS(page.Activities)).Where("page_id = ?", page.ID).Delete(&models.Image{})
