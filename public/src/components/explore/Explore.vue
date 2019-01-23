@@ -60,22 +60,6 @@ export default {
       val && val !== this.select && this.querySelections(val);
     }
   },
-  computed: {
-    mapConfig: function() {
-      return {
-        zoom: this.$route.query.zoom || 5,
-        center: [
-          this.$route.query.lat || 47.41322,
-          this.$route.query.lng || -1.219482
-        ],
-        maxBounds: [[-90, -180], [90, 180]],
-        noWrap: true,
-        url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
-        attribution:
-          '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      };
-    }
-  },
   data() {
     return {
       loading: false,
@@ -83,6 +67,18 @@ export default {
       search: null,
       select: null,
       autocompleteFeed: [],
+      mapConfig: {
+        zoom: 5,
+        center: {
+          lat: 47.41322,
+          lng: -1.219482
+        },
+        maxBounds: [[-90, -180], [90, 180]],
+        noWrap: true,
+        url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
+        attribution:
+          '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      },
       layers: {
         spots: {
           id: 0,
@@ -102,6 +98,21 @@ export default {
     };
   },
   mounted() {
+    if (this.$route.query.zoom) this.mapConfig.zoom = this.$route.query.zoom;
+    if (this.$route.query.lat && this.$route.query.lng) {
+      this.mapConfig.center.lat = this.$route.query.lat;
+      this.mapConfig.center.lng = this.$route.query.lng;
+    } else {
+      if (navigator.geolocation) {
+        var self = this;
+        navigator.geolocation.getCurrentPosition(function(position) {
+          self.mapConfig.center = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+        });
+      }
+    }
     pageRepo.all().then(resp => {
       this.pages = resp.data;
       this.$nextTick(function() {
