@@ -179,8 +179,8 @@ export default {
         imageFormatsAllowed: "image/jpeg, image:jpg, image/png, image/gif",
         Username: [
           v =>
-            /^[àéèïîôoa-zA-Z0-9]{6,15}$/.test(v) ||
-            this.$t("message.valid_chars_hint", ["àéèïîôoa-zA-Z0-9"]),
+            /^[àéèïîôoa-zA-Z]{6,15}$/.test(v) ||
+            this.$t("message.valid_chars_hint", ["àéèïîôoa-zA-Z"]),
           v =>
             (v.length <= 6 && v.length < 15) ||
             this.$t("message.length_between", [

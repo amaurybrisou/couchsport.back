@@ -151,7 +151,7 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	dbUser, err := me.Store.UserStore().GetByEmail(user.Email, false)
 	if err != nil {
 		log.Error(err)
-		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("invalid_credentials", locale, nil)).Error(), http.StatusBadRequest)
+		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("invalid_credentials", locale, nil)).Error(), http.StatusUnauthorized)
 		return
 	}
 
