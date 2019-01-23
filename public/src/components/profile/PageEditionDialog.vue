@@ -29,11 +29,11 @@
         <v-form v-model="rules.valid" @keypress.enter="validate" ref="form" lazy-validation>
           <v-container
             fluid
-            :class="{ 'sm4 px-5 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+            :class="{ 'sm4 px-5 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }"
           >
             <v-layout row wrap>
               <v-flex
-                :class="{ 'sm6 pr-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+                :class="{ 'sm6 pr-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }"
               >
                 <v-text-field
                   :label="$t('name') | capitalize"
@@ -57,7 +57,7 @@
                   @keypress.ctrl.enter="validate"
                   maxlength="512"
                   :placeholder="$t('p.ped.long_desc_ph') | capitalize"
-                  rows="3"
+                  rows="2"
                   no-resize
                 ></v-textarea>
                 <v-autocomplete
@@ -94,34 +94,25 @@
               </v-flex>
 
               <v-flex
-                :class="{ 'sm6 pl-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-1': $vuetify.breakpoint.xsOnly }"
+                :class="{ 'sm6 pl-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }"
               >
-                <v-card pa-5>
-                  <div>
-                    <v-subheader color="warning">
-                      <v-icon color="warning">help</v-icon>
-                      {{ $t('p.ped.map_help') }}
-                    </v-subheader>
-                  </div>
-                  <l-map
-                    :zoom="mapConfig.zoom"
+                <v-card>
+                  <app-map
+                    :errorColor="`info`"
+                    v-model="markers"
+                    @input="addMarker"
+                    :show="showEditPageDialog"
+                    :help="$t('p.ped.map_help')"
+                    :height="`40vh`"
+                    :width="`100%`"
                     :center="mapConfig.center"
-                    :maxBounds="mapConfig.maxBounds"
-                    :nowWrap="mapConfig.nowWrap"
-                    ref="map"
-                    style="height:40vh;width:100%;"
-                  >
-                    <l-tile-layer :url="mapConfig.url" :attribution="mapConfig.attribution"></l-tile-layer>
-                  </l-map>
-                  <div v-if="rules.invalidLocation">
-                    <v-alert
-                      color="error"
-                      :value="$t('message.invalid', [$t('the_m') + ' ' + $t('location')])"
-                    >{{ $t('message.invalid', [$t('the_m') + ' ' +$t('location')]) }}</v-alert>
-                  </div>
+                    :max="mapConfig.markers.max"
+                    :min="mapConfig.markers.min"
+                    :errors="mapConfig.markers.errors"
+                  ></app-map>
                 </v-card>
               </v-flex>
-              <v-flex v-if="Images" xs12 mt-1>
+              <v-flex v-if="Images" xs12 mt-0 pt-0>
                 <upload-button
                   :label="$t('p.ped.upload_image_hint') | capitalize"
                   :multiple="false"
@@ -162,7 +153,6 @@
                           @change="setImageAlt(idx, $event)"
                           @click:append="deleteImage(idx)"
                           @keypress.enter="validate"
-                          @mouseenter:append="alert('ok')"
                         ></v-text-field>
                       </v-img>
                     </v-card>
@@ -190,7 +180,7 @@
 <script>
 import AppSnackBar from "@/components/utils/AppSnackBar";
 import UploadButton from "@/components/utils/UploadButton";
-import { LMap, LMarker, LTileLayer } from "vue2-leaflet";
+import AppMap from "@/components/utils/AppMap";
 
 import {
   MODIFY_PAGE,
@@ -208,7 +198,7 @@ const NAMESPACE = "pages/";
 export default {
   name: "profile-page-edition-dialog",
   props: ["state"],
-  components: { UploadButton, LMap, LMarker, LTileLayer, AppSnackBar },
+  components: { UploadButton, AppMap, AppSnackBar },
   data() {
     return {
       snackbar: false,
@@ -221,18 +211,20 @@ export default {
       showSavingPageDialog: false,
 
       imagesErrors: [],
-      map: null,
+
+      markers: [],
       mapConfig: {
         zoom: 1,
         center: [46, -1],
-        maxBounds: [[-90, -180], [90, 180]],
-        noWrap: true,
-        url: "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
-        attribution:
-          '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        showMarkers: true,
-        hasSpotMarker: false,
-        spotMarker: null
+        markers: {
+          max: 1,
+          min: 1,
+          errors: {
+            too_much: this.$t("p.ped.markers.too_much"),
+            too_few: this.$t("p.ped.markers.too_few"),
+            invalid: this.$t("p.ped.markers.invalid")
+          }
+        }
       },
 
       maxActivitiesAllowed: 3,
@@ -278,8 +270,8 @@ export default {
         Alt: [
           v =>
             /^[a-zA-Z0-9!? ]{0,15}$/.test(v) ||
-            this.$t("message.valid_chars_hint", ["a-zA-Z0-9!? "]),
-          v => v.length < 15 || this.$t("p.ped.invalid_image_alt")
+            this.$t("message.valid_chars_hint", ["a-zA-Z0-9!? "])
+          // v => !!v && v.length < 15 || this.$t("p.ped.invalid_image_alt")
         ]
       }
     };
@@ -359,14 +351,6 @@ export default {
       }
     }
   },
-  mounted() {
-    var that = this;
-    this.$nextTick(function() {
-      that.map = this.$refs.map.mapObject;
-      that.map.on("click", that.hasClickOnMap);
-      that.map.on("contextmenu", that.delMarker);
-    });
-  },
   watch: {
     snackbar(v) {
       if (!v) return;
@@ -379,15 +363,21 @@ export default {
       if (!v) return;
       if (this.state === "edit" && !!this.Lat && !!this.Lng) {
         this.showEditPageDialog = true;
-        this.addMarker([this.Lat, this.Lng]);
+        this.markers = [{ lat: this.Lat, lng: this.Lng }];
         this.mapConfig.zoom = 5;
         this.mapConfig.center = [this.Lat, this.Lng];
       }
-
-      var that = this;
-      setTimeout(function() {
-        that.map.invalidateSize();
-      }, 200);
+    }
+  },
+  mounted() {
+    if (navigator.geolocation) {
+      var self = this;
+      navigator.geolocation.getCurrentPosition(function(position) {
+        self.mapConfig.center = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+      });
     }
   },
   methods: {
@@ -404,10 +394,13 @@ export default {
       if (!this.$refs.form.validate()) {
         return;
       }
-      if (!this.Lat || this.Lat < -90 || this.Lat > 90)
-        return (this.rules.invalidLocation = true);
-      if (!this.Lng || this.Lng < -180 || this.Lng > 180)
-        return (this.rules.invalidLocation = true);
+
+      if (
+        this.markers.length > this.mapConfig.markers.max ||
+        this.markers.length < this.mapConfig.markers.min
+      ) {
+        return;
+      }
 
       if (this.Images.length === 0) {
         return (this.imagesErrors = [
@@ -428,23 +421,18 @@ export default {
         })
         .catch(e => {
           this.showSavingPageDialog = false;
-          this.delMarker();
           this.$emit("page_saved", false);
         });
     },
     removeActivity(activity) {
       this[NAMESPACE + REMOVE_ACTIVITY](activity);
     },
-    addMarker(latlng) {
-      this.mapConfig.spotMarker = L.marker(latlng);
-      this.mapConfig.spotMarker.addTo(this.map);
-      this.mapConfig.hasSpotMarker = true;
-      this[NAMESPACE + MODIFY_PAGE]({ key: "Lat", value: latlng[0] });
-      this[NAMESPACE + MODIFY_PAGE]({ key: "Lng", value: latlng[1] });
+    addMarker(markers) {
+      if (markers.length == 0) return this.delMarker();
+      this[NAMESPACE + MODIFY_PAGE]({ key: "Lat", value: markers[0].lat });
+      this[NAMESPACE + MODIFY_PAGE]({ key: "Lng", value: markers[0].lng });
     },
     delMarker() {
-      this.mapConfig.spotMarker.removeFrom(this.map);
-      this.mapConfig.hasSpotMarker = false;
       this[NAMESPACE + MODIFY_PAGE]({ key: "Lat", value: null });
       this[NAMESPACE + MODIFY_PAGE]({ key: "Lng", value: null });
     },
@@ -452,7 +440,6 @@ export default {
       this.$refs.form.reset();
     },
     setImageAlt(idx, value) {
-      console.log(arguments);
       this[NAMESPACE + MODIFY_IMAGE_ALT]({
         idx: idx,
         value: value
@@ -462,21 +449,8 @@ export default {
       this[NAMESPACE + CANCEL_EDIT_PAGE]();
       this.showEditPageDialog = false;
       this.imagesErrors = [];
-    },
-    hasClickOnMap(e) {
-      if (this.mapConfig.hasSpotMarker || !e.latlng) return;
-      this.addMarker(e.latlng);
-
-      this[NAMESPACE + MODIFY_PAGE]({
-        pageID: this.ID,
-        key: "Lat",
-        value: e.latlng.lat
-      });
-      this[NAMESPACE + MODIFY_PAGE]({
-        pageID: this.ID,
-        key: "Lng",
-        value: e.latlng.lng
-      });
+      this.markers = [];
+      this.zoom = 5;
     },
     addImage(formData) {
       if (this.Images.length > 5) {

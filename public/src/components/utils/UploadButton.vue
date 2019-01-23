@@ -3,6 +3,7 @@
     <div @click="onFocus">
       <slot name="appearance">
         <v-text-field
+          class="mt-0 pt-0"
           prepend-icon="attach_file"
           single-line
           v-model="filename"

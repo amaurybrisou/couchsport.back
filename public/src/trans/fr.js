@@ -103,7 +103,12 @@ export default {
       upload_image_hint: "ajouter des photos",
       invalid_image_alt: "le titre de l'image est invalide",
       image_alt_ph: "titre de l'image",
-      wow: "Vraiment ?!"
+      wow: "Vraiment ?!",
+      markers: {
+        too_few: "Cliquez pour ajouter le lieu de l'activité",
+        too_much: "Le lieu ne peut être qu'a un seul endroit",
+        invalid: "Ce marqueur est invalide",
+      }
     },
     pd: {
       no_guests: "n'accepte pas d'invités",

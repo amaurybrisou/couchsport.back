@@ -96,7 +96,12 @@ export default {
       map_help: "Left click to the determine the spot location, right click to remove it",
       upload_image_hint: "Add photos",
       image_alt_ph: "image title",
-      wow: "Really ?!"
+      wow: "Really ?!",
+      markers: {
+        too_few: "Click on the map to define the location",
+        too_much: "Too much locations",
+        invalid: "this location is invalid",
+      }
     },
     pd: {
       no_guests: "does not accept guests",
