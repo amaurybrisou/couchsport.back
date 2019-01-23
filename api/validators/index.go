@@ -15,7 +15,7 @@ func Init() {
 	})
 
 	govalidator.TagMap["zipcode"] = govalidator.Validator(func(str string) bool {
-		re := regexp.MustCompile("")
+		re := regexp.MustCompile("^[a-zA-Z0-9- ]+$")
 		return re.MatchString(str)
 	})
 
