@@ -92,8 +92,8 @@ const actions = {
   [GET_ACTIVITIES]: ({
     dispatch
   }) => {
-    if (localStorage.activities) {
-      return state.activities = JSON.parse(localStorage.activities);
+    if (sessionStorage.activities) {
+      return state.activities = JSON.parse(sessionStorage.activities);
     }
     return dispatch(SET_ACTIVITIES);
   },
@@ -112,8 +112,8 @@ const actions = {
   [GET_LANGUAGES]: ({
     dispatch
   }) => {
-    if (localStorage.languages) {
-      return state.languages = JSON.parse(localStorage.languages);
+    if (sessionStorage.languages) {
+      return state.languages = JSON.parse(sessionStorage.languages);
     }
     return dispatch(SET_LANGUAGES);
   },
@@ -137,8 +137,8 @@ const mutations = {
   },
   [SET_LANGUAGES]: (state, languages) => {
     Vue.set(state, 'languages', languages);
-    localStorage.removeItem("languages");
-    localStorage.setItem("languages", JSON.stringify(state.languages));
+    sessionStorage.removeItem("languages");
+    sessionStorage.setItem("languages", JSON.stringify(state.languages));
     state.status = "languages_loaded";
   },
   [GET_ACTIVITIES]: state => {
@@ -146,8 +146,8 @@ const mutations = {
   },
   [SET_ACTIVITIES]: (state, activities) => {
     Vue.set(state, 'activities', activities);
-    localStorage.removeItem("activities");
-    localStorage.setItem("activities", JSON.stringify(state.activities));
+    sessionStorage.removeItem("activities");
+    sessionStorage.setItem("activities", JSON.stringify(state.activities));
     state.status = "activities_loaded";
   },
   [PROFILE_REQUEST]: state => {
