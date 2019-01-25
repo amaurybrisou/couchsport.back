@@ -30,21 +30,21 @@
               <v-chip color="primary" text-color="white" small>{{ $t('p.pd.no_guests') }}</v-chip>
             </div>
           </v-card-title>
-          <v-list-tile avatar>
-            <div v-if="page.Activities">
-              <v-chip
-                v-for="(a, i) in page.Activities"
-                color="primary"
-                text-color="white"
-                small
-                :key="i"
-              >{{ a.Name | capitalize }}</v-chip>
-            </div>
-          </v-list-tile>
-          <v-divider></v-divider>
 
-          <v-card-text class="grow">
-            <div class="font-weight-regular body-2">{{ page.LongDescription }}</div>
+          <v-card-text class="grow py-0">
+            <v-list avatar>
+              <v-list-tile v-if="page.Activities">
+                <v-chip
+                  v-for="(a, i) in page.Activities"
+                  color="primary"
+                  text-color="white"
+                  small
+                  :key="i"
+                >{{ a.Name | capitalize }}</v-chip>
+              </v-list-tile>
+              <v-divider></v-divider>
+              <div class="py-3 text-break subheading font-weight-regular">{{ page.LongDescription }}</div>
+            </v-list>
           </v-card-text>
 
           <v-card-actions class="ma-0 pa-0">
@@ -233,7 +233,7 @@ export default {
           m += ", ";
         }
         if (i == l.length - 2) {
-          m += ' ' + this.$t("and")+ ' ';
+          m += " " + this.$t("and") + " ";
         }
       }
       return m;
@@ -347,5 +347,9 @@ export default {
 .flexcard {
   display: flex;
   flex-direction: column;
+  .text-break {
+    word-break: break-all;
+    overflow-y: auto
+  }
 }
 </style>
