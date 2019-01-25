@@ -235,7 +235,14 @@ export default {
         imageFormatsAllowed: "image/jpeg, image:jpg, image/png, image/gif",
         Name: [
           v => !!v || this.$t("message.required", ["", this.$t("name")]),
-          v => (v && v.length <= 50) || this.$t("message.length_below", [50])
+          v => (!!v && v.length > 6) || this.$t("message.length_above", [6]),
+          v => (!!v && v.length <= 40) || this.$t("message.length_below", [40]),
+          v =>
+            (!!v &&
+              /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]+$/.test(
+                v
+              )) ||
+            this.$t("message.valid_chars_hint", ["a-zA-Z"])
         ],
         Description: [
           v =>
