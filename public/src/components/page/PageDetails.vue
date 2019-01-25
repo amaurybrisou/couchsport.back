@@ -255,11 +255,11 @@ export default {
     }
   },
   created: async function() {
-    if (Number(this.$route.params.page_id) < 1)
+    if (!this.$route.params.page_name)
       return this.$router.push({ name: "home" });
 
     this.page = await this["pages/" + GET_PAGE]({
-      id: this.$route.params.page_id,
+      name: this.$route.params.page_name,
       profile: true
     })
       .then(data => {
@@ -279,7 +279,6 @@ export default {
         return page;
       })
       .catch(err => {
-        console.log(err);
         this.$router.push({ name: "home" });
       });
   },

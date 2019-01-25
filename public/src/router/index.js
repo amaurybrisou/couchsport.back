@@ -66,7 +66,7 @@ let router = new Router({
           beforeEnter: ifNotAuthenticated
         },
         {
-          path: "pages/:page_id",
+          path: "pages/:page_name",
           name: "page-details",
           component: PageDetails
         },

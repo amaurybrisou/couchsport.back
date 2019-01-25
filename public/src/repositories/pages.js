@@ -7,8 +7,8 @@ export default {
   mines() {
     return repo.get("/profiles/pages");
   },
-  get({ id, profile }) {
-    return repo.get("/pages?id=" + id + (profile ? "&profile" : ""));
+  get(params) {
+    return repo.get("/pages", {params: params});
   },
   upload(payload) {
     return repo.post("/images/upload", payload, {

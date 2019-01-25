@@ -35,7 +35,7 @@
                         small
                         :color="$vuetify.breakpoint.xsOnly ? '' : 'primary'"
                         :class="{'v-btn--flat v-btn--floating': $vuetify.breakpoint.xsOnly}"
-                        :to="{ name: 'page-details', params: { page_id: p.ID }}"
+                        :to="{ name: 'page-details', params: { page_name: p.Name }}"
                       >
                         <v-icon>visibility</v-icon>
                       </v-btn>
