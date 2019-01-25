@@ -177,6 +177,7 @@ export default {
         if (this.select == null) {
           m.show = true;
           m.obj.addTo(this.map);
+          this.map.setZoom(2);
           continue;
         }
         if (m.tags.length === 0) {
