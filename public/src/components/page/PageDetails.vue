@@ -43,7 +43,7 @@
                 >{{ a.Name | capitalize }}</v-chip>
               </v-list-tile>
               <v-divider></v-divider>
-              <div class="py-3 text-break subheading font-weight-regular">{{ page.Description || page.LongDescription }}</div>
+              <div class="py-3 text-break subheading font-weight-regular">{{ page.LongDescription || page.Description }}</div>
             </v-list>
           </v-card-text>
 
