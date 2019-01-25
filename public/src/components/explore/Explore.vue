@@ -194,6 +194,7 @@ export default {
           ) {
             m.show = true;
             m.obj.addTo(this.map);
+            this.map.setZoom(2);
             break;
           }
           m.show = false;
