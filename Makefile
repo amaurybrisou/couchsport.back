@@ -24,7 +24,7 @@ clean:
 	rm $(GOBIN)/$(PROJECTNAME)
 
 start-prod: config.prod.json build
-	$(GOBIN)/$(PROJECTNAME) --env=prod & echo $! > server.PID
+	cd $(CURDIR) && { $(GOBIN)/$(PROJECTNAME) --env=prod & echo $! > server.PID; }
 
 stop-prod: server.PID
 	kill `cat $<` && rm $<
