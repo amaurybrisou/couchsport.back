@@ -1,3 +1,15 @@
+ifndef GOROOT 
+$(error "GOROOT is not set")
+endif
+
+ifndef GOBIN
+$(error "GOBIN is not set")
+endif
+
+ifndef ENV
+$(error "ENV is not set")
+endif
+
 PROJECTNAME=$(shell basename "$(PWD)")
 PUBLIC=$(CURDIR)/public
 
@@ -8,13 +20,17 @@ GIT=$(shell which git)
 .DEFAULT_GOAL := dev
 
 #make execute dev by default
-dev: config.dev.json server.PID client.PID  build_back
+dev: config.dev.json build_back server.PID client.PID
+stop: stop-server stop-client
 
-stop: server.PID client.PID
-	kill `cat $+` && rm $+
+stop-client: client.PID
+	kill `cat $<` && rm $<
+
+stop-server: server.PID
+	kill `cat $<` && rm $<
 
 server.PID:
-		cd $(CURDIR) && { $(GOBIN)/$(PROJECTNAME) & echo $$! > $@; }
+		cd $(CURDIR) && { $(GOBIN)/$(PROJECTNAME) --env=$(ENV) & echo $$! > $@; }
 
 client.PID: 
 		cd $(PUBLIC) && $(NPM) run dev
@@ -23,11 +39,7 @@ client.PID:
 clean:
 	rm $(GOBIN)/$(PROJECTNAME)
 
-start-prod: config.prod.json build
-	cd $(CURDIR) && { $(GOBIN)/$(PROJECTNAME) --env=prod & echo $! > server.PID; }
-
-stop-prod: server.PID
-	kill `cat $<` && rm $<
+start: config.prod.json build server.PID
 
 build: pull build_front build_back
 
