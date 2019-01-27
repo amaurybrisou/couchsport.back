@@ -1,7 +1,7 @@
-import repo from "./repository";
+import repo from './repository'
 
 export default {
-  all() {
-    return repo.get("/languages");
+  all () {
+    return repo.get('/languages')
   }
-};
+}

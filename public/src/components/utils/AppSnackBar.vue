@@ -9,20 +9,25 @@
     :vertical="mode === 'vertical'"
   >
     {{ text }}
-    <v-btn color="warning" flat @click="$emit('snackClose')">{{ $t('close') }}</v-btn>
+    <v-btn
+      color="warning"
+      flat
+      @click="$emit('snackClose')"
+    >
+      {{ $t('close') }}
+    </v-btn>
   </v-snackbar>
 </template>
 
 <script>
 export default {
-  name: "AppSnackBar",
+  name: 'AppSnackBar',
   props: {
     state: { type: Boolean, default: false },
-    y: { type: String, default: "top" },
+    y: { type: String, default: 'top' },
     x: { type: String, default: null },
-    mode: { type: String, default: "" },
-    text: { type: String, default: "Your profile has been successfully saved" }
+    mode: { type: String, default: '' },
+    text: { type: String, default: 'Your profile has been successfully saved' }
   }
-};
+}
 </script>
-

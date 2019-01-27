@@ -1,9 +1,9 @@
-import repo from "./repository";
+import repo from './repository'
 
 export default {
-  all() {
-    return repo.get("/languages");
+  all () {
+    return repo.get('/languages')
   }
-};
+}
 
-//https://restcountries.eu/rest/v2/all
+// https://restcountries.eu/rest/v2/all

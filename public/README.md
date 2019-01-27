@@ -1,28 +1,22 @@
-# acouch
+# vue-webpack4-template
+VueJs template using Webpack 4
 
-> A Vue.js project
+This repository is an implementation of the 'Vue.js and Webpack 4 From Scratch' article series on [itnext.io](https://itnext.io).
 
-## Build Setup
+[![Build Status](https://travis-ci.com/dfcook/vue-webpack4-template.svg?branch=master)](https://travis-ci.com/dfcook/vue-webpack4-template)
 
-``` bash
-# install dependencies
-npm install
+[Part 1](https://itnext.io/vuejs-and-webpack-4-from-scratch-part-1-94c9c28a534a):
+  - Hot Module loading with webpack-dev-server
+  - Linting using eslint
+  - CSS pre-processing with stylus
+  - Testing using @vue/test-utils and Jest
 
-# serve with hot reload at localhost:8080
-npm run dev
+[Part 2](https://itnext.io/vue-js-and-webpack-4-from-scratch-part-2-5038cc9deffb):
+  - Stylus for adding pre-processed CSS
+  - Hot Module Reloading and HTML injection
+  - Babel for building our scripts
 
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
-
-
-https://restcountries.eu/
-https://github.com/DanSnow/vue-recaptcha
-https://github.com/adrg/postcode
-https://github.com/asaskevich/govalidator
-https://www.npmjs.com/package/vue-native-websocket
+[Part 3](https://itnext.io/vue-js-and-webpack-4-from-scratch-part-3-3f68d2a3c127):
+  - Static assets processing
+  - ESLint for linting
+  - Testing using Jest

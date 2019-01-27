@@ -1,99 +1,99 @@
-import Vue from "vue";
-import Router from "vue-router";
+import Vue from 'vue'
+import Router from 'vue-router'
 
-import SignUp from "@/components/auth/SignUp";
-import Login from "@/components/auth/Login";
-import About from "@/components/About";
-import Home from "@/components/Home";
-import Explore from "@/components/explore/Explore";
-import Profile from "@/components/profile/Profile";
-import PageDetails from "@/components/page/PageDetails";
+import SignUp from 'components/auth/SignUp'
+import Login from 'components/auth/Login'
+import About from 'components/About'
+import Home from 'components/Home'
+import Explore from 'components/explore/Explore'
+import Profile from 'components/profile/Profile'
+import PageDetails from 'components/page/PageDetails'
 
-import { defaultLocale, i18n } from "../trans";
-import store from "../store";
+import { defaultLocale, i18n } from '../trans'
+import store from '../store'
 
-Vue.use(Router);
+Vue.use(Router)
 
 const ifNotAuthenticated = (to, from, next) => {
   if (!store.getters.isAuthenticated) {
-    next();
-    return;
+    next()
+    return
   }
-  next("/");
-};
+  next('/')
+}
 
 const ifAuthenticated = (to, from, next) => {
   if (store.getters.isAuthenticated) {
-    next();
-    return;
+    next()
+    return
   }
-  next("/login");
-};
+  next('/login')
+}
 
 let router = new Router({
-  mode: "history",
+  mode: 'history',
   routes: [
     {
-      path: "/",
+      path: '/',
       redirect: `/${defaultLocale}`
     },
     {
-      path: "/:locale",
+      path: '/:locale',
       component: {
-        template: "<router-view></router-view>"
+        template: '<router-view />'
       },
       children: [
         {
-          path: "/",
-          name: "home",
+          path: '/',
+          name: 'home',
           component: Home
         },
         {
-          path: "explore",
-          name: "explore",
+          path: 'explore',
+          name: 'explore',
           component: Explore
         },
         {
-          path: "signup",
-          name: "signup",
+          path: 'signup',
+          name: 'signup',
           component: SignUp
         },
         {
-          path: "login",
-          name: "login",
+          path: 'login',
+          name: 'login',
           component: Login,
           props: true,
           beforeEnter: ifNotAuthenticated
         },
         {
-          path: "pages/:page_name",
-          name: "page-details",
+          path: 'pages/:page_name',
+          name: 'page-details',
           component: PageDetails
         },
         {
-          path: "about",
-          name: "about",
+          path: 'about',
+          name: 'about',
           component: About
         },
         {
-          path: "profile",
-          name: "profile",
+          path: 'profile',
+          name: 'profile',
           component: Profile,
           beforeEnter: ifAuthenticated
         }
       ]
     }
   ]
-});
+})
 
 router.beforeEach((to, from, next) => {
-  let language = to.params.locale;
+  let language = to.params.locale
   if (!language) {
-    language = defaultLocale;
+    language = defaultLocale
   }
 
-  i18n.locale = language;
-  next();
-});
+  i18n.locale = language
+  next()
+})
 
-export default router;
+export default router

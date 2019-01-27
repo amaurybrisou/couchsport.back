@@ -1,65 +1,88 @@
 <template>
   <v-dialog
     v-model="showEditPageDialog"
-    @keydown.esc="cancelEdit()"
     fullscreen
     transition="dialog-bottom-transition"
     :overlay="false"
     style="z-index:600;"
+    @keydown.esc="cancelEdit()"
   >
     <template slot="activator">
-      <slot name="open-btn"></slot>
+      <slot name="open-btn" />
     </template>
 
     <v-card>
-      <v-toolbar dark color="primary">
+      <v-toolbar
+        dark
+        color="primary"
+      >
         <v-toolbar-title>
-          <slot name="pageTitle">{{ $t('edit_page') }} : {{Name}}</slot>
+          <slot name="pageTitle">
+            {{ $t('edit_page') }} : {{ Name }}
+          </slot>
         </v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-toolbar-items></v-toolbar-items>
-        <v-btn dark flat @click.native="validate">
-          <slot name="submitText">{{ $t('save') }}</slot>
+        <v-spacer />
+        <v-toolbar-items />
+        <v-btn
+          dark
+          flat
+          @click.native="validate"
+        >
+          <slot name="submitText">
+            {{ $t('save') }}
+          </slot>
         </v-btn>
-        <v-btn icon @click.native.prevent="cancelEdit()" dark>
+        <v-btn
+          icon
+          dark
+          @click.native.prevent="cancelEdit()"
+        >
           <v-icon>close</v-icon>
         </v-btn>
       </v-toolbar>
       <template>
-        <v-form v-model="rules.valid" @keypress.enter="validate" ref="form" lazy-validation>
+        <v-form
+          ref="form"
+          v-model="rules.valid"
+          lazy-validation
+          @keypress.enter="validate"
+        >
           <v-container
             fluid
             :class="{ 'sm4 px-5 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }"
           >
-            <v-layout row wrap>
+            <v-layout
+              row
+              wrap
+            >
               <v-flex
                 :class="{ 'sm6 pr-1 pb-0': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }"
               >
                 <v-text-field
-                  :label="$t('name') | capitalize"
                   v-model="Name"
+                  :label="$t('name') | capitalize"
                   :rules="rules['Name']"
                   autofocus
-                  @keypress.enter="validate"
                   required
-                ></v-text-field>
+                  @keypress.enter="validate"
+                />
                 <v-text-field
-                  :label="$t('description') | capitalize"
                   v-model="Description"
+                  :label="$t('description') | capitalize"
                   :rules="rules['Description']"
-                  @keypress.enter="validate"
                   required
-                ></v-text-field>
+                  @keypress.enter="validate"
+                />
                 <v-textarea
-                  name="LongDescription"
                   v-model="LongDescription"
+                  name="LongDescription"
                   :rules="rules['LongDescription']"
-                  @keypress.ctrl.enter="validate"
                   maxlength="512"
                   :placeholder="$t('p.ped.long_desc_ph') | capitalize"
                   rows="2"
                   no-resize
-                ></v-textarea>
+                  @keypress.ctrl.enter="validate"
+                />
                 <v-autocomplete
                   v-model="Activities"
                   :items="allActivities"
@@ -69,7 +92,10 @@
                   return-object
                   multiple
                 >
-                  <template slot="selection" slot-scope="data">
+                  <template
+                    slot="selection"
+                    slot-scope="data"
+                  >
                     <v-chip
                       :selected="data.selected"
                       close
@@ -78,7 +104,9 @@
                     >
                       <v-subheader
                         class="body-2"
-                      >{{ $t('allActivities.'+`${data.item.Name}`) | capitalize }}</v-subheader>
+                      >
+                        {{ $t('allActivities.'+`${data.item.Name}`) | capitalize }}
+                      </v-subheader>
                     </v-chip>
                   </template>
                 </v-autocomplete>
@@ -90,7 +118,7 @@
                   min="0"
                   max="15"
                   thumb-label
-                ></v-slider>
+                />
               </v-flex>
 
               <v-flex
@@ -98,9 +126,8 @@
               >
                 <v-card>
                   <app-map
-                    :errorColor="`info`"
                     v-model="markers"
-                    @input="addMarker"
+                    :error-color="`info`"
                     :show="showEditPageDialog"
                     :help="$t('p.ped.map_help')"
                     :height="`40vh`"
@@ -109,10 +136,16 @@
                     :max="mapConfig.markers.max"
                     :min="mapConfig.markers.min"
                     :errors="mapConfig.markers.errors"
-                  ></app-map>
+                    @input="addMarker"
+                  />
                 </v-card>
               </v-flex>
-              <v-flex v-if="Images" xs12 mt-0 pt-0>
+              <v-flex
+                v-if="Images"
+                xs12
+                mt-0
+                pt-0
+              >
                 <upload-button
                   :label="$t('p.ped.upload_image_hint') | capitalize"
                   :multiple="false"
@@ -121,12 +154,16 @@
                   :disabled="Images.length > 5"
                   :errors="imagesErrors"
                   @formData="addImage"
-                ></upload-button>
-                <v-layout v-if="Images.length > 0" row wrap>
+                />
+                <v-layout
+                  v-if="Images.length > 0"
+                  row
+                  wrap
+                >
                   <v-flex
-                    :class="{ 'sm2 px-2': $vuetify.breakpoint.smAndUp, 'xs6 px-1 py-2': $vuetify.breakpoint.xsOnly }"
                     v-for="(i, idx) in Images"
                     :key="idx"
+                    :class="{ 'sm2 px-2': $vuetify.breakpoint.smAndUp, 'xs6 px-1 py-2': $vuetify.breakpoint.xsOnly }"
                   >
                     <v-card class="rounded">
                       <v-img
@@ -136,8 +173,17 @@
                         aspect-ratio="1"
                         class="grey lighten-2"
                       >
-                        <v-layout slot="placeholder" fill-height align-center justify-center ma-0>
-                          <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                        <v-layout
+                          slot="placeholder"
+                          fill-height
+                          align-center
+                          justify-center
+                          ma-0
+                        >
+                          <v-progress-circular
+                            indeterminate
+                            color="grey lighten-5"
+                          />
                         </v-layout>
                         <v-text-field
                           :placeholder="$t('p.ped.image_alt_ph')"
@@ -153,20 +199,37 @@
                           @change="setImageAlt(idx, $event)"
                           @click:append="deleteImage(idx)"
                           @keypress.enter="validate"
-                        ></v-text-field>
+                        />
                       </v-img>
                     </v-card>
                   </v-flex>
                 </v-layout>
               </v-flex>
             </v-layout>
-            <app-snack-bar :state="snackbar" :text="snackbarText" @snackClose="snackbar = false"></app-snack-bar>
+            <app-snack-bar
+              :state="snackbar"
+              :text="snackbarText"
+              @snackClose="snackbar = false"
+            />
           </v-container>
-          <v-dialog lazy v-model="showSavingPageDialog" hide-overlay persistent width="300">
-            <v-card color="primary" dark>
+          <v-dialog
+            v-model="showSavingPageDialog"
+            lazy
+            hide-overlay
+            persistent
+            width="300"
+          >
+            <v-card
+              color="primary"
+              dark
+            >
               <v-card-text>
                 {{ $t('message.stand_by') | capitalize }}
-                <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+                <v-progress-linear
+                  indeterminate
+                  color="white"
+                  class="mb-0"
+                />
               </v-card-text>
             </v-card>
           </v-dialog>
@@ -176,11 +239,10 @@
   </v-dialog>
 </template>
 
-
 <script>
-import AppSnackBar from "@/components/utils/AppSnackBar";
-import UploadButton from "@/components/utils/UploadButton";
-import AppMap from "@/components/utils/AppMap";
+import AppSnackBar from 'components/utils/AppSnackBar'
+import UploadButton from 'components/utils/UploadButton'
+import AppMap from 'components/utils/AppMap'
 
 import {
   MODIFY_PAGE,
@@ -190,22 +252,22 @@ import {
   SAVE_PAGE,
   CANCEL_EDIT_PAGE,
   REMOVE_ACTIVITY
-} from "@/store/actions/pages";
-import { mapMutations, mapActions, mapGetters, mapState } from "vuex";
+} from 'store/actions/pages'
+import { mapMutations, mapActions, mapGetters } from 'vuex'
 
-const NAMESPACE = "pages/";
+const NAMESPACE = 'pages/'
 
 export default {
-  name: "profile-page-edition-dialog",
-  props: ["state"],
+  name: 'ProfilePageEditionDialog',
   components: { UploadButton, AppMap, AppSnackBar },
-  data() {
+  props: { 'state': { type: String, default: 'edit' } },
+  data () {
     return {
       snackbar: false,
       snackbarTimeout: 3000,
-      snackbarText: "an error occured",
+      snackbarText: 'an error occured',
 
-      isEditing: this.state === "edit",
+      isEditing: this.state === 'edit',
 
       showEditPageDialog: false,
       showSavingPageDialog: false,
@@ -220,9 +282,9 @@ export default {
           max: 1,
           min: 1,
           errors: {
-            too_much: this.$t("p.ped.markers.too_much"),
-            too_few: this.$t("p.ped.markers.too_few"),
-            invalid: this.$t("p.ped.markers.invalid")
+            too_much: this.$t('p.ped.markers.too_much'),
+            too_few: this.$t('p.ped.markers.too_few'),
+            invalid: this.$t('p.ped.markers.invalid')
           }
         }
       },
@@ -232,159 +294,159 @@ export default {
       rules: {
         valid: true,
         invalidLocation: false,
-        imageFormatsAllowed: "image/jpeg, image:jpg, image/png, image/gif",
+        imageFormatsAllowed: 'image/jpeg, image:jpg, image/png, image/gif',
         Name: [
-          v => !!v || this.$t("message.required", ["", this.$t("name")]),
-          v => (!!v && v.length > 6) || this.$t("message.length_above", [6]),
-          v => (!!v && v.length <= 40) || this.$t("message.length_below", [40]),
+          v => !!v || this.$t('message.required', ['', this.$t('name')]),
+          v => (!!v && v.length > 6) || this.$t('message.length_above', [6]),
+          v => (!!v && v.length <= 40) || this.$t('message.length_below', [40]),
           v =>
             (!!v &&
               /^[a-zA-Z àáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]+$/.test(
                 v
               )) ||
-            this.$t("message.valid_chars_hint", ["a-zA-Z"])
+            this.$t('message.valid_chars_hint', ['a-zA-Z'])
         ],
         Description: [
           v =>
-            !!v || this.$t("message.required", ["e", this.$t("description")]),
+            !!v || this.$t('message.required', ['e', this.$t('description')]),
           v =>
             /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,75}$/i.test(
               v
             ) ||
-            this.$t("message.invalid", [
-              this.$t("the_f") + " " + this.$t("description")
+            this.$t('message.invalid', [
+              this.$t('the_f') + ' ' + this.$t('description')
             ])
         ],
         LongDescription: [
           v =>
             /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,512}$/i.test(
               v
-            ) || this.$t("message.invalid", ["description"])
+            ) || this.$t('message.invalid', ['description'])
         ],
-        CouchNumber: [v => v < 15 || this.$t("p.ped.wow")],
+        CouchNumber: [v => v < 15 || this.$t('p.ped.wow')],
         Activities: [
-          v => !!v || this.$t("message.required", ["e", this.$t("activity")]),
+          v => !!v || this.$t('message.required', ['e', this.$t('activity')]),
           v =>
             v.length > 0 ||
-            this.$t("message.required", ["e", this.$t("activity")]),
+            this.$t('message.required', ['e', this.$t('activity')]),
           v =>
             v.length <= this.maxActivitiesAllowed ||
-            this.$t("message.too_much", [
+            this.$t('message.too_much', [
               this.maxActivitiesAllowed,
-              this.$t("activities")
+              this.$t('activities')
             ])
         ],
         Alt: [
           v =>
             /^[a-zA-Z0-9!? ]{0,15}$/.test(v) ||
-            this.$t("message.valid_chars_hint", ["a-zA-Z0-9!? "])
+            this.$t('message.valid_chars_hint', ['a-zA-Z0-9!? '])
           // v => !!v && v.length < 15 || this.$t("p.ped.invalid_image_alt")
         ]
       }
-    };
+    }
   },
   computed: {
-    ...mapGetters({ allActivities: "activities" }),
+    ...mapGetters({ allActivities: 'activities' }),
     Name: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.Name;
+      get () {
+        return this.$store.state.profile.pages.edited_page.Name
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "Name", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'Name', value: v })
       }
     },
     Description: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.Description;
+      get () {
+        return this.$store.state.profile.pages.edited_page.Description
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "Description", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'Description', value: v })
       }
     },
     LongDescription: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.LongDescription;
+      get () {
+        return this.$store.state.profile.pages.edited_page.LongDescription
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "LongDescription", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'LongDescription', value: v })
       }
     },
     Lat: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.Lat;
+      get () {
+        return this.$store.state.profile.pages.edited_page.Lat
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "Lat", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'Lat', value: v })
       }
     },
     Lng: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.Lng;
+      get () {
+        return this.$store.state.profile.pages.edited_page.Lng
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "Lng", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'Lng', value: v })
       }
     },
     CouchNumber: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.CouchNumber;
+      get () {
+        return this.$store.state.profile.pages.edited_page.CouchNumber
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "CouchNumber", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'CouchNumber', value: v })
       }
     },
     Public: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.Public;
+      get () {
+        return this.$store.state.profile.pages.edited_page.Public
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "Public", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'Public', value: v })
       }
     },
     Activities: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.Activities;
+      get () {
+        return this.$store.state.profile.pages.edited_page.Activities
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "Activities", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'Activities', value: v })
       }
     },
     Images: {
-      get() {
-        return this.$store.state.profile.pages.edited_page.Images;
+      get () {
+        return this.$store.state.profile.pages.edited_page.Images
       },
-      set(v) {
-        this[NAMESPACE + MODIFY_PAGE]({ key: "Images", value: v });
+      set (v) {
+        this[NAMESPACE + MODIFY_PAGE]({ key: 'Images', value: v })
       }
     }
   },
   watch: {
-    snackbar(v) {
-      if (!v) return;
-      var that = this;
-      setTimeout(function() {
-        that.snackbar = false;
-      }, that.snackbarTimeout);
+    snackbar (v) {
+      if (!v) return
+      var that = this
+      setTimeout(function () {
+        that.snackbar = false
+      }, that.snackbarTimeout)
     },
-    showEditPageDialog(v) {
-      if (!v) return;
-      if (this.state === "edit" && !!this.Lat && !!this.Lng) {
-        this.showEditPageDialog = true;
-        this.markers = [{ lat: this.Lat, lng: this.Lng }];
-        this.mapConfig.zoom = 5;
-        this.mapConfig.center = [this.Lat, this.Lng];
+    showEditPageDialog (v) {
+      if (!v) return
+      if (this.state === 'edit' && !!this.Lat && !!this.Lng) {
+        this.showEditPageDialog = true
+        this.markers = [{ lat: this.Lat, lng: this.Lng }]
+        this.mapConfig.zoom = 5
+        this.mapConfig.center = [this.Lat, this.Lng]
       }
     }
   },
-  mounted() {
+  mounted () {
     if (navigator.geolocation) {
-      var self = this;
-      navigator.geolocation.getCurrentPosition(function(position) {
+      var self = this
+      navigator.geolocation.getCurrentPosition(function (position) {
         self.mapConfig.center = {
           lat: position.coords.latitude,
           lng: position.coords.longitude
-        };
-      });
+        }
+      })
     }
   },
   methods: {
@@ -396,140 +458,139 @@ export default {
       NAMESPACE + REMOVE_ACTIVITY
     ]),
     ...mapActions([NAMESPACE + SAVE_PAGE, NAMESPACE + PAGE_DELETE_IMAGE]),
-    validate() {
-      this.rules.invalidLocation = false;
+    validate () {
+      this.rules.invalidLocation = false
       if (!this.$refs.form.validate()) {
-        return;
+        return
       }
 
       if (
         this.markers.length > this.mapConfig.markers.max ||
         this.markers.length < this.mapConfig.markers.min
       ) {
-        return;
+        return
       }
 
       if (this.Images.length === 0) {
         return (this.imagesErrors = [
-          this.$t("message.required", ["e", this.$t("image")])
-        ]);
+          this.$t('message.required', ['e', this.$t('image')])
+        ])
       }
 
-      this.submit();
+      this.submit()
     },
-    submit() {
-      this.showSavingPageDialog = true;
+    submit () {
+      this.showSavingPageDialog = true
       this[NAMESPACE + SAVE_PAGE](this.state)
         .then(() => {
-          this.showSavingPageDialog = false;
-          this.showEditPageDialog = false;
-          this.$emit("page_saved", true);
-          this.delMarker();
+          this.showSavingPageDialog = false
+          this.showEditPageDialog = false
+          this.$emit('page_saved', true)
+          this.delMarker()
         })
         .catch(e => {
-          this.showSavingPageDialog = false;
-          this.$emit("page_saved", false);
-        });
+          this.showSavingPageDialog = false
+          this.$emit('page_saved', false)
+        })
     },
-    removeActivity(activity) {
-      this[NAMESPACE + REMOVE_ACTIVITY](activity);
+    removeActivity (activity) {
+      this[NAMESPACE + REMOVE_ACTIVITY](activity)
     },
-    addMarker(markers) {
-      if (markers.length == 0) return this.delMarker();
-      this[NAMESPACE + MODIFY_PAGE]({ key: "Lat", value: markers[0].lat });
-      this[NAMESPACE + MODIFY_PAGE]({ key: "Lng", value: markers[0].lng });
+    addMarker (markers) {
+      if (markers.length === 0) return this.delMarker()
+      this[NAMESPACE + MODIFY_PAGE]({ key: 'Lat', value: markers[0].lat })
+      this[NAMESPACE + MODIFY_PAGE]({ key: 'Lng', value: markers[0].lng })
     },
-    delMarker() {
-      this[NAMESPACE + MODIFY_PAGE]({ key: "Lat", value: null });
-      this[NAMESPACE + MODIFY_PAGE]({ key: "Lng", value: null });
+    delMarker () {
+      this[NAMESPACE + MODIFY_PAGE]({ key: 'Lat', value: null })
+      this[NAMESPACE + MODIFY_PAGE]({ key: 'Lng', value: null })
     },
-    clear() {
-      this.$refs.form.reset();
+    clear () {
+      this.$refs.form.reset()
     },
-    setImageAlt(idx, value) {
+    setImageAlt (idx, value) {
       this[NAMESPACE + MODIFY_IMAGE_ALT]({
         idx: idx,
         value: value
-      });
+      })
     },
-    cancelEdit() {
-      this[NAMESPACE + CANCEL_EDIT_PAGE]();
-      this.showEditPageDialog = false;
-      this.imagesErrors = [];
-      this.markers = [];
-      this.zoom = 5;
+    cancelEdit () {
+      this[NAMESPACE + CANCEL_EDIT_PAGE]()
+      this.showEditPageDialog = false
+      this.imagesErrors = []
+      this.markers = []
+      this.zoom = 5
     },
-    addImage(formData) {
+    addImage (formData) {
       if (this.Images.length > 5) {
-        this.snackbarText = this.$t("p.pde.max_images");
-        return (this.snackbar = true);
+        this.snackbarText = this.$t('p.pde.max_images')
+        return (this.snackbar = true)
       }
 
-      var file = formData.get("file");
+      var file = formData.get('file')
       if (file instanceof File) {
         if (file.size > 500000) {
-          this.snackbarText = this.$t("message.too_big", [
-            this.$t("image"),
-            "500ko"
-          ]);
-          return (this.snackbar = true);
+          this.snackbarText = this.$t('message.too_big', [
+            this.$t('image'),
+            '500ko'
+          ])
+          return (this.snackbar = true)
         }
 
         var exists = this.Images.filter(
           i =>
             (i.URL && i.URL.indexOf(file.name) > -1) ||
             (i.File && i.File.indexOf(file.name) > -1)
-        ).length;
+        ).length
         if (exists > 0) {
-          this.snackbarText = this.$t("message.exist", ["image"]);
-          return (this.snackbar = true);
+          this.snackbarText = this.$t('message.exist', ['image'])
+          return (this.snackbar = true)
         }
 
-        var that = this;
-        var reader = new FileReader();
-        reader.onload = function(e) {
+        var that = this
+        var reader = new FileReader()
+        reader.onload = function (e) {
           that[NAMESPACE + PAGE_ADD_IMAGE]({
             URL: e.target.result,
             File: file.name
-          });
-          that.imagesErrors = [];
-        };
+          })
+          that.imagesErrors = []
+        }
 
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file)
       }
     },
-    deleteImage(idx) {
+    deleteImage (idx) {
       this[NAMESPACE + PAGE_DELETE_IMAGE](idx)
         .then(() => {
-          this.snackbarText = this.$t("message.success_deleting", [
-            this.$t("image")
-          ]);
-          this.snackbar = true;
+          this.snackbarText = this.$t('message.success_deleting', [
+            this.$t('image')
+          ])
+          this.snackbar = true
         })
         .catch(() => {
-          this.snackbarText = this.$t("message.error_deleting", [
-            this.$t("image")
-          ]);
-          this.snackbar = true;
-        });
+          this.snackbarText = this.$t('message.error_deleting', [
+            this.$t('image')
+          ])
+          this.snackbar = true
+        })
     }
   }
-};
+}
 </script>
 
-
-<style lang="scss">
+<style lang="stylus">
 .rounded {
-  @include rounded(10px);
-}
+  @include rounded(10px);}
 
 .image-alt-in {
   position: absolute;
   line-height: 27px;
-  background-color: rgba($color: #fff, $alpha: 0.8);
+  background-color: rgba(#fff, 0.8);
   width: 100%;
   bottom: 0;
   padding: 8px;
+
   &:focus {
     outline: none;
   }

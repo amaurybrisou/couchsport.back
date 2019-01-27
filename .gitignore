@@ -30,3 +30,4 @@ vendor
 fixtures/**
 debug
 *.code-workspace
+*.PID

@@ -40,6 +40,10 @@ func (me pageStore) All(keys url.Values) ([]models.Page, error) {
 		case "id":
 			req = req.Where("ID= ?", v)
 		case "name":
+			if v[0] == "random" {
+				req = req.Order("RAND() LIMIT 1")
+				break
+			}
 			req = req.Where("Name= ?", v)
 		case "owner_id":
 			req = req.Where("owner_id = ?", v)

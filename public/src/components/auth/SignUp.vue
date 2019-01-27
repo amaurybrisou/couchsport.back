@@ -1,41 +1,55 @@
 <template>
-  <v-container fluid fill-height>
-    <v-layout justify-center align-center>
-      <v-flex xs12 sm8 md4>
-        <auth-form :title="$t('signup') | capitalize" @submit="submit"  :buttonMessage="$t('signup') | capitalize" :errors="errors"></auth-form>
+  <v-container
+    fluid
+    fill-height
+  >
+    <v-layout
+      justify-center
+      align-center
+    >
+      <v-flex
+        xs12
+        sm8
+        md4
+      >
+        <auth-form
+          :title="$t('signup') | capitalize"
+          :button-message="$t('signup') | capitalize"
+          :errors="errors"
+          @submit="submit"
+        />
       </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script>
-import { repositoryFactory } from "@/repositories/repositoryFactory";
-const userRepository = repositoryFactory.get("user");
+import { repositoryFactory } from 'repositories/repositoryFactory'
 
-import AuthForm from './AuthForm';
+import AuthForm from './AuthForm'
+const userRepository = repositoryFactory.get('user')
 
 export default {
-  name: "SignUp",
-  components: {AuthForm},
-  data() {
+  name: 'SignUp',
+  components: { AuthForm },
+  data () {
     return { errors: [] }
   },
   methods: {
-    async submit(user) {
-      await userRepository
+    submit (user) {
+      userRepository
         .create(user)
         .then(({ data }) => {
           this.$router.push({
-            name: "login",
-            params: { welcome: this.$t("message.signup_success_welcome") }
-          });
+            name: 'login',
+            params: { welcome: this.$t('message.signup_success_welcome') }
+          })
         })
         .catch(({ response: { data } }) => {
-          this.errors = [];
-          this.errors.push(data);
-        });
+          this.errors = []
+          this.errors.push(data)
+        })
     }
-  },
-};
+  }
+}
 </script>
-
