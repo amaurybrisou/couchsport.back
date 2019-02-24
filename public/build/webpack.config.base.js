@@ -11,6 +11,7 @@ const webpackConfig = {
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
+      'vue': 'vue/dist/vue.js',
       '~': utils.resolve('node_modules'),
       'mixins': utils.resolve('src/mixins'),
       'assets': utils.resolve('assets'),

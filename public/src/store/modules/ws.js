@@ -28,8 +28,7 @@ const actions = {
   },
   [SOCKET_CONNECT]: ({ commit, dispatch }, profileID) => {
     Vue.prototype.$connect(
-      `ws://${window.location.hostname}:${process.env.PORT ||
-        8080}/api/ws?id=${profileID}`
+      `ws://${window.location.hostname}:${window.location.port}/api/ws?id=${profileID}`
     )
   }
 }

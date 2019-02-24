@@ -81,10 +81,12 @@ func (s *Instance) RegisterHandler(path string, handler http.HandlerFunc) {
 
 func (s *Instance) ServePublic(path string) {
 	log.Infof("serving files at %s", http.Dir(path))
-	s.router.Handle(`/static/`, http.FileServer(http.Dir(path)))
-	s.router.Handle(`/uploads/`, http.FileServer(http.Dir(path)))
+	s.router.Handle("/static/", http.StripPrefix(`/static/`, http.FileServer(http.Dir(path+"/static"))))
+	s.router.Handle("/lib/", http.StripPrefix(`/lib/`, http.FileServer(http.Dir(path+"/lib"))))
+	s.router.Handle("/uploads/", http.StripPrefix(`/uploads/`, http.FileServer(http.Dir(path+"/uploads"))))
+	s.router.Handle("/fonts/", http.StripPrefix(`/fonts/`, http.FileServer(http.Dir(path+"/fonts"))))
 	s.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, path+"index.html")
+		http.ServeFile(w, r, path+"/index.html")
 	})
 }
 

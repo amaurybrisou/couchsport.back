@@ -24,10 +24,10 @@ func (me fileStore) Save(directory, filename string, buf io.Reader) (string, err
 
 	path := me.ImageBasePath
 	if directory != "" {
-		path += directory + "/"
+		path += "/" + directory + "/"
 	}
 
-	fsPath, err := utils.CreateDirIfNotExists(me.FileSystem, me.PublicPath+path)
+	fsPath, err := utils.CreateDirIfNotExists(me.FileSystem, me.PublicPath+"/"+path)
 	if err != nil {
 		return "", err
 	}

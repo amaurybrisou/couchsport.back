@@ -48,9 +48,10 @@ const mutations = {
   SOCKET_RECONNECT,
   SOCKET_RECONNECT_ERROR
 }
+
 Vue.use(
   VueNativeSock,
-  `ws://${window.location.hostname}:${process.env.PORT || 8080}/api/ws`,
+  `ws://${window.location.hostname}:${window.location.port}/api/ws`,
   {
     connectManually: true,
     store: store,

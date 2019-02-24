@@ -1,27 +1,26 @@
 <template>
-  <div id="app">
-    <v-app>
-      <v-carousel
-        v-if="[`/${$i18n.locale}`, `/${$i18n.locale}/`, `/${$i18n.locale}/about`, `/${$i18n.locale}/signup`, `/${$i18n.locale}/login`].indexOf($route.path) >= 0"
-        class="background-carousel"
-        height="100vh"
-        hide-delimiters
-        hide-controls
-      >
-        <v-carousel-item
-          v-for="(bg,i) in backgrounds"
-          :key="i"
-          class="carousel-item"
-          lazy
-          :src="bg.src"
-        />
-      </v-carousel>
-      <app-nav />
-      <v-content>
-        <router-view />
-      </v-content>
-      <!-- <v-footer app></v-footer> -->
-      <!-- <v-layout row justify-center>
+  <v-app>
+    <v-carousel
+      v-if="[`/${$i18n.locale}`, `/${$i18n.locale}/`, `/${$i18n.locale}/about`, `/${$i18n.locale}/signup`, `/${$i18n.locale}/login`].indexOf($route.path) >= 0"
+      class="background-carousel"
+      height="100vh"
+      hide-delimiters
+      hide-controls
+    >
+      <v-carousel-item
+        v-for="(bg,i) in backgrounds"
+        :key="i"
+        class="carousel-item"
+        lazy
+        :src="bg.src"
+      />
+    </v-carousel>
+    <app-nav />
+    <v-content>
+      <router-view />
+    </v-content>
+    <!-- <v-footer app></v-footer> -->
+    <!-- <v-layout row justify-center>
         <v-dialog v-model="isNewOnSite" persistent max-width="290">
           <v-card>
             <v-card-title class="headline">{{ $t('p.app.new_on_site.modal_title') }}</v-card-title>
@@ -34,8 +33,7 @@
           </v-card>
         </v-dialog>
       </v-layout>-->
-    </v-app>
-  </div>
+  </v-app>
 </template>
 
 <script>

@@ -9,5 +9,5 @@
     },
     "es2015"]
   ],
-  "compact": true
+  "minified": true
 }

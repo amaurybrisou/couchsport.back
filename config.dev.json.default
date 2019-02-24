@@ -8,8 +8,9 @@
     "Populate": false,
     "DriverName": "mysql",
     "FixtureFile": "fixtures/acouch.sql",
-    "PublicPath": "public/dist/",
-    "ImageBasePath": "uploads/",
+    "PublicPath": "./dist",
+    "UploadPath": "./dist/uploads",
+    "ImageBasePath": "./uploads",
     "FilePrefix": "isupload.",
     "Mail": {
         "Server": "<smtp-server>",

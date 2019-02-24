@@ -31,3 +31,4 @@ fixtures/**
 debug
 *.code-workspace
 *.PID
+release/
