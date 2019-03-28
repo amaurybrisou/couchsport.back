@@ -35,14 +35,24 @@ client.PID:
 
 build: pull build_front build_back
 
-release: build release
+release: build
 	[ -d $(RELEASE_PATH) ] && rm -rf $(RELEASE_PATH) && \
 	[ -d $(RELEASE_PATH) ] || mkdir $(RELEASE_PATH) && \
+	rm -rf .git/worktree/deploy && \
+	git worktree prune && \
+	git worktree add -B deploy $(RELEASE_PATH) puzzledge/deploy && \
+	rm -rf $(RELEASE_PATH)/* 2> /dev/null && \
+	rm -rf $(RELEASE_PATH)/.gitignore && \
 	cp -rf $(GOBIN)/$(PROJECTNAME) $(RELEASE_PATH) && \
-	cp -rf $(PUBLIC)/dist $(RELEASE_PATH)
-	cp -rf $(CURDIR)/config.dev.json.default $(RELEASE_PATH)
-	mkdir $(RELEASE_PATH)/localizer
-	cp -rf $(CURDIR)/localizer/*.json $(RELEASE_PATH)/localizer
+	cp -rf $(PUBLIC)/dist $(RELEASE_PATH) && \
+	cp -rf $(CURDIR)/config.dev.json.default $(RELEASE_PATH) && \
+	mkdir $(RELEASE_PATH)/localizer && \
+	cp -rf $(CURDIR)/localizer/*.json $(RELEASE_PATH)/localizer/ && \
+	cd $(RELEASE_PATH) && \
+	git add --all -f 2> /dev/null && \
+	git commit -m "new release" -q 2> /dev/null && \
+	git push puzzledge deploy 2> /dev/null && \
+	rm -rf $(RELEASE_PATH) 2> /dev/null
 
 build_front:
 		cd $(PUBLIC) && $(NPM) run build && cd $(CURDIR)

@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+//OsFS describes os Filesystem
 type OsFS struct{}
 
 func (OsFS) Stat(name string) (os.FileInfo, error) { return os.Stat(name) }
