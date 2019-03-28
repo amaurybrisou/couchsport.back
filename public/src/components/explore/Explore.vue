@@ -87,7 +87,7 @@ export default {
           lat: 47.41322,
           lng: -1.219482
         },
-        maxBounds: [[-90, -180], [90, 180]],
+        // maxBounds: [[-120, -210], [120, 210]],
         noWrap: true,
         url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
         attribution:
@@ -100,7 +100,7 @@ export default {
           active: true,
           markers: [],
           popupImage: {
-            // height: "255px",
+            height: '255px',
             width: '255px'
           },
           popupOptions: {
