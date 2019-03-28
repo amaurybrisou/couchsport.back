@@ -7,18 +7,16 @@
       d-flex
       column
     >
-      <span v-if="image">
-        <img
-          :src="image.URL"
-          :alt="image.Alt"
-          :max-height="image.height"
-          :max-width="image.width"
-          :height="image.height"
-          :width="image.width"
-          aspect-ratio="1"
-          class="grey lighten-2"
-        >
-      </span>
+      <img
+        :src="image.URL"
+        :alt="image.Alt"
+        :max-height="image.height"
+        :max-width="image.width"
+        :height="image.height"
+        :width="image.width"
+        aspect-ratio="1"
+        class="popup-image grey lighten-2"
+      >
       <v-card-title class="pa-0">
         <div>
           <h3 class="headline mb-0">
@@ -73,3 +71,8 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus">
+.popup-image
+  border-radius 7px !important
+</style>
