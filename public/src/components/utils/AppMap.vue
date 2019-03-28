@@ -174,11 +174,13 @@ export default {
       }
 
       this.error = null
-      if (!(latlng.lat instanceof Number) && latlng.lat < -90 && latlng.lat > 90) {
+      if (isNaN(latlng.lat) || latlng.lat < -90 || latlng.lat > 90) {
         this.error = this.errors.invalid
+        return false
       }
-      if (!(latlng.lng instanceof Number) && latlng.lng < -180 && latlng.lng > 180) {
+      if (isNaN(latlng.lng) || latlng.lng < -180 || latlng.lng > 180) {
         this.error = this.errors.invalid
+        return false
       }
 
       this.error =

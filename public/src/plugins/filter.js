@@ -2,7 +2,7 @@ import moment from 'moment'
 import Vue from 'vue'
 
 const AppFilters = {
-  install: function (Vue, options) {
+  install: function (Vue) {
     Vue.filter('formatDate', function (value, format) {
       if (value) {
         return moment(String(value)).format(format || 'MM/DD/YYYY hh:mm')

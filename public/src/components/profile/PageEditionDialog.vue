@@ -126,6 +126,7 @@
               >
                 <v-card>
                   <app-map
+                    ref="map"
                     v-model="markers"
                     :error-color="`info`"
                     :show="showEditPageDialog"
@@ -294,7 +295,8 @@ export default {
       rules: {
         valid: true,
         invalidLocation: false,
-        imageFormatsAllowed: 'image/jpeg, image:jpg, image/png, image/gif',
+        imageFormatsAllowed: 'image/jpeg, image/jpg, image/png, image/gif',
+        imageSize: { w: 255, h: 255 },
         Name: [
           v => !!v || this.$t('message.required', ['', this.$t('name')]),
           v => (!!v && v.length > 6) || this.$t('message.length_above', [6]),
@@ -464,6 +466,8 @@ export default {
         return
       }
 
+      if (this.$refs.map.error) return
+
       if (
         this.markers.length > this.mapConfig.markers.max ||
         this.markers.length < this.mapConfig.markers.min
@@ -530,11 +534,11 @@ export default {
       var file = formData.get('file')
       if (file instanceof File) {
         if (file.size > 500000) {
-          this.snackbarText = this.$t('message.too_big', [
+          this.imagesErrors.push(this.$t('message.too_big', [
             this.$t('image'),
             '500ko'
-          ])
-          return (this.snackbar = true)
+          ]))
+          return
         }
 
         var exists = this.Images.filter(
@@ -543,8 +547,8 @@ export default {
             (i.File && i.File.indexOf(file.name) > -1)
         ).length
         if (exists > 0) {
-          this.snackbarText = this.$t('message.exist', ['image'])
-          return (this.snackbar = true)
+          this.imagesErrors(this.$t('message.exist', ['image']))
+          return
         }
 
         var that = this

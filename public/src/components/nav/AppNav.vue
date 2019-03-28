@@ -20,6 +20,7 @@
         </v-btn>
         <v-menu
           offset-y
+          left
           transition="slide-y-transition"
           style="z-index: 500;"
         >
@@ -63,6 +64,7 @@
           v-if="isProfileLoaded"
           open-on-hover
           offset-y
+          left
           transition="slide-y-transition"
           style="z-index: 500;"
         >
@@ -126,6 +128,7 @@
           v-else
           open-on-hover
           offset-y
+          left
           transition="slide-y-transition"
           style="z-index: 500;"
         >
