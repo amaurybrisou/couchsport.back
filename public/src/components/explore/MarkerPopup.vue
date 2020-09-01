@@ -12,7 +12,6 @@
         :alt="image.Alt"
         :max-height="image.height"
         :max-width="image.width"
-        :height="image.height"
         :width="image.width"
         aspect-ratio="1"
         class="popup-image grey lighten-2"

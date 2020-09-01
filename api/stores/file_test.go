@@ -1,13 +1,14 @@
 package stores
 
 import (
-	"github.com/goland-amaurybrisou/couchsport/api/types"
-	"github.com/golang/leveldb/db"
-	"github.com/golang/leveldb/memfs"
 	"io"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/goland-amaurybrisou/couchsport/api/types"
+	"github.com/golang/leveldb/db"
+	"github.com/golang/leveldb/memfs"
 )
 
 type memFS struct {

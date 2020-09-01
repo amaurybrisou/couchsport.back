@@ -17,14 +17,14 @@ GIT=$(shell which git)
 .DEFAULT_GOAL := dev
 
 #make execute dev by default
-dev: config.dev.json build_back server.PID client.PID
+dev: config.dev.json server.PID client.PID
 stop: stop-server stop-client
 
 stop-client: client.PID
-	kill `cat $<` && rm $<
+		kill `cat $<` && rm $<
 
 stop-server: server.PID
-	kill `cat $<` && rm $<
+		kill `cat $<` && rm $<
 
 server.PID:
 		cd $(CURDIR) && { $(GOBIN)/$(PROJECTNAME) --env=dev & echo $$! > $@; }
@@ -32,8 +32,7 @@ server.PID:
 client.PID: 
 		cd $(PUBLIC) && $(NPM) run dev
 
-
-build: pull build_front build_back
+build: build_front build_back
 
 release: build
 	[ -d $(RELEASE_PATH) ] && rm -rf $(RELEASE_PATH) && \
@@ -58,10 +57,9 @@ build_front:
 		cd $(PUBLIC) && $(NPM) run build && cd $(CURDIR)
 
 build_back:
-		GOARCH=amd64 $(GOCMD) build -o $(GOBIN)/$(PROJECTNAME)
+		GO111MODULE=on GOARCH=amd64 $(GOCMD) build -o $(GOBIN)/$(PROJECTNAME)
 
-.PHONY: dev stop build_back build_front pull clean stop-prod start-prod
-
+.PHONY: dev stop build_back build_front client.PID config.dev.json server.PID
 
 
 

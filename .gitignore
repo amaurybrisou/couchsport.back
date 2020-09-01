@@ -12,6 +12,7 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+.history
 
 **/config.*.json
 couchsport

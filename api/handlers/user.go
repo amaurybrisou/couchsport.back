@@ -3,12 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+
 	"github.com/goland-amaurybrisou/couchsport/api/models"
 	"github.com/goland-amaurybrisou/couchsport/api/stores"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"io"
-	"io/ioutil"
 
 	"net/http"
 	"strconv"

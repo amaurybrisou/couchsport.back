@@ -2,8 +2,9 @@ package models
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 //Session model definition
