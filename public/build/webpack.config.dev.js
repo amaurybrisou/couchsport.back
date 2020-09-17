@@ -34,7 +34,9 @@ module.exports = merge(baseConfig, {
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
-        secure: false
+        cookieDomainRewrite: 'localhost',
+        secure: false,
+        ws: true
       }
     }
   },
