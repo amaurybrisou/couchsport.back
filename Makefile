@@ -29,7 +29,7 @@ stop-server: server.PID
 server.PID:
 		cd $(CURDIR) && { $(GOBIN)/$(PROJECTNAME) --env=dev & echo $$! > $@; }
 
-client.PID: 
+client.PID:
 		cd $(PUBLIC) && $(NPM) run dev
 
 build: build_front build_back
@@ -54,7 +54,7 @@ release: build
 	rm -rf $(RELEASE_PATH) 2> /dev/null
 
 build_front:
-		cd $(PUBLIC) && $(NPM) run build && cd $(CURDIR)
+		cd $(PUBLIC) && $(NPM) install && $(NPM) run build && cd $(CURDIR)
 
 build_back:
 		GO111MODULE=on GOARCH=amd64 $(GOCMD) build -o $(GOBIN)/$(PROJECTNAME)

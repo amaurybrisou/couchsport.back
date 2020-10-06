@@ -9,6 +9,10 @@
     "lint": "eslint --ext .js,.vue src",
     "lint:fix": "eslint --ext .js,.vue src --fix"
   },
+  "engines": {
+    "node": ">=8.9.4",
+    "npm": ">=6.13.14"
+  },
   "keywords": [
     "Vue",
     "Webpack 4"
