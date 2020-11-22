@@ -1,17 +1,7 @@
 <template>
-  <v-container
-    fluid
-    fill-height
-  >
-    <v-layout
-      justify-center
-      align-center
-    >
-      <v-flex
-        xs12
-        sm8
-        md4
-      >
+  <v-container fluid fill-height>
+    <v-layout justify-center align-center>
+      <v-flex xs12 sm8 md4>
         <auth-form
           :title="$t('login') | capitalize"
           :button-message="$t('login') | capitalize"
@@ -25,29 +15,29 @@
 </template>
 
 <script>
-import { AUTH_REQUEST } from 'store/actions/auth'
-import { mapActions } from 'vuex'
-import AuthForm from './AuthForm'
+  import { AUTH_REQUEST } from 'store/actions/auth'
+  import { mapActions } from 'vuex'
+  import AuthForm from './AuthForm'
 
-export default {
-  name: 'Login',
-  components: { AuthForm },
-  props: { welcome: { type: String, default: '' } },
-  data () {
-    return { errors: [] }
-  },
-  methods: {
-    ...mapActions([AUTH_REQUEST]),
-    submit (user) {
-      this.AUTH_REQUEST(user)
-        .then(() => {
-          this.$router.push({ name: 'profile' })
-        })
-        .catch(data => {
-          this.errors = []
-          this.errors.push(data)
-        })
+  export default {
+    name: 'Login',
+    components: { AuthForm },
+    props: { welcome: { type: String, default: '' } },
+    data() {
+      return { errors: [] }
+    },
+    methods: {
+      ...mapActions([AUTH_REQUEST]),
+      submit(user) {
+        this.AUTH_REQUEST(user)
+          .then(() => {
+            this.$router.push({ name: 'profile' })
+          })
+          .catch((data) => {
+            this.errors = []
+            this.errors.push(data)
+          })
+      }
     }
   }
-}
 </script>

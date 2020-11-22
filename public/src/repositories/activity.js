@@ -1,7 +1,7 @@
 import repo from './repository'
 
 export default {
-  all () {
+  all() {
     return repo.get('/activities')
   }
 }

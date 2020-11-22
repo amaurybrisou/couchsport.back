@@ -27,7 +27,7 @@ const actions = {
       .then(({ data }) => {
         commit(GOT_CONVERSATIONS, data)
       })
-      .catch(resp => {
+      .catch((resp) => {
         if (resp.response.statusCode === 401) {
           commit(CONVERSATION_ERROR)
           // if resp is unauthorized, logout, to
@@ -44,7 +44,7 @@ const actions = {
         commit(CONVERSATION_MESSAGE_SENT, data)
         return data
       })
-      .catch(resp => {
+      .catch((resp) => {
         if (resp.response.statusCode === 401) {
           commit(CONVERSATION_ERROR)
           // if resp is unauthorized, logout, to
@@ -60,7 +60,7 @@ const actions = {
       .then(() => {
         commit(CONVERSATION_REMOVED, id)
       })
-      .catch(resp => {
+      .catch((resp) => {
         if (resp.response.statusCode === 401) {
           commit(CONVERSATION_ERROR)
           // if resp is unauthorized, logout, to
@@ -78,7 +78,7 @@ const mutations = {
       Vue.set(state.conversations[conversationIDX], 'unread', false)
     }
   },
-  [GET_CONVERSATIONS]: state => {
+  [GET_CONVERSATIONS]: (state) => {
     state.status = 'loading'
   },
   [GOT_CONVERSATIONS]: (state, conversations) => {
@@ -103,7 +103,7 @@ const mutations = {
     m.unread = true
     state.conversations.push(m)
   },
-  [CONVERSATION_SEND_MESSAGE]: state => {
+  [CONVERSATION_SEND_MESSAGE]: (state) => {
     state.status = 'sending'
   },
   [CONVERSATION_MESSAGE_SENT]: (state, message) => {
@@ -116,11 +116,11 @@ const mutations = {
     }
     state.status = 'send_success'
   },
-  [REMOVE_CONVERSATION]: state => {
+  [REMOVE_CONVERSATION]: (state) => {
     state.status = 'removing'
   },
   [CONVERSATION_REMOVED]: (state, id) => {
-    state.conversations = state.conversations.filter(c => id !== c.ID)
+    state.conversations = state.conversations.filter((c) => id !== c.ID)
     state.status = 'remove_success'
   }
 }

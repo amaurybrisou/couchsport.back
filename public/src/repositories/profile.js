@@ -1,10 +1,10 @@
 import repo from './repository'
 
 export default {
-  get () {
+  get() {
     return repo.get('/profiles/mine')
   },
-  update (payload) {
+  update(payload) {
     return repo.post('/profiles/update', payload)
   }
 }

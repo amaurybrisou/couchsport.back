@@ -7,5 +7,5 @@ const repositories = {
 }
 
 export const repositoryFactory = {
-  get: name => repositories[name]
+  get: (name) => repositories[name]
 }

@@ -23,92 +23,92 @@
       :multiple="false"
       :disabled="disabled"
       @change="onFileChange"
-    >
+    />
   </div>
 </template>
 
 <script>
-export default {
-  name: 'UploadButton',
-  props: {
-    value: {
-      type: [Array, String],
-      default: () => []
+  export default {
+    name: 'UploadButton',
+    props: {
+      value: {
+        type: [Array, String],
+        default: () => []
+      },
+      accept: {
+        type: String,
+        default: '*'
+      },
+      label: {
+        type: String,
+        default: 'Please choose...'
+      },
+      required: {
+        type: Boolean,
+        default: false
+      },
+      disabled: {
+        type: Boolean,
+        default: false
+      },
+      multiple: {
+        type: Boolean, // not yet possible because of data
+        default: false
+      },
+      errors: {
+        type: Array,
+        default: () => []
+      }
     },
-    accept: {
-      type: String,
-      default: '*'
+    data() {
+      return {
+        filename: ''
+      }
     },
-    label: {
-      type: String,
-      default: 'Please choose...'
+    watch: {
+      value(v) {
+        this.filename = v
+      }
     },
-    required: {
-      type: Boolean,
-      default: false
+    mounted() {
+      this.filename = this.value
     },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    multiple: {
-      type: Boolean, // not yet possible because of data
-      default: false
-    },
-    errors: {
-      type: Array,
-      default: () => []
-    }
-  },
-  data () {
-    return {
-      filename: ''
-    }
-  },
-  watch: {
-    value (v) {
-      this.filename = v
-    }
-  },
-  mounted () {
-    this.filename = this.value
-  },
 
-  methods: {
-    getFormData (files) {
-      const data = new FormData();
-      [...files].forEach(file => {
-        data.append('file', file, file.name) // currently only one file at a time
-      })
-      return data
-    },
-    onFocus () {
-      if (!this.disabled) {
-        this.$refs.fileInput.click()
-      }
-    },
-    onFileChange ($event) {
-      const files = $event.target.files || $event.dataTransfer.files
-      const form = this.getFormData(files)
-      if (files) {
-        if (files.length > 0) {
-          this.filename = [...files].map(file => file.name).join(', ')
-        } else {
-          this.filename = null
+    methods: {
+      getFormData(files) {
+        const data = new FormData()
+        ;[...files].forEach((file) => {
+          data.append('file', file, file.name) // currently only one file at a time
+        })
+        return data
+      },
+      onFocus() {
+        if (!this.disabled) {
+          this.$refs.fileInput.click()
         }
-      } else {
-        this.filename = $event.target.value.split('\\').pop()
+      },
+      onFileChange($event) {
+        const files = $event.target.files || $event.dataTransfer.files
+        const form = this.getFormData(files)
+        if (files) {
+          if (files.length > 0) {
+            this.filename = [...files].map((file) => file.name).join(', ')
+          } else {
+            this.filename = null
+          }
+        } else {
+          this.filename = $event.target.value.split('\\').pop()
+        }
+        this.$emit('input', this.filename)
+        this.$emit('formData', form)
       }
-      this.$emit('input', this.filename)
-      this.$emit('formData', form)
     }
   }
-}
 </script>
 
 <style lang="stylus" scoped>
-input[type='file'] {
-  position: absolute;
-  left: -99999px;
-}
+  input[type='file'] {
+    position: absolute;
+    left: -99999px;
+  }
 </style>

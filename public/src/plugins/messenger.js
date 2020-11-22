@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 const AppMessenger = {
   install: function (Vue, options) {
-    const isDef = v => v !== undefined
+    const isDef = (v) => v !== undefined
     if (!isDef(options.store)) throw new Error('a vuex store is required')
 
     Vue.prototype.$messenger = {
@@ -10,11 +10,17 @@ const AppMessenger = {
       mutations: options.mutations,
       actions: options.actions,
       store: options.store,
-      setMessagesRead (conversationIDX) {
-        this.store.commit(this.namespace + this.mutations.MESSAGES_READ, conversationIDX)
+      setMessagesRead(conversationIDX) {
+        this.store.commit(
+          this.namespace + this.mutations.MESSAGES_READ,
+          conversationIDX
+        )
       },
-      sendMessage (m) {
-        return this.store.dispatch(this.namespace + this.actions.CONVERSATION_SEND_MESSAGE, m)
+      sendMessage(m) {
+        return this.store.dispatch(
+          this.namespace + this.actions.CONVERSATION_SEND_MESSAGE,
+          m
+        )
       }
     }
   }

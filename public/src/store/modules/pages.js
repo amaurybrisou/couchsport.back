@@ -37,7 +37,7 @@ const state = {
 
 const getters = {}
 
-function catchError ({ commit, dispatch }, resp) {
+function catchError({ commit, dispatch }, resp) {
   if (resp.response.statusCode === 401) {
     commit(PAGE_ERROR)
     // if resp is unauthorized, logout, to
@@ -53,7 +53,7 @@ const actions = {
       .then(({ data }) => {
         commit(GOT_PAGES, data)
       })
-      .catch(resp => {
+      .catch((resp) => {
         catchError({ commit, dispatch }, resp)
       })
   },
@@ -65,7 +65,7 @@ const actions = {
         commit(GOT_PAGE)
         return data
       })
-      .catch(resp => {
+      .catch((resp) => {
         catchError({ commit, dispatch }, resp)
       })
   },
@@ -81,7 +81,7 @@ const actions = {
         what === 'new' && commit(NEW_PAGE_SAVED, data)
         commit(CANCEL_EDIT_PAGE)
       })
-      .catch(resp => {
+      .catch((resp) => {
         catchError({ commit, dispatch }, resp)
       })
   },
@@ -92,19 +92,21 @@ const actions = {
       .then(() => {
         commit(PAGE_DELETED, page.ID)
       })
-      .catch(resp => {
+      .catch((resp) => {
         catchError({ commit, dispatch }, resp)
       })
   },
   [PAGE_DELETE_IMAGE]: ({ commit, dispatch }, imageIDX) => {
     commit(PAGE_DELETE_IMAGE)
-    if (!state.edited_page.Images[imageIDX].ID) { return commit(PAGE_IMAGE_DELETED, imageIDX) }
+    if (!state.edited_page.Images[imageIDX].ID) {
+      return commit(PAGE_IMAGE_DELETED, imageIDX)
+    }
     return imagesRepo
       .delete(state.edited_page.Images[imageIDX])
       .then(() => {
         commit(PAGE_IMAGE_DELETED, imageIDX)
       })
-      .catch(resp => {
+      .catch((resp) => {
         catchError({ commit, dispatch }, resp)
       })
   },
@@ -115,14 +117,14 @@ const actions = {
       .then(() => {
         commit(PAGE_PUBLISHED, page)
       })
-      .catch(resp => {
+      .catch((resp) => {
         catchError({ commit, dispatch }, resp)
       })
   }
 }
 
 const mutations = {
-  [GET_PAGES]: state => {
+  [GET_PAGES]: (state) => {
     state.status = 'getting_pages'
   },
   [GOT_PAGES]: (state, pages) => {
@@ -130,14 +132,14 @@ const mutations = {
     state.pages = pages
   },
 
-  [GET_PAGE]: state => {
+  [GET_PAGE]: (state) => {
     state.status = 'getting_one_page'
   },
-  [GOT_PAGE]: state => {
+  [GOT_PAGE]: (state) => {
     state.status = 'got_one_page'
   },
 
-  [SAVE_PAGE]: state => {
+  [SAVE_PAGE]: (state) => {
     state.status = 'saving_page'
   },
   [PAGE_SAVED]: (state, { Images, ID }) => {
@@ -151,7 +153,7 @@ const mutations = {
     state.status = 'page_saved'
   },
 
-  [NEW_PAGE]: state => {
+  [NEW_PAGE]: (state) => {
     state.status = 'saving_new_page'
   },
   [NEW_PAGE_SAVED]: (state, page) => {
@@ -169,7 +171,7 @@ const mutations = {
       }
     }
   },
-  [CANCEL_EDIT_PAGE]: state => {
+  [CANCEL_EDIT_PAGE]: (state) => {
     Vue.set(state, 'edited_page', {
       Activities: [],
       Images: [],
@@ -185,14 +187,16 @@ const mutations = {
   },
   [REMOVE_ACTIVITY]: (state, activity) => {
     state.status = 'removing_activity'
-    state.edited_page.Activities = state.edited_page.Activities.filter(a => activity.ID !== a.ID)
+    state.edited_page.Activities = state.edited_page.Activities.filter(
+      (a) => activity.ID !== a.ID
+    )
     state.status = 'activity_removed'
   },
   [PAGE_ADD_IMAGE]: (state, image) => {
     state.edited_page.Images.push(image)
     // state.status = "page_adding_photo";
   },
-  [PAGE_DELETE_IMAGE]: state => {
+  [PAGE_DELETE_IMAGE]: (state) => {
     state.status = 'page_deleting_image'
   },
   [MODIFY_IMAGE_ALT]: (state, { idx, value }) => {
@@ -205,11 +209,11 @@ const mutations = {
     state.status = 'page_photo_deleteed'
   },
 
-  [DELETE_PAGE]: state => {
+  [DELETE_PAGE]: (state) => {
     state.status = 'removing_page'
   },
   [PAGE_DELETED]: (state, pageID) => {
-    state.pages = state.pages.filter(p => pageID !== p.ID)
+    state.pages = state.pages.filter((p) => pageID !== p.ID)
     state.status = 'page_removed'
   },
 

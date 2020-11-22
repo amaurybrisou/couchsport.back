@@ -1,7 +1,7 @@
 import repo from './repository'
 
 export default {
-  delete (payload) {
+  delete(payload) {
     return repo.post('/images/delete', payload)
   }
 }

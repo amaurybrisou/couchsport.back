@@ -18,9 +18,9 @@ const state = {
 }
 
 const getters = {
-  isAuthenticated: state => !!state.email,
-  authStatus: state => state.status,
-  email: state => state.email
+  isAuthenticated: (state) => !!state.email,
+  authStatus: (state) => state.status,
+  email: (state) => state.email
 }
 
 const actions = {
@@ -29,7 +29,7 @@ const actions = {
       commit(AUTH_REQUEST)
       userRepository
         .login(user)
-        .then(resp => {
+        .then((resp) => {
           localStorage.setItem('user-email', resp.data.Email)
           // Here set the header of your ajax library to the token value.
           // example with axios
@@ -49,7 +49,7 @@ const actions = {
     commit(AUTH_CHANGE_PASSWORD)
     return userRepository
       .changePassword(user)
-      .then(resp => {
+      .then((resp) => {
         commit(AUTH_CHANGE_PASSWORD_SUCCESS)
         return resp
       })
@@ -74,7 +74,7 @@ const actions = {
 }
 
 const mutations = {
-  [AUTH_REQUEST]: state => {
+  [AUTH_REQUEST]: (state) => {
     state.status = 'loading'
   },
   [AUTH_SUCCESS]: (state, resp) => {
@@ -83,17 +83,17 @@ const mutations = {
     state.email = resp.data.Email
     state.hasLoadedOnce = true
   },
-  [AUTH_CHANGE_PASSWORD]: state => {
+  [AUTH_CHANGE_PASSWORD]: (state) => {
     state.status = 'changing-password'
   },
   [AUTH_CHANGE_PASSWORD_SUCCESS]: (state) => {
     state.status = 'password-changed'
   },
-  [AUTH_ERROR]: state => {
+  [AUTH_ERROR]: (state) => {
     state.status = 'error'
     state.hasLoadedOnce = true
   },
-  [AUTH_LOGOUT]: state => {
+  [AUTH_LOGOUT]: (state) => {
     localStorage.removeItem('user-email')
     delete axios.defaults.headers.common.Authorization
     state.email = null
