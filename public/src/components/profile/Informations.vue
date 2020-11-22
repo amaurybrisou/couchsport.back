@@ -1,33 +1,23 @@
 <template>
-  <v-container
-    fluild
-    grid-list-xs
-  >
+  <v-container fluild grid-list-xs>
     <v-form
       v-if="isProfileLoaded"
       ref="form"
       v-model="rules.valid"
       @keypress.enter.native="submit"
     >
-      <v-layout
-        row
-        wrap
-        align-center
-        justify-center
-      >
+      <v-layout row wrap align-center justify-center>
         <v-flex
-          :class="{ 'sm4 pr-5': $vuetify.breakpoint.smAndUp, 'xs12 pa-2': $vuetify.breakpoint.xsOnly }"
+          :class="{
+            'sm4 pr-5': $vuetify.breakpoint.smAndUp,
+            'xs12 pa-2': $vuetify.breakpoint.xsOnly
+          }"
         >
           <upload-button
             :accept="rules.imageFormatsAllowed"
             @formData="handleImage"
           >
-            <v-card
-              slot="appearance"
-              flat
-              tile
-              class="d-flex profile-avatar"
-            >
+            <v-card slot="appearance" flat tile class="d-flex profile-avatar">
               <v-img
                 :src="Avatar"
                 :alt="Username"
@@ -43,11 +33,9 @@
                   ma-0
                 >
                   <!-- <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular> -->
-                  <v-icon large>
-                    person
-                  </v-icon>
+                  <v-icon large> person </v-icon>
                   <v-subheader color="warning">
-                    {{ $t('message.required', ["e", $t('image')]) }}
+                    {{ $t('message.required', ['e', $t('image')]) }}
                   </v-subheader>
                 </v-layout>
               </v-img>
@@ -60,7 +48,12 @@
             class="right"
           />
         </v-flex>
-        <v-flex :class="{ 'sm4': $vuetify.breakpoint.smAndUp, 'xs12': $vuetify.breakpoint.xsOnly }">
+        <v-flex
+          :class="{
+            sm4: $vuetify.breakpoint.smAndUp,
+            xs12: $vuetify.breakpoint.xsOnly
+          }"
+        >
           <v-text-field
             v-model="email"
             flat
@@ -92,12 +85,17 @@
           />
           <v-select
             v-model="Gender"
-            :items="[`` ,`Male`, `Female`]"
+            :items="[``, `Male`, `Female`]"
             :label="$t('fields.gender') | capitalize"
             @keypress.enter.native="submit"
           />
         </v-flex>
-        <v-flex :class="{ 'sm4': $vuetify.breakpoint.smAndUp, 'xs12': $vuetify.breakpoint.xsOnly }">
+        <v-flex
+          :class="{
+            sm4: $vuetify.breakpoint.smAndUp,
+            xs12: $vuetify.breakpoint.xsOnly
+          }"
+        >
           <v-text-field
             v-model="StreetName"
             flat
@@ -135,17 +133,8 @@
           />
         </v-flex>
       </v-layout>
-      <v-layout
-        row
-        wrap
-      >
-        <v-flex
-          xs12
-          md6
-          offset-md1
-          lg7
-          offset-lg1
-        >
+      <v-layout row wrap>
+        <v-flex xs12 md6 offset-md1 lg7 offset-lg1>
           <v-autocomplete
             v-model="Languages"
             :items="allLanguages"
@@ -155,13 +144,7 @@
             multiple
           />
         </v-flex>
-        <v-flex
-          xs12
-          md4
-          offset-md1
-          lg3
-          offset-lg1
-        >
+        <v-flex xs12 md4 offset-md1 lg3 offset-lg1>
           <v-btn
             block
             flat
@@ -171,16 +154,8 @@
             {{ $t('change_password') }}
           </v-btn>
         </v-flex>
-        <v-flex
-          xs12
-          mb-2
-        >
-          <v-btn
-            block
-            flat
-            color="success"
-            @click="submit"
-          >
+        <v-flex xs12 mb-2>
+          <v-btn block flat color="success" @click="submit">
             {{ $t('save') }}
           </v-btn>
         </v-flex>
@@ -191,13 +166,9 @@
     <app-snack-bar
       :state="snackbar"
       :text="snackbarText"
-      @snackClose="snackbar = false"
+      @snack-close="snackbar = false"
     />
-    <v-dialog
-      v-model="showChangePasswordDialog"
-      persistent
-      width="330"
-    >
+    <v-dialog v-model="showChangePasswordDialog" persistent width="330">
       <auth-form
         :title="$t('change_password') | capitalize"
         :button-message="$t('change_password') | capitalize"
@@ -213,17 +184,10 @@
       persistent
       width="300"
     >
-      <v-card
-        color="primary"
-        dark
-      >
+      <v-card color="primary" dark>
         <v-card-text>
           {{ $t('message.stand_by') }}
-          <v-progress-linear
-            indeterminate
-            color="white"
-            class="mb-0"
-          />
+          <v-progress-linear indeterminate color="white" class="mb-0" />
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -231,282 +195,285 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
-import {
-  MODIFY_PROFILE,
-  SAVE_PROFILE
-} from 'store/actions/profile.js'
+  import { mapGetters, mapMutations, mapActions } from 'vuex'
+  import { MODIFY_PROFILE, SAVE_PROFILE } from 'store/actions/profile.js'
 
-import { AUTH_CHANGE_PASSWORD } from 'store/actions/auth.js'
+  import { AUTH_CHANGE_PASSWORD } from 'store/actions/auth.js'
 
-import UploadButton from 'components/utils/UploadButton'
-import AppSnackBar from 'components/utils/AppSnackBar'
-import AuthForm from 'components/auth/AuthForm'
+  import UploadButton from 'components/utils/UploadButton'
+  import AppSnackBar from 'components/utils/AppSnackBar'
+  import AuthForm from 'components/auth/AuthForm'
 
-export default {
-  name: 'PersonalInformation',
-  components: { UploadButton, AppSnackBar, AuthForm },
-  data () {
-    return {
-      snackbar: false,
-      snackbarTimeout: 4000,
-      snackbarText: 'your profile has been successfully saved',
+  export default {
+    name: 'PersonalInformation',
+    components: { UploadButton, AppSnackBar, AuthForm },
+    data() {
+      return {
+        snackbar: false,
+        snackbarTimeout: 4000,
+        snackbarText: 'your profile has been successfully saved',
 
-      showSavingProfileDialog: false,
-      showChangePasswordDialog: false,
+        showSavingProfileDialog: false,
+        showChangePasswordDialog: false,
 
-      rules: {
-        valid: false,
-        imageFormatsAllowed: 'image/jpeg, image:jpg, image/png, image/gif',
-        Username: [
-          v =>
-            (v.length >= 6 && v.length < 15) ||
-            this.$t('message.length_between', [
-              this.$t('fields.username'),
-              6,
-              15
-            ]),
-          v =>
-            /^[àéèïîôoa-zA-Z]{6,15}$/.test(v) ||
-            this.$t('message.valid_chars_hint', ['àéèïîôoa-zA-Z'])
-        ],
-        Firstname: [
-          v =>
-            v.length < 35 ||
-            this.$t('message.length_below', [this.$t('fields.firstname'), 35]),
-          v =>
-            /^[àéèêïîôo a-zA-Z]{0,35}$/.test(v) ||
-            this.$t('message.valid_chars_hint', ['àéèêïîôo a-zA-Z'])
-        ],
-        Lastname: [
-          v =>
-            v.length < 35 ||
-            this.$t('message.length_below', [this.$t('fields.lastname'), 35]),
-          v =>
-            /^[àéèêïîôo a-zA-Z]{0,35}$/.test(v) ||
-            this.$t('message.valid_chars_hint', ['àéèêïîôo a-zA-Z'])
-        ],
-        Avatar: [
-          v => !!v || this.$t('message.required', ['e', this.$t('image')]),
-          v =>
-            /(?:png|jpg|jpeg|gif)$/i.test(v) ||
-            // eslint-disable-next-line no-useless-escape
-            /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i.test(
-              v
-            ) ||
-            this.$t('message.invalid', [this.$t('image_link')])
-        ],
-        ZipCode: [
-          v =>
-            v.length < 35 ||
-            this.$t('message.length_below', [this.$t('fields.zipcode'), 35]),
-          v =>
-            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
-              v
-            ) || this.$t('message.invalid', [this.$t('fields.zipcode')])
-        ],
-        StreetName: [
-          v =>
-            v.length < 50 ||
-            this.$t('message.length_below', [this.$t('fields.streetname'), 50]),
-          v =>
-            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
-              v
-            ) || this.$t('message.invalid', [this.$t('fields.streetname')])
-        ],
-        City: [
-          v =>
-            v.length < 35 ||
-            this.$t('message.length_below', [this.$t('fields.city'), 35]),
-          v =>
-            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
-              v
-            ) || this.$t('message.invalid', [this.$t('fields.city')])
-        ],
-        Country: [
-          v =>
-            v.length < 35 ||
-            this.$t('message.length_below', [this.$t('fields.country'), 35]),
-          v =>
-            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
-              v
-            ) || this.$t('message.invalid', [this.$t('fields.country')])
-        ],
-        Phone: [
-          v =>
-            v.length < 35 ||
-            this.$t('message.length_below', [this.$t('fields.phone'), 35]),
-          v =>
-            /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
-              v
-            ) || this.$t('message.invalid', [this.$t('fields.phone')])
-        ]
-      }
-    }
-  },
-  computed: {
-    ...mapGetters({
-      email: 'email',
-      isProfileLoaded: 'isProfileLoaded',
-      allLanguages: 'languages'
-    }),
-    Avatar: {
-      get () {
-        return this.$store.state.profile.profile.Avatar
-      }
-    },
-    Username: {
-      get () {
-        return this.$store.state.profile.profile.Username
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'Username', value: v })
-      }
-    },
-    Firstname: {
-      get () {
-        return this.$store.state.profile.profile.Firstname
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'Firstname', value: v })
-      }
-    },
-    Lastname: {
-      get () {
-        return this.$store.state.profile.profile.Lastname
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'Lastname', value: v })
-      }
-    },
-    Gender: {
-      get () {
-        return this.$store.state.profile.profile.Gender
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'Gender', value: v })
-      }
-    },
-    StreetName: {
-      get () {
-        return this.$store.state.profile.profile.StreetName
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'StreetName', value: v })
-      }
-    },
-    City: {
-      get () {
-        return this.$store.state.profile.profile.City
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'City', value: v })
-      }
-    },
-    ZipCode: {
-      get () {
-        return this.$store.state.profile.profile.ZipCode
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'ZipCode', value: v })
-      }
-    },
-    Country: {
-      get () {
-        return this.$store.state.profile.profile.Country
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'Country', value: v })
-      }
-    },
-    Phone: {
-      get () {
-        return this.$store.state.profile.profile.Phone
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'Phone', value: v })
-      }
-    },
-    Languages: {
-      get () {
-        return this.$store.state.profile.profile.Languages
-      },
-      set (v) {
-        this.MODIFY_PROFILE({ key: 'Languages', value: v })
-      }
-    }
-  },
-  watch: {
-    snackbar (v) {
-      if (!v) return
-      var that = this
-      setTimeout(function () {
-        that.snackbar = false
-      }, that.snackbarTimeout)
-    }
-  },
-  methods: {
-    ...mapActions([SAVE_PROFILE, AUTH_CHANGE_PASSWORD]),
-    ...mapMutations([MODIFY_PROFILE]),
-    submit () {
-      if (!this.$refs.form.validate()) {
-        return
-      }
-      this.showSavingProfileDialog = true
-      this.SAVE_PROFILE()
-        .then(() => {
-          this.showSavingProfileDialog = false
-          this.snackbarText = this.$t('message.success_saving', ['profile'])
-          this.snackbar = true
-        })
-        .catch(e => {
-          this.showSavingProfileDialog = false
-          this.snackbarText = this.$t('message.error_saving', ['profile'])
-          this.snackbar = true
-        })
-    },
-    changePassword (user) {
-      this.showSavingProfileDialog = true
-      this[AUTH_CHANGE_PASSWORD](user)
-        .then(() => {
-          this.snackbarText = this.$t('message.success_updating', [
-            this.$t('password')
-          ])
-          this.snackbar = true
-          this.showChangePasswordDialog = false
-          this.showSavingProfileDialog = false
-        })
-        .catch(() => {
-          this.showSavingProfileDialog = false
-          this.snackbarText = this.$t('message.error_updating', [
-            this.$t('password')
-          ])
-          this.snackbar = true
-        })
-    },
-    handleImage (formData) {
-      var file = formData.get('file')
-      if (file instanceof File && file.size) {
-        if (file.size > 100000) {
-          this.snackbarText = this.$t('message.too_big', ['image', '100ko'])
-          return (this.snackbar = true)
+        rules: {
+          valid: false,
+          imageFormatsAllowed: 'image/jpeg, image:jpg, image/png, image/gif',
+          Username: [
+            (v) =>
+              (v.length >= 6 && v.length < 15) ||
+              this.$t('message.length_between', [
+                this.$t('fields.username'),
+                6,
+                15
+              ]),
+            (v) =>
+              /^[àéèïîôoa-zA-Z]{6,15}$/.test(v) ||
+              this.$t('message.valid_chars_hint', ['àéèïîôoa-zA-Z'])
+          ],
+          Firstname: [
+            (v) =>
+              v.length < 35 ||
+              this.$t('message.length_below', [
+                this.$t('fields.firstname'),
+                35
+              ]),
+            (v) =>
+              /^[àéèêïîôo a-zA-Z]{0,35}$/.test(v) ||
+              this.$t('message.valid_chars_hint', ['àéèêïîôo a-zA-Z'])
+          ],
+          Lastname: [
+            (v) =>
+              v.length < 35 ||
+              this.$t('message.length_below', [this.$t('fields.lastname'), 35]),
+            (v) =>
+              /^[àéèêïîôo a-zA-Z]{0,35}$/.test(v) ||
+              this.$t('message.valid_chars_hint', ['àéèêïîôo a-zA-Z'])
+          ],
+          Avatar: [
+            (v) => !!v || this.$t('message.required', ['e', this.$t('image')]),
+            (v) =>
+              /(?:png|jpg|jpeg|gif)$/i.test(v) ||
+              // eslint-disable-next-line no-useless-escape
+              /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i.test(
+                v
+              ) ||
+              this.$t('message.invalid', [this.$t('image_link')])
+          ],
+          ZipCode: [
+            (v) =>
+              v.length < 35 ||
+              this.$t('message.length_below', [this.$t('fields.zipcode'), 35]),
+            (v) =>
+              /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+                v
+              ) || this.$t('message.invalid', [this.$t('fields.zipcode')])
+          ],
+          StreetName: [
+            (v) =>
+              v.length < 50 ||
+              this.$t('message.length_below', [
+                this.$t('fields.streetname'),
+                50
+              ]),
+            (v) =>
+              /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+                v
+              ) || this.$t('message.invalid', [this.$t('fields.streetname')])
+          ],
+          City: [
+            (v) =>
+              v.length < 35 ||
+              this.$t('message.length_below', [this.$t('fields.city'), 35]),
+            (v) =>
+              /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+                v
+              ) || this.$t('message.invalid', [this.$t('fields.city')])
+          ],
+          Country: [
+            (v) =>
+              v.length < 35 ||
+              this.$t('message.length_below', [this.$t('fields.country'), 35]),
+            (v) =>
+              /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+                v
+              ) || this.$t('message.invalid', [this.$t('fields.country')])
+          ],
+          Phone: [
+            (v) =>
+              v.length < 35 ||
+              this.$t('message.length_below', [this.$t('fields.phone'), 35]),
+            (v) =>
+              /^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,!?.'-]{0,35}$/.test(
+                v
+              ) || this.$t('message.invalid', [this.$t('fields.phone')])
+          ]
         }
+      }
+    },
+    computed: {
+      ...mapGetters({
+        email: 'email',
+        isProfileLoaded: 'isProfileLoaded',
+        allLanguages: 'languages'
+      }),
+      Avatar: {
+        get() {
+          return this.$store.state.profile.profile.Avatar
+        }
+      },
+      Username: {
+        get() {
+          return this.$store.state.profile.profile.Username
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'Username', value: v })
+        }
+      },
+      Firstname: {
+        get() {
+          return this.$store.state.profile.profile.Firstname
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'Firstname', value: v })
+        }
+      },
+      Lastname: {
+        get() {
+          return this.$store.state.profile.profile.Lastname
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'Lastname', value: v })
+        }
+      },
+      Gender: {
+        get() {
+          return this.$store.state.profile.profile.Gender
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'Gender', value: v })
+        }
+      },
+      StreetName: {
+        get() {
+          return this.$store.state.profile.profile.StreetName
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'StreetName', value: v })
+        }
+      },
+      City: {
+        get() {
+          return this.$store.state.profile.profile.City
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'City', value: v })
+        }
+      },
+      ZipCode: {
+        get() {
+          return this.$store.state.profile.profile.ZipCode
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'ZipCode', value: v })
+        }
+      },
+      Country: {
+        get() {
+          return this.$store.state.profile.profile.Country
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'Country', value: v })
+        }
+      },
+      Phone: {
+        get() {
+          return this.$store.state.profile.profile.Phone
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'Phone', value: v })
+        }
+      },
+      Languages: {
+        get() {
+          return this.$store.state.profile.profile.Languages
+        },
+        set(v) {
+          this.MODIFY_PROFILE({ key: 'Languages', value: v })
+        }
+      }
+    },
+    watch: {
+      snackbar(v) {
+        if (!v) return
         var that = this
-        var reader = new FileReader()
-        reader.onload = function (e) {
-          that.MODIFY_PROFILE({ key: 'Avatar', value: e.target.result })
-          that.MODIFY_PROFILE({ key: 'AvatarFile', value: file.name })
+        setTimeout(function () {
+          that.snackbar = false
+        }, that.snackbarTimeout)
+      }
+    },
+    methods: {
+      ...mapActions([SAVE_PROFILE, AUTH_CHANGE_PASSWORD]),
+      ...mapMutations([MODIFY_PROFILE]),
+      submit() {
+        if (!this.$refs.form.validate()) {
+          return
         }
+        this.showSavingProfileDialog = true
+        this.SAVE_PROFILE()
+          .then(() => {
+            this.showSavingProfileDialog = false
+            this.snackbarText = this.$t('message.success_saving', ['profile'])
+            this.snackbar = true
+          })
+          .catch((e) => {
+            this.showSavingProfileDialog = false
+            this.snackbarText = this.$t('message.error_saving', ['profile'])
+            this.snackbar = true
+          })
+      },
+      changePassword(user) {
+        this.showSavingProfileDialog = true
+        this[AUTH_CHANGE_PASSWORD](user)
+          .then(() => {
+            this.snackbarText = this.$t('message.success_updating', [
+              this.$t('password')
+            ])
+            this.snackbar = true
+            this.showChangePasswordDialog = false
+            this.showSavingProfileDialog = false
+          })
+          .catch(() => {
+            this.showSavingProfileDialog = false
+            this.snackbarText = this.$t('message.error_updating', [
+              this.$t('password')
+            ])
+            this.snackbar = true
+          })
+      },
+      handleImage(formData) {
+        var file = formData.get('file')
+        if (file instanceof File && file.size) {
+          if (file.size > 100000) {
+            this.snackbarText = this.$t('message.too_big', ['image', '100ko'])
+            return (this.snackbar = true)
+          }
+          var that = this
+          var reader = new FileReader()
+          reader.onload = function (e) {
+            that.MODIFY_PROFILE({ key: 'Avatar', value: e.target.result })
+            that.MODIFY_PROFILE({ key: 'AvatarFile', value: file.name })
+          }
 
-        reader.readAsDataURL(file)
+          reader.readAsDataURL(file)
+        }
       }
     }
   }
-}
 </script>
 
 <style lang="stylus">
-.profile-avatar {
-  border-radius: 50%;
-}
+  .profile-avatar {
+    border-radius: 50%;
+  }
 </style>

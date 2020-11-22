@@ -1,31 +1,16 @@
 <template>
   <v-container fill-height>
-    <v-layout
-      justify-center
-      align-center
-    >
-      <v-flex
-        xs8
-        sm5
-        md6
-      >
+    <v-layout justify-center align-center>
+      <v-flex xs8 sm5 md6>
         <v-card>
           <v-toolbar color="secondary">
-            <h1 class="display-2 font-weight-thin">
-              CoSport
-            </h1>
+            <h1 class="display-2 font-weight-thin">CoSport</h1>
           </v-toolbar>
           <v-card-text>
-            {{ $t("about_content") }}
-            <v-layout
-              row
-              wrap
-            >
+            {{ $t('about_content') }}
+            <v-layout row wrap>
               <v-spacer />
-              <v-btn
-                flat
-                :to="{ name: 'signup'}"
-              >
+              <v-btn flat :to="{ name: 'signup' }">
                 {{ $t('signup') }}
               </v-btn>
             </v-layout>
@@ -37,7 +22,7 @@
 </template>
 
 <script>
-export default {
-  name: 'About'
-}
+  export default {
+    name: 'About'
+  }
 </script>

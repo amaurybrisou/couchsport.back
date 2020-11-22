@@ -41,7 +41,8 @@ export default {
   about_content: `begin the tour browsing available spots in the explore page or 
     create your acount and promote your own spot!`,
   home: {
-    speech_title: 'Travel, make friends, practicing your favorite sports together !',
+    speech_title:
+      'Travel, make friends, practicing your favorite sports together !',
     speech_content: `begin the tour browsing available spots in the explore page or 
       create your acount and promote your own spot!`
   },
@@ -60,7 +61,8 @@ export default {
     error_updating: 'an error occured while updating your {0}',
     length_below: 'the {0} length must be below {1}',
     length_above: 'the {0} length must be above {1}',
-    length_between: 'the {0} length must contains between {1} and {2} characters',
+    length_between:
+      'the {0} length must contains between {1} and {2} characters',
     valid_chars_hint: 'only these characters are allowed: {0}',
 
     invalid_form: 'this form is invalid',
@@ -72,7 +74,8 @@ export default {
     invalid_email: '',
     required: '{1} is required',
     invalid: '{0} is invalid',
-    password_hint: 'password must contains {0} characters (at least one digit, on upper case and one lower case character)',
+    password_hint:
+      'password must contains {0} characters (at least one digit, on upper case and one lower case character)',
     signup_success_welcome: 'welcome'
   },
   p: {
@@ -81,14 +84,14 @@ export default {
       sb_placeholder: 'search for a place or an activity',
       view_details: 'details',
       help: {
-        'first_step': 'first',
-        'second_step': 'second'
+        first_step: 'first',
+        second_step: 'second'
       }
     },
     home: {
       help: {
-        'first_step': 'first',
-        'second_step': 'second'
+        first_step: 'first',
+        second_step: 'second'
       }
     },
     activities: {
@@ -103,7 +106,8 @@ export default {
       description: 'description',
       long_desc_ph: 'describe this place with more details',
       couch_number: 'Number of couch available',
-      map_help: 'Left click to the determine the spot location, right click to remove it',
+      map_help:
+        'Left click to the determine the spot location, right click to remove it',
       upload_image_hint: 'Add photos',
       image_alt_ph: 'image title',
       wow: 'Really ?!',
@@ -120,10 +124,10 @@ export default {
       max_images: 'Maximum number of images allowed',
       talk: 'talks',
       help: {
-        'first_step': 'first',
-        'second_step': 'second',
-        'third_step': 'third',
-        'fourth_step': 'fourth'
+        first_step: 'first',
+        second_step: 'second',
+        third_step: 'third',
+        fourth_step: 'fourth'
       }
     }
   },
@@ -132,7 +136,7 @@ export default {
     next: 'next',
     prev: 'previous',
     done: 'done',
-    'next_page': 'next page'
+    next_page: 'next page'
   },
   fields: {
     email: 'email',

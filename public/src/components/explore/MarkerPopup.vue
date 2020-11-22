@@ -1,12 +1,6 @@
 <template>
   <div class="marker-popup">
-    <v-card
-      flat
-      elevation-0
-      flex
-      d-flex
-      column
-    >
+    <v-card flat elevation-0 flex d-flex column>
       <img
         :src="image.URL"
         :alt="image.Alt"
@@ -15,7 +9,7 @@
         :width="image.width"
         aspect-ratio="1"
         class="popup-image grey lighten-2"
-      >
+      />
       <v-card-title class="pa-0">
         <div>
           <h3 class="headline mb-0">
@@ -43,13 +37,7 @@
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn
-          class="mr-2"
-          color="secondary"
-          small
-          flat
-          :href="url"
-        >
+        <v-btn class="mr-2" color="secondary" small flat :href="url">
           {{ $t('p.explore.view_details') }}
         </v-btn>
       </v-card-actions>
@@ -58,20 +46,21 @@
 </template>
 
 <script>
-export default {
-  name: 'MarkerPopup',
-  props: {
-    'name': { type: String, default: '' },
-    'desc': { type: String, default: '' },
-    'image': { type: Object, default: () => {} },
-    'id': { type: Number, default: 0 },
-    'url': { type: String, default: '' },
-    'activities': { type: Array, default: () => [] }
+  export default {
+    name: 'MarkerPopup',
+    props: {
+      name: { type: String, default: '' },
+      desc: { type: String, default: '' },
+      image: { type: Object, default: () => {} },
+      id: { type: Number, default: 0 },
+      url: { type: String, default: '' },
+      activities: { type: Array, default: () => [] }
+    }
   }
-}
 </script>
 
 <style lang="stylus">
-.popup-image
-  border-radius 7px !important
+  .popup-image {
+    border-radius: 7px !important;
+  }
 </style>

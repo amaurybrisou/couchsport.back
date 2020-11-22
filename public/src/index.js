@@ -81,5 +81,5 @@ new Vue({
   i18n,
   store,
   AppMessenger,
-  render: h => h(App)
+  render: (h) => h(App)
 })

@@ -34,14 +34,14 @@ const actions = {
 }
 
 const mutations = {
-  [SOCKET_ONOPEN]: state => {
+  [SOCKET_ONOPEN]: (state) => {
     state.socket.isConnected = true
   },
-  [SOCKET_ONCLOSE]: state => {
+  [SOCKET_ONCLOSE]: (state) => {
     console.log('ws server closed the connection')
     state.socket.isConnected = false
   },
-  [SOCKET_ONERROR]: state => {
+  [SOCKET_ONERROR]: (state) => {
     state.status = 'ws_error'
   },
   // default handler called for all methods
@@ -53,7 +53,7 @@ const mutations = {
   [SOCKET_RECONNECT]: (state, count) => {
     state.status = `ws_reconnecting ${count}`
   },
-  [SOCKET_RECONNECT_ERROR]: state => {
+  [SOCKET_RECONNECT_ERROR]: (state) => {
     state.socket.reconnectError = true
   }
 }

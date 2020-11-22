@@ -1,28 +1,11 @@
-
 <template>
-  <v-container
-    fluild
-    grid-list-xs
-  >
-    <v-layout
-      align-center
-      pb-3
-    >
+  <v-container fluild grid-list-xs>
+    <v-layout align-center pb-3>
       <div>{{ $t('p.activities.hint') | capitalize }}</div>
     </v-layout>
     <v-divider />
-    <v-layout
-      v-if="activities"
-      wrap
-      align-center
-      justify-center
-    >
-      <v-flex
-        v-for="(item, i) in activities"
-        :key="i"
-        xs6
-        md2
-      >
+    <v-layout v-if="activities" wrap align-center justify-center>
+      <v-flex v-for="(item, i) in activities" :key="i" xs6 md2>
         <v-checkbox
           v-model="selected_activities"
           height="0"
@@ -34,10 +17,7 @@
         </v-checkbox>
       </v-flex>
     </v-layout>
-    <v-layout
-      row
-      wrap
-    >
+    <v-layout row wrap>
       <v-btn
         color="success"
         :disabled="!selected_activities || selected_activities.length == 0"
@@ -51,7 +31,7 @@
     <app-snack-bar
       :state="snackbar"
       :text="snackbarText"
-      @snackClose="snackbar = false"
+      @snack-close="snackbar = false"
     />
     <v-dialog
       v-model="showSavingProfileDialog"
@@ -59,17 +39,10 @@
       persistent
       width="300"
     >
-      <v-card
-        color="primary"
-        dark
-      >
+      <v-card color="primary" dark>
         <v-card-text>
           {{ $t('message.stand_by') | capitalize }}
-          <v-progress-linear
-            indeterminate
-            color="white"
-            class="mb-0"
-          />
+          <v-progress-linear indeterminate color="white" class="mb-0" />
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -77,59 +50,62 @@
 </template>
 
 <script>
-import AppSnackBar from 'components/utils/AppSnackBar'
-import { MODIFY_PROFILE, SAVE_PROFILE } from 'store/actions/profile.js'
-import { mapMutations, mapActions, mapGetters } from 'vuex'
+  import AppSnackBar from 'components/utils/AppSnackBar'
+  import { MODIFY_PROFILE, SAVE_PROFILE } from 'store/actions/profile.js'
+  import { mapMutations, mapActions, mapGetters } from 'vuex'
 
-export default {
-  name: 'Activities',
-  components: { AppSnackBar },
-  data () {
-    return {
-      snackbar: false,
-      snackbarTimeout: 3000,
-      snackbarText: this.$t('message.success_saving', [this.$t('profile')]),
-      showSavingProfileDialog: false
-    }
-  },
-  computed: {
-    ...mapGetters(['activities']),
-    selected_activities: {
-      set (val) {
-        this.MODIFY_PROFILE({ key: 'Activities', value: val })
-      },
-      get () {
-        return this.$store.state.profile.profile.Activities
+  export default {
+    name: 'Activities',
+    components: { AppSnackBar },
+    data() {
+      return {
+        snackbar: false,
+        snackbarTimeout: 3000,
+        snackbarText: this.$t('message.success_saving', [this.$t('profile')]),
+        showSavingProfileDialog: false
+      }
+    },
+    computed: {
+      ...mapGetters(['activities']),
+      selected_activities: {
+        set(val) {
+          this.MODIFY_PROFILE({ key: 'Activities', value: val })
+        },
+        get() {
+          return this.$store.state.profile.profile.Activities
+        }
+      }
+    },
+    watch: {
+      snackbar(v) {
+        if (!v) return
+        var that = this
+        setTimeout(function () {
+          that.snackbar = false
+        }, that.snackbarTimeout)
+      }
+    },
+    methods: {
+      ...mapActions([SAVE_PROFILE]),
+      ...mapMutations([MODIFY_PROFILE]),
+      submit() {
+        this.showSavingProfileDialog = true
+        this.SAVE_PROFILE()
+          .then(() => {
+            this.showSavingProfileDialog = false
+            this.snackbarText = this.$t('message.success_saving', [
+              this.$t('profile')
+            ])
+            this.snackbar = true
+          })
+          .catch((e) => {
+            this.snackbarText = this.$t('message.error_saving', [
+              this.$t('profile')
+            ])
+            this.showSavingProfileDialog = false
+            this.snackbar = true
+          })
       }
     }
-  },
-  watch: {
-    snackbar (v) {
-      if (!v) return
-      var that = this
-      setTimeout(function () {
-        that.snackbar = false
-      }, that.snackbarTimeout)
-    }
-  },
-  methods: {
-    ...mapActions([SAVE_PROFILE]),
-    ...mapMutations([MODIFY_PROFILE]),
-    submit () {
-      this.showSavingProfileDialog = true
-      var that = this
-      this.SAVE_PROFILE()
-        .then(() => {
-          that.showSavingProfileDialog = false
-          that.snackbarText = this.$t('message.success_saving', [this.$t('profile')])
-          that.snackbar = true
-        })
-        .catch(e => {
-          that.snackbarText = this.$t('message.error_saving', [this.$t('profile')])
-          that.showSavingProfileDialog = false
-          that.snackbar = true
-        })
-    }
   }
-}
 </script>
