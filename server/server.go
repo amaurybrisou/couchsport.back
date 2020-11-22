@@ -2,12 +2,13 @@ package server
 
 import (
 	"context"
-	"github.com/goland-amaurybrisou/couchsport/config"
-	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/goland-amaurybrisou/couchsport/config"
+	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 const prefix = "/api"
@@ -71,6 +72,7 @@ func (s *Instance) Shutdown() {
 	}
 }
 
+// RegisterHandler registers api handlers
 func (s *Instance) RegisterHandler(path string, handler http.HandlerFunc) {
 	log.Infof("registering handler at path in %s environment %s, cors is enabled in dev", prefix+path, s.C.Env)
 	if s.C.Env == "dev" {
@@ -79,6 +81,7 @@ func (s *Instance) RegisterHandler(path string, handler http.HandlerFunc) {
 	s.router.Handle(prefix+path, handler)
 }
 
+//ServerPublic ...
 func (s *Instance) ServePublic(path string) {
 	log.Infof("serving files at %s", http.Dir(path))
 	s.router.Handle("/static/", http.StripPrefix(`/static/`, http.FileServer(http.Dir(path+"/static"))))

@@ -162,7 +162,7 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isLogged, err := me.Store.SessionStore().Create(dbUser.ID)
+	isLogged, err := me.Store.SessionStore().CreateOrRetrieve(dbUser.ID)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("internal_error", locale, nil)).Error(), http.StatusInternalServerError)

@@ -2,12 +2,13 @@ package stores
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/gofrs/uuid"
 	"github.com/goland-amaurybrisou/couchsport/api/models"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
 
 const tokenKey = "user-token"
@@ -25,7 +26,7 @@ func (me sessionStore) Migrate() {
 
 }
 
-func (me *sessionStore) Create(userID uint) (bool, error) {
+func (me *sessionStore) CreateOrRetrieve(userID uint) (bool, error) {
 	me.userID = userID
 
 	out := models.Session{}
