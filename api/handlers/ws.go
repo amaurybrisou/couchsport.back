@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/goland-amaurybrisou/couchsport/api/stores"
-	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+
+	"github.com/amaurybrisou/couchsport.back/api/stores"
+	"github.com/gorilla/websocket"
+	log "github.com/sirupsen/logrus"
 )
 
 //wsHandler ...
@@ -54,9 +55,9 @@ func (me *wsHandler) EntryPoint(w http.ResponseWriter, r *http.Request) {
 	me.Stores.WsStore().Register(uint(id), conn)
 }
 
-func (me *wsHandler) echo(conn *websocket.Conn, mt int, message []byte) {
-	err := conn.WriteMessage(mt, message)
-	if err != nil {
-		log.Println("write:", err)
-	}
-}
+// func (me *wsHandler) echo(conn *websocket.Conn, mt int, message []byte) {
+// 	err := conn.WriteMessage(mt, message)
+// 	if err != nil {
+// 		log.Println("write:", err)
+// 	}
+// }

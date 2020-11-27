@@ -3,10 +3,11 @@ package stores
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/goland-amaurybrisou/couchsport/localizer"
-	log "github.com/sirupsen/logrus"
 	"net/smtp"
+
+	"github.com/amaurybrisou/couchsport.back/api/models"
+	"github.com/amaurybrisou/couchsport.back/localizer"
+	log "github.com/sirupsen/logrus"
 )
 
 type mailStore struct {
@@ -80,7 +81,10 @@ func (me *mailStore) sendMailTLS(mail models.Mail) error {
 		log.Error(err)
 	}
 
-	c.Quit()
+	err = c.Quit()
+	if err != nil {
+		return err
+	}
 
 	log.Printf("email sent to %s", mail.To[0])
 

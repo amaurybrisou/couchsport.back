@@ -2,10 +2,11 @@ package stores
 
 import (
 	"fmt"
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/goland-amaurybrisou/couchsport/api/utils"
-	"github.com/jinzhu/gorm"
 	"net/url"
+
+	"github.com/amaurybrisou/couchsport.back/api/models"
+	"github.com/amaurybrisou/couchsport.back/api/utils"
+	"gorm.io/gorm"
 )
 
 type userStore struct {
@@ -13,8 +14,11 @@ type userStore struct {
 }
 
 func (me userStore) Migrate() {
-	me.Db.AutoMigrate(&models.User{})
-	me.Db.Model(&models.User{}).AddForeignKey("profile_id", "profiles(id)", "CASCADE", "CASCADE")
+	err := me.Db.AutoMigrate(&models.User{})
+	if err != nil {
+		panic(err)
+	}
+	// me.Db.Model(&models.User{}).AddForeignKey("profile_id", "profiles(id)", "CASCADE", "CASCADE")
 }
 
 //All user fetch
@@ -50,7 +54,7 @@ func (me userStore) All(keys url.Values) ([]models.User, error) {
 func (me userStore) New(user models.User) (models.User, error) {
 	user.New = true
 
-	var count int
+	var count int64
 	if err := me.Db.Model(&user).Where("email = ?", user.Email).Count(&count).Error; err != nil {
 		return models.User{}, err
 	}
@@ -61,13 +65,6 @@ func (me userStore) New(user models.User) (models.User, error) {
 
 	if err := me.Db.Create(&user).Error; err != nil {
 		return models.User{}, err
-	}
-
-	if user.New {
-		//for conveniance Email is also stores in Profile
-		if err := me.Db.Table("profiles").Select("email").Where("id = ?", user.Profile.ID).Updates(map[string]interface{}{"email": user.Email}).Error; err != nil {
-			return user, err
-		}
 	}
 
 	return user, nil
@@ -84,7 +81,11 @@ func (me userStore) ChangePassword(userID uint, user models.User) (models.User, 
 //GetProfile returns the user profile
 func (me userStore) GetProfile(userID uint) (models.Profile, error) {
 	var out = models.User{}
-	if err := me.Db.Preload("Profile").Preload("Profile.Languages").Preload("Profile.Activities").Where("id = ?", userID).First(&out).Error; err != nil {
+	if err := me.Db.
+		Preload("Profile").
+		Preload("Profile.Languages").
+		Preload("Profile.Activities").
+		Where("id = ?", userID).First(&out).Error; err != nil {
 		return out.Profile, err
 	}
 	return out.Profile, nil
@@ -100,7 +101,7 @@ func (me userStore) GetByID(userID uint) (models.User, error) {
 
 func (me userStore) GetByEmail(email string, create bool) (models.User, error) {
 	var outUser = models.User{}
-	if err := me.Db.Where("email = ?", email).First(&outUser).Error; create && gorm.IsRecordNotFoundError(err) {
+	if err := me.Db.Where("email = ?", email).First(&outUser).Error; create && err == gorm.ErrRecordNotFound {
 		return me.NewWithoutPassword(email)
 	} else if err != nil {
 		return models.User{}, err
@@ -143,7 +144,7 @@ func (me userStore) OwnPage(userID, pageID uint) (bool, error) {
 		return false, err
 	}
 
-	var count uint
+	var count int64
 	if err := me.Db.Model(models.Page{}).Where("owner_id = ?", user.ProfileID).Where("id = ?", pageID).Count(&count).Error; err != nil {
 		return false, err
 	}
@@ -156,26 +157,37 @@ func (me userStore) OwnPage(userID, pageID uint) (bool, error) {
 }
 
 //OwnConversation tells you wheter the userID owns the conversation
-func (me userStore) OwnConversation(userID, conversationID uint) (bool, error) {
+func (me userStore) OwnConversation(userID, conversationID uint) (bool, uint, error) {
 	if userID < 1 {
-		return false, fmt.Errorf("userID cannot be below 1")
+		return false, 0, fmt.Errorf("userID cannot be below 1")
 	}
 
 	profileID, err := me.GetProfileID(userID)
 	if err != nil {
-		return false, err
+		return false, 0, err
 	}
 
-	var count uint
-	if err := me.Db.Model(models.Conversation{}).Where("from_id = ? OR to_id = ?", profileID, profileID).Where("id = ?", conversationID).Count(&count).Error; err != nil {
-		return false, err
+	var count int64
+	var conversation models.Conversation
+	if err := me.Db.Model(&conversation).
+		Select("from_id", "to_id").
+		Where("from_id = ? OR to_id = ?", profileID, profileID).
+		Where("id = ?", conversationID).
+		First(&conversation).
+		Count(&count).Error; err != nil {
+		return false, 0, err
 	}
 
 	if count < 1 {
-		return false, fmt.Errorf("user %v isn't part of this conversation %v", userID, conversationID)
+		return false, 0, fmt.Errorf("user %v isn't part of this conversation %v", userID, conversationID)
 	}
 
-	return true, nil
+	retID := conversation.ToID
+	if profileID == conversation.ToID {
+		retID = conversation.FromID
+	}
+
+	return true, retID, nil
 }
 
 //OwnProfile tells you wheter the userID owns the profile
@@ -202,16 +214,16 @@ func (me userStore) GetProfileID(userID uint) (uint, error) {
 	return profile.ID, err
 }
 
-func parseBody(tmp interface{}) (models.User, error) {
-	fmt.Println(tmp)
-	r, ok := tmp.(*models.User)
+// func parseBody(tmp interface{}) (models.User, error) {
+// 	fmt.Println(tmp)
+// 	r, ok := tmp.(*models.User)
 
-	if !ok {
-		return models.User{}, fmt.Errorf("body is not of type User")
-	}
+// 	if !ok {
+// 		return models.User{}, fmt.Errorf("body is not of type User")
+// 	}
 
-	return *r, nil
-}
+// 	return *r, nil
+// }
 
 func (me userStore) NewWithoutPassword(email string) (models.User, error) {
 	password := utils.RandStringBytesMaskImprSrc(len(email))

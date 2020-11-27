@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/goland-amaurybrisou/couchsport/api/stores"
-	"github.com/goland-amaurybrisou/couchsport/localizer"
+	"github.com/amaurybrisou/couchsport.back/api/stores"
+	"github.com/amaurybrisou/couchsport.back/localizer"
 	"github.com/gorilla/websocket"
 )
 

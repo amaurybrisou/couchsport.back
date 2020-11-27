@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"image"
 	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"io"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // B64ToImage accepts a b64 image string (having content-type specified) and returns a

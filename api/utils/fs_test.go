@@ -1,12 +1,13 @@
 package utils
 
 import (
-	"github.com/goland-amaurybrisou/couchsport/api/types"
-	"github.com/golang/leveldb/db"
-	"github.com/golang/leveldb/memfs"
 	"io"
 	"os"
 	"testing"
+
+	"github.com/amaurybrisou/couchsport.back/api/types"
+	"github.com/golang/leveldb/db"
+	"github.com/golang/leveldb/memfs"
 )
 
 type memFS struct {
@@ -27,10 +28,7 @@ func (mem memFS) MkdirAll(path string) error {
 }
 
 func (mem memFS) IsNotExist(err error) bool {
-	if err != nil {
-		return true
-	}
-	return false
+	return err != nil
 }
 
 func TestCreateDirIfNotExists(t *testing.T) {

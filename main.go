@@ -1,18 +1,20 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"github.com/goland-amaurybrisou/couchsport/api/handlers"
-	"github.com/goland-amaurybrisou/couchsport/api/stores"
-	"github.com/goland-amaurybrisou/couchsport/api/validators"
-	"github.com/goland-amaurybrisou/couchsport/config"
-	"github.com/goland-amaurybrisou/couchsport/localizer"
-	"github.com/goland-amaurybrisou/couchsport/server"
-	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"os/signal"
+
+	"github.com/amaurybrisou/couchsport.back/api/handlers"
+	"github.com/amaurybrisou/couchsport.back/api/stores"
+	"github.com/amaurybrisou/couchsport.back/api/validators"
+	"github.com/amaurybrisou/couchsport.back/config"
+	"github.com/amaurybrisou/couchsport.back/localizer"
+	"github.com/amaurybrisou/couchsport.back/server"
+	"github.com/gorilla/websocket"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -96,17 +98,20 @@ func main() {
 		handlerFactory.UserHandler().ChangePassword),
 	)
 
-	srv.ServePublic(c.PublicPath)
+	// srv.ServePublic(c.PublicPath)
 
 	signalChan := make(chan os.Signal, 1)
 	signalDone := make(chan bool)
 	signal.Notify(signalChan, os.Interrupt)
 	go func() {
+		ctx, cancel := context.WithCancel(context.Background())
 		<-signalChan
 		log.Info("received os.Interrupt signal, stopping services")
 		storeFactory.WsStore().Close(signalDone)
+		cancel()
 		<-signalDone
-		if err := srv.HTTPServer.Shutdown(nil); err != nil {
+
+		if err := srv.HTTPServer.Shutdown(ctx); err != nil {
 			log.Panic(err)
 		}
 		log.Info("HTTPServer gracefully closed")

@@ -2,34 +2,38 @@ package models
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
+
+	"gorm.io/gorm"
 )
 
 //Profile definition
 type Profile struct {
-	gorm.Model
-	Username, Country, City, Firstname, Lastname string `valid:"name" gorm:"type:varchar(50);"`
-	Email                                        string `valid:"email"`
-	StreetName                                   string `valid:"text"`
-	Gender                                       string `valid:"in(Male|Female)"`
-	Phone                                        string `valid:"alphanum"`
-	ZipCode                                      string `valid:"zipcode"`
-	Avatar                                       string `valid:"requri"`
-	AvatarFile                                   string `gorm:"-" valid:"-"`
-	StreetNumber                                 uint   `valid:"numeric"`
-	New                                          bool   `gorm:"-"`
+	Base
+	Username     string `valid:"name" gorm:"type:varchar(50);" json:"username"`
+	Country      string `valid:"name" gorm:"type:varchar(50);" json:"country"`
+	Firstname    string `valid:"name" gorm:"type:varchar(50);" json:"firstname"`
+	Lastname     string `valid:"name" gorm:"type:varchar(50);" json:"lastname"`
+	Email        string `valid:"email" json:"email"`
+	StreetNumber uint   `valid:"numeric" json:"street_number"`
+	StreetName   string `valid:"text" json:"street_name"`
+	City         string `valid:"name" gorm:"type:varchar(50);" json:"city"`
+	Gender       string `valid:"in(Male|Female)" json:"gender"`
+	Phone        string `valid:"alphanum" json:"phone"`
+	ZipCode      string `valid:"zipcode" json:"zip_code"`
+	Avatar       string `valid:"requri" json:"avatar"`
+	AvatarFile   string `gorm:"-" valid:"-" json:"avatar_file"`
+	New          bool   `gorm:"-" json:"new"`
 	// User                                                                             User
 	// OwnerID                                                                          uint        `gorm:"association_autoupdate:false;association_autocreate:false"`
-	OwnedPages    []Page         `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false"`
-	Conversations []Conversation `gorm:"association_autoupdate:false;association_autocreate:false"`
+	OwnedPages []Page `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false" json:"owned_pages"`
 
-	Activities []*Activity `gorm:"many2many:profile_activities;association_autoupdate:false;association_autocreate:false"`
-	Languages  []*Language `gorm:"many2many:profile_languages;association_autoupdate:false;association_autocreate:false"`
+	Activities []*Activity `gorm:"many2many:profile_activities;association_autoupdate:false;association_autocreate:false" json:"activities"`
+	Languages  []*Language `gorm:"many2many:profile_languages;association_autoupdate:false;association_autocreate:false" json:"languages"`
 }
 
 //AfterCreate sets New to true
-func (p *Profile) AfterCreate(scope *gorm.Scope) error {
-	scope.SetColumn("New", true)
+func (p *Profile) AfterCreate(tx *gorm.DB) error {
+	p.New = true
 	return nil
 }
 

@@ -1,11 +1,11 @@
 package stores
 
 import (
-	"fmt"
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/goland-amaurybrisou/couchsport/api/utils"
-	"github.com/jinzhu/gorm"
 	"strconv"
+
+	"github.com/amaurybrisou/couchsport.back/api/models"
+	"github.com/amaurybrisou/couchsport.back/api/utils"
+	"gorm.io/gorm"
 )
 
 type profileStore struct {
@@ -15,13 +15,17 @@ type profileStore struct {
 
 //Migrate creates the table in database
 func (me profileStore) Migrate() {
-	me.Db.AutoMigrate(&models.Profile{})
+	err := me.Db.AutoMigrate(&models.Profile{})
+	if err != nil {
+		panic(err)
+	}
 }
 
 //GetProfiles returns all profiles in database
 func (me profileStore) All() ([]models.Profile, error) {
 	var profiles []models.Profile
-	if err := me.Db.Find(&profiles).Error; err != nil {
+	if err := me.Db.Model(&models.Profile{}).
+		Find(&profiles).Error; err != nil {
 		return []models.Profile{}, err
 	}
 	return profiles, nil
@@ -39,10 +43,19 @@ func (me profileStore) Update(userID uint, profile models.Profile) (models.Profi
 		profile.Avatar = filename
 	}
 
-	me.Db.Unscoped().Table("profile_activities").Where("activity_id NOT IN (?)", me.getActivitiesIDS(profile.Activities)).Where("profile_id = ?", profile.ID).Delete(&models.Profile{})
-	me.Db.Unscoped().Table("profile_languages").Where("language_id NOT IN (?)", me.getLanguagesIDS(profile.Languages)).Where("profile_id = ?", profile.ID).Delete(&models.Profile{})
+	me.Db.Unscoped().
+		Table("profile_activities").
+		Where("activity_id NOT IN (?)", me.getActivitiesIDS(profile.Activities)).
+		Where("profile_id = ?", profile.ID).
+		Delete(&models.Profile{})
+	me.Db.Unscoped().
+		Table("profile_languages").
+		Where("language_id NOT IN (?)", me.getLanguagesIDS(profile.Languages)).
+		Where("profile_id = ?", profile.ID).
+		Delete(&models.Profile{})
 
-	if err := me.Db.Model(&profile).Update(&profile).Error; err != nil {
+	if err := me.Db.
+		Model(&profile).Updates(&profile).Error; err != nil {
 		return models.Profile{}, err
 	}
 
@@ -91,12 +104,12 @@ func (me profileStore) saveAvatar(profileID uint, filename, b64 string) (string,
 	return filename, nil
 }
 
-func (me profileStore) parseBody(tmp interface{}) (models.Profile, error) {
-	r, ok := tmp.(models.Profile)
+// func (me profileStore) parseBody(tmp interface{}) (models.Profile, error) {
+// 	r, ok := tmp.(models.Profile)
 
-	if !ok {
-		return models.Profile{}, fmt.Errorf("body is not of type Profile")
-	}
+// 	if !ok {
+// 		return models.Profile{}, fmt.Errorf("body is not of type Profile")
+// 	}
 
-	return r, nil
-}
+// 	return r, nil
+// }

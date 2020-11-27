@@ -7,9 +7,9 @@ package stores
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
-	"sync"
 )
 
 type query struct {
@@ -27,7 +27,6 @@ type hub struct {
 	clients map[uint]*client
 
 	close chan bool
-	wg    sync.WaitGroup
 	// Inbound messages from the clients.
 	broadcast chan []byte
 

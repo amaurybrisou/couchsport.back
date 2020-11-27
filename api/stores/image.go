@@ -1,8 +1,8 @@
 package stores
 
 import (
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/jinzhu/gorm"
+	"github.com/amaurybrisou/couchsport.back/api/models"
+	"gorm.io/gorm"
 )
 
 type imageStore struct {
@@ -11,8 +11,11 @@ type imageStore struct {
 
 //Migrate creates the db table
 func (me imageStore) Migrate() {
-	me.Db.AutoMigrate(&models.Image{})
-	me.Db.Model(&models.Image{}).AddForeignKey("owner_id", "pages(id)", "CASCADE", "RESTRICT")
+	err := me.Db.AutoMigrate(&models.Image{})
+	if err != nil {
+		panic(err)
+	}
+	// me.Db.Model(&models.Image{}).AddForeignKey("owner_id", "pages(id)", "CASCADE", "RESTRICT")
 }
 
 //All returns all the images in db

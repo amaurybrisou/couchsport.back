@@ -2,10 +2,11 @@ package localizer
 
 import (
 	"bytes"
+	"html/template"
+
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
-	"html/template"
 )
 
 //Localizer definition
@@ -15,7 +16,7 @@ type Localizer struct {
 
 //NewLocalizer return the app localizer
 func NewLocalizer(languageFiles []string) *Localizer {
-	bundle := &i18n.Bundle{DefaultLanguage: language.French}
+	bundle := i18n.NewBundle(language.French)
 
 	for _, l := range languageFiles {
 		bundle.LoadMessageFile(l)

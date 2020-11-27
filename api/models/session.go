@@ -4,16 +4,16 @@ import (
 	"errors"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 //Session model definition
 type Session struct {
-	Owner     User      `valid:"-" gorm:"foreign_key:OwnerId;association_autoupdate:false;association_autocreate:false"`
-	OwnerID   uint      `valid:"numeric"`
-	SessionID string    `valid:"uuidv4"`
-	Expires   time.Time `gorm:"default=now" valid:"-"`
-	Validity  uint      `valid:"numeric"`
+	Owner     User      `valid:"-" gorm:"foreign_key:OwnerId;association_autoupdate:false;association_autocreate:false" json:"owner"`
+	OwnerID   uint      `valid:"numeric" json:"owner_id"`
+	SessionID string    `valid:"uuidv4" json:"session_id"`
+	Expires   time.Time `gorm:"default=now" valid:"-" json:"expires"`
+	Validity  uint      `valid:"numeric" json:"validity"`
 }
 
 //Validate model

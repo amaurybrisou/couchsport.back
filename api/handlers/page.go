@@ -3,12 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/goland-amaurybrisou/couchsport/api/stores"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/amaurybrisou/couchsport.back/api/models"
+	"github.com/amaurybrisou/couchsport.back/api/stores"
+	log "github.com/sirupsen/logrus"
 )
 
 type pageHandler struct {
@@ -32,7 +33,7 @@ func (me pageHandler) All(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, string(json))
+	fmt.Fprint(w, string(json))
 
 }
 
@@ -65,7 +66,7 @@ func (me pageHandler) ProfilePages(userID uint, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	fmt.Fprintf(w, string(json))
+	fmt.Fprint(w, string(json))
 
 }
 

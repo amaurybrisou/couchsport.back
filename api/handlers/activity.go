@@ -3,9 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/goland-amaurybrisou/couchsport/api/stores"
-	log "github.com/sirupsen/logrus"
 	"net/http"
+
+	"github.com/amaurybrisou/couchsport.back/api/stores"
+	log "github.com/sirupsen/logrus"
 )
 
 type activityHandler struct {
@@ -26,5 +27,5 @@ func (app activityHandler) All(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error retrieving activities", http.StatusInternalServerError)
 	}
 
-	fmt.Fprintf(w, string(json))
+	fmt.Fprint(w, string(json))
 }

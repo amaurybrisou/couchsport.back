@@ -2,8 +2,8 @@ package models
 
 //Activity model definition
 type Activity struct {
-	ID       uint       `gorm:"primarykey"`
-	Name     string     `gorm:"unique_index"`
-	Profiles []*Profile `gorm:"many2many:profile_activities;"`
-	Pages    []*Page    `gorm:"many2many:page_activities;"`
+	ID       uint       `gorm:"primarykey" json:"id"`
+	Name     string     `gorm:"unique_index" json:"name"`
+	Profiles []*Profile `gorm:"many2many:profile_activities;" json:"profiles"`
+	Pages    []*Page    `gorm:"many2many:page_activities;" json:"pages"`
 }

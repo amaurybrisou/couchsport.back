@@ -2,36 +2,38 @@ package models
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 //Page model definition
 type Page struct {
-	gorm.Model
-	Name, Description string  `valid:"text"`
-	LongDescription   string  `gorm:"size:512;" valid:"text"`
-	Images            []Image `gorm:"association_autoupdate:true;foreignkey:OwnerID"`
-	Lat               float64 `valid:"latitude"`
-	Lng               float64 `valid:"longitude"`
-	CouchNumber       *int    `valid:"numeric"`
-	Followers         []*User `gorm:"many2many:user_page_follower"`
-	Owner             Profile `gorm:"foreignkey:OwnerID;association_autoupdate:false;association_autocreate:false"`
-	OwnerID           uint
-	Public            bool        `gorm:"default:1"`
-	Activities        []*Activity `gorm:"many2many:page_activities;association_autoupdate:false;association_autocreate:false"`
-	New               bool        `gorm:"-"`
+	Base
+	Name            string      `valid:"text" json:"name"`
+	Description     string      `valid:"text" json:"description"`
+	LongDescription string      `gorm:"size:512;" valid:"text" json:"long_description"`
+	Images          []Image     `gorm:"foreignKey:OwnerID;references:ID;constraint:OnUpdate:CASCADE" json:"images"`
+	Lat             float64     `valid:"latitude" json:"lat"`
+	Lng             float64     `valid:"longitude" json:"lng"`
+	CouchNumber     *int        `valid:"numeric" json:"couch_number"`
+	Followers       []*User     `gorm:"many2many:user_page_follower" json:"followers"`
+	Owner           Profile     `gorm:"foreignKey:OwnerID;association_autoupdate:false;association_autocreate:false" json:"owner"`
+	OwnerID         uint        `json:"owner_id"`
+	Public          bool        `gorm:"default:1" json:"public"`
+	Activities      []*Activity `gorm:"many2many:page_activities;association_autoupdate:false;association_autocreate:false" json:"activities"`
+	New             bool        `gorm:"-" json:"new"`
 }
 
 //BeforeCreate is a gorm hook
-func (page *Page) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("CreatedAt", time.Now())
+func (page *Page) BeforeCreate(tx *gorm.DB) error {
+	page.CreatedAt = time.Now()
 	return nil
 }
 
 //AfterCreate is a gorm hook
-func (page *Page) AfterCreate(scope *gorm.Scope) error {
-	scope.SetColumn("New", true)
+func (page *Page) AfterCreate(tx *gorm.DB) error {
+	page.New = true
 	return nil
 }
 

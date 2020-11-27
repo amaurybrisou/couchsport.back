@@ -1,11 +1,12 @@
 package stores
 
 import (
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/goland-amaurybrisou/couchsport/api/utils"
-	"github.com/jinzhu/gorm"
 	"net/url"
 	"strconv"
+
+	"github.com/amaurybrisou/couchsport.back/api/models"
+	"github.com/amaurybrisou/couchsport.back/api/utils"
+	"gorm.io/gorm"
 )
 
 type pageStore struct {
@@ -17,8 +18,11 @@ type pageStore struct {
 
 //Migrate creates the model schema in database
 func (me pageStore) Migrate() {
-	me.Db.AutoMigrate(&models.Page{})
-	me.Db.Model(&models.Page{}).AddForeignKey("owner_id", "profiles(id)", "NO ACTION", "RESTRICT")
+	err := me.Db.AutoMigrate(&models.Page{})
+	if err != nil {
+		panic(err)
+	}
+	// me.Db.Model(&models.Page{}).AddForeignKey("owner_id", "profiles(id)", "NO ACTION", "RESTRICT")
 }
 
 //All returns all pages in Database
@@ -105,7 +109,7 @@ func (me pageStore) Update(userID uint, page models.Page) (models.Page, error) {
 
 	me.Db.Unscoped().Table("page_activities").Where("activity_id NOT IN (?)", me.getActivitiesIDS(page.Activities)).Where("page_id = ?", page.ID).Delete(&models.Image{})
 
-	if err := me.Db.Set("gorm:update_associations", true).Model(&models.Page{}).Updates(&page).Error; err != nil {
+	if err := me.Db.Session(&gorm.Session{FullSaveAssociations: true}).Where("id = ?", page.ID).Updates(&page).Error; err != nil {
 		return models.Page{}, err
 	}
 
@@ -130,13 +134,13 @@ func (me pageStore) Publish(userID, pageID uint, status bool) (bool, error) {
 	return true, nil
 }
 
-func (me pageStore) getImagesIDS(images []models.Image) []uint {
-	tmp := []uint{0}
-	for _, el := range images {
-		tmp = append(tmp, el.ID)
-	}
-	return tmp
-}
+// func (me pageStore) getImagesIDS(images []models.Image) []uint {
+// 	tmp := []uint{0}
+// 	for _, el := range images {
+// 		tmp = append(tmp, el.ID)
+// 	}
+// 	return tmp
+// }
 
 func (me pageStore) getActivitiesIDS(activities []*models.Activity) []uint {
 	tmp := []uint{0}
@@ -158,12 +162,12 @@ func (me pageStore) downloadImages(directory string, images []models.Image) ([]m
 				//decode b64 string to bytes
 				mime, buf, err := utils.B64ToImage(i.URL)
 				if err != nil {
-					return []models.Image{}, err
+					continue
 				}
 
 				img, err := utils.ImageToTypedImage(mime, buf)
 				if err != nil {
-					return []models.Image{}, err
+					continue
 				}
 
 				i.File, err = utils.Sanitize(i.File)
@@ -173,7 +177,7 @@ func (me pageStore) downloadImages(directory string, images []models.Image) ([]m
 
 				filename, err := me.FileStore.Save(directory, i.File, img)
 				if err != nil {
-					return []models.Image{}, err
+					continue
 				}
 
 				i.File = ""

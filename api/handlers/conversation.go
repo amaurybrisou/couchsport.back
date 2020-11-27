@@ -3,12 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/goland-amaurybrisou/couchsport/api/stores"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/amaurybrisou/couchsport.back/api/models"
+	"github.com/amaurybrisou/couchsport.back/api/stores"
+	log "github.com/sirupsen/logrus"
 )
 
 type conversationHandler struct {
@@ -30,29 +31,29 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	jsonBody := models.SendMessageBodyModel{}
-	err = json.Unmarshal(body, &jsonBody)
+	sendMessageBody := models.SendMessageBodyModel{}
+	err = json.Unmarshal(body, &sendMessageBody)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	_, err = jsonBody.Validate()
+	_, err = sendMessageBody.Validate()
 	if err != nil {
 		log.Println(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	toProfile, err := me.Store.UserStore().GetProfile(jsonBody.ToID)
+	toProfile, err := me.Store.UserStore().GetProfile(sendMessageBody.ToID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
 		return
 	}
 
-	fromUser, err := me.Store.UserStore().GetByEmail(jsonBody.Email, true)
+	fromUser, err := me.Store.UserStore().GetByEmail(sendMessageBody.Email, true)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
@@ -78,7 +79,7 @@ func (me conversationHandler) HandleMessage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	conversation, message, err := me.Store.ConversationStore().AddMessage(conversation, fromProfile.ID, toProfile.ID, jsonBody.Email, jsonBody.Text)
+	conversation, message, err := me.Store.ConversationStore().AddMessage(conversation, fromProfile.ID, toProfile.ID, sendMessageBody.Email, sendMessageBody.Text)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusBadRequest)
@@ -160,7 +161,7 @@ func (me conversationHandler) Delete(userID uint, w http.ResponseWriter, r *http
 		return
 	}
 
-	owns, err := me.Store.UserStore().OwnConversation(userID, uint(conversationID))
+	owns, interlocutorProfileID, err := me.Store.UserStore().OwnConversation(userID, uint(conversationID))
 	if err != nil {
 		log.Error(err)
 		http.Error(w, fmt.Errorf("%s", err).Error(), http.StatusUnprocessableEntity)
@@ -179,7 +180,7 @@ func (me conversationHandler) Delete(userID uint, w http.ResponseWriter, r *http
 		return
 	}
 
-	json, err := json.Marshal(struct{ Result bool }{Result: result})
+	ret, err := json.Marshal(struct{ Result bool }{Result: result})
 
 	if err != nil {
 		log.Error(err)
@@ -187,5 +188,7 @@ func (me conversationHandler) Delete(userID uint, w http.ResponseWriter, r *http
 		return
 	}
 
-	fmt.Fprint(w, string(json))
+	me.Store.WsStore().EmitToMutationNamespace(interlocutorProfileID, "CONVERSATION_REMOVED", fmt.Sprint(conversationID), "conversations")
+
+	fmt.Fprint(w, string(ret))
 }

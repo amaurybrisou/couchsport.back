@@ -1,23 +1,37 @@
 package server
 
 import (
-	"github.com/goland-amaurybrisou/couchsport/config"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/qor/validations"
-	log "github.com/sirupsen/logrus"
+	"fmt"
+	"log"
+	"os"
+	"time"
+
+	"github.com/amaurybrisou/couchsport.back/config"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func mustOpenDb(c *config.Config) *gorm.DB {
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold: time.Second, // Slow SQL threshold
+			LogLevel:      logger.Info, // Log level
+			Colorful:      true,        // Disable color
+		},
+	)
 	log.Println(c.DriverName, c.DataSourceName)
-	db, err := gorm.Open(c.DriverName, c.DataSourceName+"?"+c.DatabaseParams)
+	dsn := fmt.Sprintf("%s?%s", c.DataSourceName, c.DatabaseParams)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger})
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	db.LogMode(c.Verbose)
+	// db.LogMode(c.Verbose)
 
-	validations.RegisterCallbacks(db)
+	// validations.RegisterCallbacks(db)
 
 	return db
 }

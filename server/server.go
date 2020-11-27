@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/goland-amaurybrisou/couchsport/config"
-	"github.com/jinzhu/gorm"
+	"github.com/amaurybrisou/couchsport.back/config"
 	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 const prefix = "/api"
@@ -56,7 +56,7 @@ func (s *Instance) Start() {
 //Shutdown http server
 func (s *Instance) Shutdown() {
 	if s.Db != nil {
-		s.Db.Close()
+		// s.Db.Close()
 	}
 
 	if s.HTTPServer != nil {

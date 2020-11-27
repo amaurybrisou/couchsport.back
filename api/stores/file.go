@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/goland-amaurybrisou/couchsport/api/types"
-	"github.com/goland-amaurybrisou/couchsport/api/utils"
+	"github.com/amaurybrisou/couchsport.back/api/types"
+	"github.com/amaurybrisou/couchsport.back/api/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,18 +25,20 @@ func (me fileStore) Save(directory, filename string, buf io.Reader) (string, err
 		return "", err
 	}
 
-	path := filepath.Dir(me.ImageBasePath)
+	path := me.ImageBasePath
 	if directory != "" {
 		path += string(os.PathSeparator) + directory
 	}
 
-	fsPath, err := utils.CreateDirIfNotExists(me.FileSystem, filepath.Dir(me.PublicPath)+string(os.PathSeparator)+path+string(os.PathSeparator))
+	fsPath, err := utils.CreateDirIfNotExists(me.FileSystem, filepath.Join(me.PublicPath, path))
 	if err != nil {
 		return "", err
 	}
 
-	log.Printf("Openning file %s", fsPath+me.FilePrefix+filename)
-	f, err := me.FileSystem.OpenFile(fsPath + me.FilePrefix + filename)
+	filename = me.FilePrefix + filename
+
+	log.Printf("Openning file %s", fsPath+"/"+filename)
+	f, err := me.FileSystem.OpenFile(filepath.Join(fsPath, filename))
 	if err != nil {
 		return "", err
 	}
@@ -51,7 +53,7 @@ func (me fileStore) Save(directory, filename string, buf io.Reader) (string, err
 		return "", fmt.Errorf("file not created, no data to write")
 	}
 
-	log.Printf("%d bytes wrote at %s", count, fsPath+me.FilePrefix+filename)
+	log.Printf("%d bytes wrote at %s", count, fsPath+"/"+filename)
 
-	return string(os.PathSeparator) + path + string(os.PathSeparator) + me.FilePrefix + filename, nil
+	return filepath.Join(path, filename), nil
 }

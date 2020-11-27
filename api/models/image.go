@@ -2,16 +2,17 @@ package models
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
+
+	"gorm.io/gorm"
 )
 
 //Image model definition
 type Image struct {
-	gorm.Model
-	URL     string `valid:"requri,required"`
-	Alt     string `valid:"text"`
-	File    string `gorm:"-"`
-	OwnerID uint
+	Base
+	URL     string `valid:"requri,required" json:"url"`
+	Alt     string `valid:"text" json:"alt"`
+	File    string `gorm:"-" json:"file"`
+	OwnerID uint   `json:"owner_id"`
 }
 
 //IsValid tells is Image is valid

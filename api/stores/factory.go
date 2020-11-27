@@ -1,10 +1,11 @@
 package stores
 
 import (
-	"github.com/goland-amaurybrisou/couchsport/api/types"
-	"github.com/goland-amaurybrisou/couchsport/config"
-	"github.com/goland-amaurybrisou/couchsport/localizer"
-	"github.com/jinzhu/gorm"
+	"github.com/amaurybrisou/couchsport.back/api/types"
+	"github.com/amaurybrisou/couchsport.back/config"
+	"github.com/amaurybrisou/couchsport.back/localizer"
+	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 //StoreFactory holds references to every Store in the application
@@ -69,6 +70,8 @@ func (me StoreFactory) Init(populate bool) {
 	if !populate {
 		return
 	}
+
+	log.Println("Migrating")
 	me.profileStore.Migrate()
 
 	me.userStore.Migrate() //profile needs profile

@@ -6,8 +6,8 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/goland-amaurybrisou/couchsport/api/stores"
+	"github.com/amaurybrisou/couchsport.back/api/models"
+	"github.com/amaurybrisou/couchsport.back/api/stores"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 
@@ -39,7 +39,7 @@ func (me userHandler) All(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, string(json))
+	fmt.Fprint(w, string(json))
 
 }
 
@@ -62,7 +62,7 @@ func (me userHandler) Profile(userID uint, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	fmt.Fprintf(w, string(json))
+	fmt.Fprint(w, string(json))
 
 }
 
@@ -97,7 +97,7 @@ func (me userHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, string(json))
+	fmt.Fprint(w, string(json))
 }
 
 func (me userHandler) ChangePassword(userID uint, w http.ResponseWriter, r *http.Request) {
@@ -129,7 +129,7 @@ func (me userHandler) ChangePassword(userID uint, w http.ResponseWriter, r *http
 		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("internal_error", locale, nil)).Error(), http.StatusInternalServerError)
 	}
 
-	fmt.Fprintf(w, string(json))
+	fmt.Fprint(w, string(json))
 
 }
 
@@ -157,7 +157,6 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r := comparePasswords(dbUser.Password, []byte(user.Password)); !r {
-		log.Error(err)
 		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("invalid_credentials", locale, nil)).Error(), http.StatusUnauthorized)
 		return
 	}
@@ -169,7 +168,7 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if isLogged == false {
+	if !isLogged {
 		log.Error(err)
 		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("invalid_credentials", locale, nil)).Error(), http.StatusUnauthorized)
 		return
@@ -186,8 +185,8 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 
 	type res struct {
-		Token string
-		Email string
+		Token string `json:"token"`
+		Email string `json:"email"`
 	}
 
 	responseBody := res{Token: me.Store.SessionStore().GetToken(), Email: dbUser.Email}
@@ -199,7 +198,7 @@ func (me userHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Errorf(me.Store.Localizer().Translate("internal_error", locale, nil)).Error(), http.StatusInternalServerError)
 	}
 
-	fmt.Fprintf(w, string(json))
+	fmt.Fprint(w, string(json))
 }
 
 //IsLogged is a middleware used to know if user is Logged
@@ -215,7 +214,11 @@ func (me userHandler) IsLogged(pass func(userID uint, w http.ResponseWriter, r *
 		}
 
 		if session.HasExpired() {
-			me.Store.SessionStore().Destroy(r)
+			if ok, err := me.Store.SessionStore().Destroy(r); !ok && err != nil {
+				log.Error(err)
+				http.Error(w, fmt.Errorf("internal error %s", "").Error(), http.StatusInternalServerError)
+				return
+			}
 
 			if err != nil {
 				log.Error(err)
@@ -250,11 +253,7 @@ func comparePasswords(hashedPwd string, plainPwd []byte) bool {
 	// will be a string so we'll need to convert it to a byte slice
 	byteHash := []byte(hashedPwd)
 	err := bcrypt.CompareHashAndPassword(byteHash, plainPwd)
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
 
 func (me userHandler) parseBody(body io.Reader) (models.User, error) {

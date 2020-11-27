@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/amaurybrisou/couchsport.back/api/models"
 	"github.com/gofrs/uuid"
-	"github.com/goland-amaurybrisou/couchsport/api/models"
-	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 const tokenKey = "user-token"
@@ -21,8 +21,11 @@ type sessionStore struct {
 }
 
 func (me sessionStore) Migrate() {
-	me.Db.AutoMigrate(&models.Session{})
-	me.Db.Model(&models.Session{}).AddForeignKey("owner_id", "users(id)", "CASCADE", "CASCADE")
+	err := me.Db.AutoMigrate(&models.Session{})
+	if err != nil {
+		panic(err)
+	}
+	// me.Db.Model(&models.Session{}).AddForeignKey("owner_id", "users(id)", "CASCADE", "CASCADE")
 
 }
 
@@ -30,9 +33,12 @@ func (me *sessionStore) CreateOrRetrieve(userID uint) (bool, error) {
 	me.userID = userID
 
 	out := models.Session{}
-	if err := me.Db.Where("owner_id = ?", userID).Where("(UNIX_TIMESTAMP(expires) - UNIX_TIMESTAMP()) > 0").First(&out).Error; gorm.IsRecordNotFoundError(err) {
+	if err := me.Db.Where("owner_id = ?", userID).Where("(UNIX_TIMESTAMP(expires) - UNIX_TIMESTAMP()) > 0").First(&out).Error; err == gorm.ErrRecordNotFound {
 		// record not found => remove all from user and create fresh session
-		me.DestroyAllByUserID(userID)
+		ok, err := me.DestroyAllByUserID(userID)
+		if err != nil {
+			return ok, err
+		}
 
 		token, err := uuid.NewV4()
 		if err != nil {
@@ -71,11 +77,9 @@ func (me *sessionStore) GetSession(r *http.Request) (*models.Session, error) {
 	}
 
 	var session = models.Session{}
-	if errs := me.Db.Where("session_id = ?", cookie.Value).First(&session).GetErrors(); len(errs) > 0 {
-		for err := range errs {
-			log.Errorln(err)
-		}
-		return nil, errs[0]
+	if errs := me.Db.Where("session_id = ?", cookie.Value).First(&session).Error; err != nil {
+		log.Errorln(err)
+		return nil, errs
 	}
 
 	me.token = session.SessionID
@@ -106,22 +110,18 @@ func (me *sessionStore) Destroy(r *http.Request) (bool, error) {
 		return false, http.ErrNoCookie
 	}
 
-	if errs := me.Db.Where("owner_id = ?", me.userID).Delete(&models.Session{}).GetErrors(); len(errs) > 0 {
-		for err := range errs {
-			log.Errorln(err)
-		}
-		return false, errs[0]
+	if err := me.Db.Where("owner_id = ?", me.userID).Delete(&models.Session{}).Error; err != nil {
+		log.Errorln(err)
+		return false, err
 	}
 
 	return true, nil
 }
 
 func (me *sessionStore) DestroyAllByUserID(userID uint) (bool, error) {
-	if errs := me.Db.Where("owner_id = ?", userID).Delete(&models.Session{}).GetErrors(); len(errs) > 0 {
-		for err := range errs {
-			log.Errorln(err)
-		}
-		return false, errs[0]
+	if err := me.Db.Where("owner_id = ?", userID).Delete(&models.Session{}).Error; err != nil {
+		log.Errorln(err)
+		return false, err
 	}
 
 	return true, nil

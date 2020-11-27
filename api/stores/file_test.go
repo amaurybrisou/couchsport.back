@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/goland-amaurybrisou/couchsport/api/types"
+	"github.com/amaurybrisou/couchsport.back/api/types"
 	"github.com/golang/leveldb/db"
 	"github.com/golang/leveldb/memfs"
 )
@@ -29,10 +29,7 @@ func (mem memFS) MkdirAll(path string) error {
 }
 
 func (mem memFS) IsNotExist(err error) bool {
-	if err != nil {
-		return true
-	}
-	return false
+	return err != nil
 }
 
 func TestFileStore_Save(t *testing.T) {
@@ -78,7 +75,7 @@ func TestFileStore_Save(t *testing.T) {
 			fields: fields{
 				FileSystem:    memos,
 				PublicPath:    "public/",
-				ImageBasePath: "static/img/",
+				ImageBasePath: "static/img",
 				FilePrefix:    "isupload.",
 			},
 			args: args{
@@ -86,7 +83,7 @@ func TestFileStore_Save(t *testing.T) {
 				filename:  "test-file-1.jpg",
 				buf:       strings.NewReader(`tototototo`),
 			},
-			want:    "/static/img/user-3/isupload.test-file-1.jpg",
+			want:    "static/img/user-3/isupload.test-file-1.jpg",
 			wantErr: false,
 		},
 		{
@@ -102,7 +99,7 @@ func TestFileStore_Save(t *testing.T) {
 				filename:  "test-file-1.jpg",
 				buf:       strings.NewReader(`tototototo`),
 			},
-			want:    "/static/img/3/isupload.test-file-1.jpg",
+			want:    "static/img/3/isupload.test-file-1.jpg",
 			wantErr: false,
 		},
 		{
@@ -118,7 +115,7 @@ func TestFileStore_Save(t *testing.T) {
 				filename:  "test-file-1.jpg",
 				buf:       strings.NewReader(`tototototo`),
 			},
-			want:    "/static/img/3/isupload.test-file-1.jpg",
+			want:    "static/img/3/isupload.test-file-1.jpg",
 			wantErr: false,
 		},
 		{
@@ -134,7 +131,7 @@ func TestFileStore_Save(t *testing.T) {
 				filename:  "test-file-1.jpg",
 				buf:       strings.NewReader(`tototototo`),
 			},
-			want:    "/static/img/user-3/test-file-1.jpg",
+			want:    "static/img/user-3/test-file-1.jpg",
 			wantErr: false,
 		},
 		{
@@ -166,7 +163,7 @@ func TestFileStore_Save(t *testing.T) {
 				filename:  "toto.jpg",
 				buf:       strings.NewReader(`tototototo`),
 			},
-			want:    "/static/img/toto.jpg",
+			want:    "static/img/toto.jpg",
 			wantErr: false,
 		},
 	}

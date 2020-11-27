@@ -3,18 +3,25 @@ package models
 import (
 	"encoding/json"
 	"errors"
-	"github.com/jinzhu/gorm"
+
+	"gorm.io/gorm"
 )
 
 //Conversation model definition
 type Conversation struct {
-	gorm.Model
-	From     Profile   `gorm:"foreignkey:FromID"`
-	FromID   uint      `gorm:"association_autoupdate:false;;association_autosave:false;save_associations:false;association_save_reference:false"`
-	To       Profile   `gorm:"foreignkey:ToID"`
-	ToID     uint      `gorm:"association_autoupdate:false;;association_autosave:false;save_associations:false;association_save_reference:false"`
-	Messages []Message `gorm:"foreignkey:OwnerID"`
-	New      bool      `gorm:"-"`
+	Base
+	From     Profile   `gorm:"foreignkey:FromID" json:"from"`
+	FromID   uint      `gorm:"association_autoupdate:false;;association_autosave:false;save_associations:false;association_save_reference:false" json:"from_id"`
+	To       Profile   `gorm:"foreignkey:ToID" json:"to"`
+	ToID     uint      `gorm:"association_autoupdate:false;;association_autosave:false;save_associations:false;association_save_reference:false" json:"to_id"`
+	Messages []Message `gorm:"foreignkey:ConversationID;constraint:OnDelete:CASCADE" json:"messages"`
+	New      bool      `gorm:"-" json:"new"`
+}
+
+//AfterCreate empty the password column for security reasons, sets New to true and update Type to ADMIN if ID = 1
+func (Conversation *Conversation) AfterCreate(tx *gorm.DB) error {
+	Conversation.New = true
+	return nil
 }
 
 //Validate model
@@ -38,7 +45,7 @@ func (me *Conversation) Validate(db *gorm.DB) {
 
 //AddMessage to the expression Messages
 func (me *Conversation) AddMessage(fromID, toID uint, text string) Message {
-	m := Message{Text: text, OwnerID: me.ID, FromID: fromID, ToID: toID}
+	m := Message{Text: text, Conversation: *me, FromID: fromID, ToID: toID}
 	me.Messages = append(me.Messages, m)
 	return m
 }

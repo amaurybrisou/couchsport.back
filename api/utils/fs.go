@@ -2,7 +2,8 @@ package utils
 
 import (
 	"fmt"
-	"github.com/goland-amaurybrisou/couchsport/api/types"
+
+	"github.com/amaurybrisou/couchsport.back/api/types"
 	log "github.com/sirupsen/logrus"
 )
 
